@@ -41,6 +41,15 @@ type DressCategory struct {
 	// 押金
 	CashPledge int
 
+	// 平均租金
+	AvgRentMoney int
+
+	// 主图
+	MainImg string
+
+	// 副图
+	SecondaryImg string
+
 	// 状态
 	Status string
 
@@ -48,22 +57,23 @@ type DressCategory struct {
 	UpdatedTime time.Time `gorm:"autoUpdateTime"`
 }
 
-func (d *DressCategory) FindByKindIdAndCodeAndSN(kindId int, code, serialNumber string) (err error) {
-	d.KindId = kindId
+func (d *DressCategory) FindByCodeAndSN(code, serialNumber string) (err error) {
 	d.SerialNumber = serialNumber
 	d.Code = code
 	res := db.Db.Where(d).Find(d)
 	return res.Error
 }
 
-func (d *DressCategory) Create(kindId, cashPledge, rentMoney, rentableQuantity, quantity int, code, serialNumber string) (err error) {
+func (d *DressCategory) Create(kindId, cashPledge, rentMoney, rentableQuantity, quantity int, code, categorySerialNumber, mainImg, secondaryImg string) (err error) {
 	d.KindId = kindId
 	d.CashPledge = cashPledge
 	d.RentMoney = rentMoney
 	d.Code = code
-	d.SerialNumber = serialNumber
+	d.SerialNumber = categorySerialNumber
 	d.RentableQuantity = rentableQuantity
 	d.Quantity = quantity
+	d.MainImg = mainImg
+	d.SecondaryImg = secondaryImg
 	d.Status = CategoryStatus["usable"]
 	res := db.Db.Create(d)
 	return res.Error

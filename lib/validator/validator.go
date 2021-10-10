@@ -9,6 +9,7 @@ import (
 	enTranslations "github.com/go-playground/validator/v10/translations/en"
 	zhTranslations "github.com/go-playground/validator/v10/translations/zh"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -62,7 +63,7 @@ func removeField(errs map[string]string) []string {
 	return res
 }
 
-// GenerateErrsInfo 没想好
+// GenerateErrsInfo 生成数据校验错误信息
 func GenerateErrsInfo(err error) (errInfo []string, ok bool) {
 	errs, ok := err.(validator.ValidationErrors)
 	if !ok {
@@ -71,4 +72,12 @@ func GenerateErrsInfo(err error) (errInfo []string, ok bool) {
 	}
 
 	return removeField(errs.Translate(trans)), ok
+}
+
+func StringIsNumber(str string) bool {
+	_, err := strconv.Atoi(str)
+	if err != nil {
+		return false
+	}
+	return true
 }

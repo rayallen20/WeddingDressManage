@@ -1,8 +1,10 @@
 package dress
 
 import (
+	"WeddingDressManage/lib/response"
 	"WeddingDressManage/lib/structHelper"
 	"WeddingDressManage/model"
+	"errors"
 	"time"
 )
 
@@ -52,18 +54,25 @@ const (
 // Add 本方法用于在添加礼服时 确认品类信息
 // 若待添加的礼服所属品类信息已存在 则将该品类的可租数量+1 总数量+1
 // 若待添加礼服所属品类信息不存在 则创建品类信息 并设置租金/押金 置可租数量和总数量均为1
-func (c *Category) Add(kindId, cashPledge, rentMoney int, code, serialNumber string) (err error) {
-	var dressCategoryModel *model.DressCategory = &model.DressCategory{}
+func (c *Category) Add(kind string, cashPledge, rentMoney int, code, categorySerialNumber, mainImg, secondaryImg string) (err error) {
+	// step1. 确认礼服品类及编码是否存在
+	var dressKindModel *model.DressKind = &model.DressKind{}
+	err = dressKindModel.FindByKindAndCode(kind, code)
+	if dressKindModel.Id == 0 {
+		return errors.New(response.Message[response.KindAndCodeInvalid])
+	}
 
+
+	var dressCategoryModel *model.DressCategory = &model.DressCategory{}
 	// step1. 确认礼服品类信息是否存在
-	err = dressCategoryModel.FindByKindIdAndCodeAndSN(kindId, code, serialNumber)
+	err = dressCategoryModel.FindByCodeAndSN(code, categorySerialNumber)
 	if err != nil {
 		return err
 	}
 
 	// step2. 品类信息不存在 创建品类信息
 	if dressCategoryModel.Id == 0 {
-		err = dressCategoryModel.Create(kindId, cashPledge, rentMoney, InitDressRentableQuantity, InitQuantity, code, serialNumber)
+		err = dressCategoryModel.Create(dressKindModel.Id, cashPledge, rentMoney, InitDressRentableQuantity, InitQuantity, code, categorySerialNumber, mainImg, secondaryImg)
 		// TODO:此处 c = (*Category)(dressCategoryModel) 赋值失败 为什么?
 		structHelper.StructAssign(c, dressCategoryModel)
 		return err

@@ -31,7 +31,6 @@ var env string = "dev"
 // 本方法用于读取配置
 func (c *Config) load() error {
 	v := viper.New()
-	// TODO:为什么这里要写config.xxx.yaml相对于main.go的路径?
 	v.AddConfigPath("./")
 	checkEnv()
 	configFile := "config." + env + ".yaml"
@@ -61,7 +60,7 @@ func checkEnv() {
 	}
 }
 
-var Conf Config
+var Conf *Config = &Config{}
 
 func init() {
 	err := Conf.load()

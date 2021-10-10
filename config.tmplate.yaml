@@ -1,0 +1,11 @@
+database:
+  domain:
+  port:
+  username:
+  password:
+  databaseName: wedding_dress_manage
+
+file:
+  path:
+  randNumLen: 4
+  imgType: ["jpg", "png", "jpeg"]
