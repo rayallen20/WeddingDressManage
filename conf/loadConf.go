@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"os"
+	"runtime"
+	"strings"
 )
 
 type Config struct {
@@ -30,11 +32,13 @@ var env string = "dev"
 
 // 本方法用于读取配置
 func (c *Config) load() error {
-	v := viper.New()
-	v.AddConfigPath("./")
 	checkEnv()
-	configFile := "config." + env + ".yaml"
-	v.SetConfigName(configFile)
+	filePath := GetConfigFilePath()
+	fileName := "config." + env + ".yaml"
+
+	v := viper.New()
+	v.AddConfigPath(filePath)
+	v.SetConfigName(fileName)
 	v.SetConfigType("yaml")
 	err := v.ReadInConfig()
 	if err != nil {
@@ -58,6 +62,26 @@ func checkEnv() {
 	} else {
 		env = "dev"
 	}
+}
+
+func GetConfigFilePath() string {
+	nowFilePath := currentFile()
+	filePathSlice := strings.Split(nowFilePath, "/")
+	var filePath string
+	for i := 0; i < len(filePathSlice) - 2; i++ {
+		filePath += filePathSlice[i]
+		filePath += "/"
+	}
+	filePath += "/"
+	return filePath
+}
+
+func currentFile() string {
+	_, file, _, ok := runtime.Caller(1)
+	if !ok {
+		panic("Can not get current file info")
+	}
+	return file
 }
 
 var Conf *Config = &Config{}
