@@ -31,6 +31,6 @@ func Rename(name string) (newName string) {
 	}
 
 	randStr := randInt.RandLengthStr(conf.Conf.File.RandNumLen)
-	newName = newName + randStr + "." + nameSlice[len(nameSlice) - 1]
+	newName = newName + randStr + nameSlice[len(nameSlice) - 1]
 	return
 }
