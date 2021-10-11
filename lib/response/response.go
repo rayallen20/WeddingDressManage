@@ -5,11 +5,11 @@ import (
 )
 
 type ResBody struct {
-	Code int
+	Code int `json:"code"`
 	// TODO: 此处数据校验有可能出现多种错误 但除数据校验之外 可能不会再有多种错误的情况
 	// TODO: 为了满足数据校验错误 所以才把Message字段设计为[]string 有没有什么办法解决?
-	Message string
-	Data map[string]interface{}
+	Message string `json:"message"`
+	Data map[string]interface{} `json:"data"`
 }
 
 // 非正常响应状态码定义规则:

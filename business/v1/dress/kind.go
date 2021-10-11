@@ -7,16 +7,16 @@ import (
 
 type Kind struct {
 	// 主键自增ID
-	Id int
+	Id int	`json:"id"`
 
 	// 品类名称
-	Kind string
+	Kind string `json:"kind"`
 
 	// 品类编码
-	Code string
+	Code string `json:"code"`
 
 	// 品类状态(可用/不可用)
-	Status string
+	Status string `json:"status,omitempty"`
 }
 
 func (d *Kind) Show() (kinds []Kind, err error) {
