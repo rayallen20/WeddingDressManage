@@ -28,9 +28,10 @@ func(i *Img) Upload(file *multipart.FileHeader) (uri string, err error) {
 	}
 
 	file.Filename = file2.Rename(name)
-	uri = conf.Conf.File.Path + "/" + file.Filename
+	uri = "/" + file.Filename
+	dst := conf.Conf.File.Path + uri
 
-	err = file2.Upload(file, uri)
+	err = file2.Upload(file, dst)
 	if err != nil {
 		err = wdmError.SaveFileError{Message: err.Error()}
 		return "", err
