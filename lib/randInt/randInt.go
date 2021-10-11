@@ -28,6 +28,7 @@ func RandLengthInt(length int) int {
 }
 
 // RandLengthStr 生成指定长度以字符串类型表示的随机数
+// TODO:生成的随机数位数有时是3位 为什么?
 func RandLengthStr(length int) string {
 	randNum := RandLengthInt(length)
 	randStr := strconv.Itoa(randNum)

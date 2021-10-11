@@ -27,10 +27,12 @@ func Rename(name string) (newName string) {
 
 	for i := 0; i < len(nameSlice) - 1; i++ {
 		newName += nameSlice[i]
-		newName += "."
+		if i != len(nameSlice) - 2 {
+			newName += "."
+		}
 	}
 
 	randStr := randInt.RandLengthStr(conf.Conf.File.RandNumLen)
-	newName = newName + randStr + nameSlice[len(nameSlice) - 1]
+	newName = newName + randStr + "." + nameSlice[len(nameSlice) - 1]
 	return
 }
