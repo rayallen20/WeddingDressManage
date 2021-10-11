@@ -2,6 +2,7 @@ package main
 
 import (
 	"WeddingDressManage/controller/v1/dress/kind"
+	"WeddingDressManage/controller/v1/file/img"
 	"WeddingDressManage/lib/validator"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -22,16 +23,14 @@ func main() {
 
 	// v1版本API
 	{
-		// 品类名称与编码展示
 		// 创建礼服
 		//v1.POST("/dress/create", dress.Add)
 
-		// 上传图片
-		// TODO:必须使用POST方式提交表单 但file是通过GET方式传递的?
-		//v1.POST("/img/upload", file.UploadImg)
-
 		// 显示全部品类编码
 		v1.GET("kind/show", kind.Show)
+
+		// 上传图片
+		v1.POST("img/upload", img.Upload)
 	}
 
 	r.Run(":8000") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
