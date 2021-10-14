@@ -179,15 +179,28 @@ func makeUnitsForAdd(param *AddParams) []*unit.Unit {
 	return units
 }
 
+type AddRespData struct {
+	Id int `json:"id"`
+	CodeAndSN string `json:"codeAndSN"`
+	RentNumber int `json:"rentNumber"`
+	RentableQuantity int `json:"rentableQuantity"`
+	AvgRentMoney int `json:"avgRentMoney"`
+	CoverImg string `json:"coverImg"`
+	SecondaryImg []string `json:"secondaryImg"`
+}
+
 func genRespDataForAdd(category *category.Category) (data map[string]interface{}) {
+	respData := &AddRespData{
+		Id:               category.Id,
+		CodeAndSN:        category.Code + "-" + category.SerialNumber,
+		RentNumber:       category.RentNumber,
+		RentableQuantity: category.RentableQuantity,
+		AvgRentMoney:     category.AvgRentMoney,
+		CoverImg:         category.CoverImg,
+		SecondaryImg:     category.SecondaryImg,
+	}
 	data = map[string]interface{}{
-		"id":category.Id,
-		"codeAndSN": category.Code + category.SerialNumber,
-		"rentNumber": category.RentNumber,
-		"rentableQuantity": category.RentableQuantity,
-		"avgRentMoney": category.AvgRentMoney,
-		"coverImg": category.CoverImg,
-		"secondaryImg":category.SecondaryImg,
+		"categoryInfo":respData,
 	}
 	return
 }
