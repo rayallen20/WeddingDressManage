@@ -14,24 +14,24 @@ import (
 
 type AddParams struct {
 	// 礼服品类名称
-	KindName string `json:"kindName" binding:"gt=0,required" errField:"kindName"`
+	KindName string `form:"kindName" binding:"gt=0,required" errField:"kindName"`
 	// 礼服品类编码(编码前缀)
-	Code string `json:"code" binding:"gt=0,required" errField:"code"`
+	Code string `form:"code" binding:"gt=0,required" errField:"code"`
 	// 礼服品类编号
-	SerialNumber string `json:"serialNumber" binding:"gt=0,required" errField:"serialNumber"`
+	SerialNumber string `form:"serialNumber" binding:"gt=0,required" errField:"serialNumber"`
 	// 租金
-	CharterMoney int `json:"charterMoney" binding:"gt=0,required" errField:"charterMoney"`
+	CharterMoney int `form:"charterMoney" binding:"gt=0,required" errField:"charterMoney"`
 	// 押金
-	CashPledge int `json:"cashPledge" binding:"gt=0,required" errField:"cashPledge"`
+	CashPledge int `form:"cashPledge" binding:"gt=0,required" errField:"cashPledge"`
 	// 尺码
-	Size string `json:"size" binding:"gt=0,required,oneof=S M F L XL XXL D" errField:"size"`
+	Size string `form:"size" binding:"gt=0,required,oneof=S M F L XL XXL D" errField:"size"`
 	// 件数
-	UnitNumber int `json:"unitNumber" binding:"gt=0,required" errField:"unitNumber"`
+	UnitNumber int `form:"unitNumber" binding:"gt=0,required" errField:"unitNumber"`
 	// 封面图
-	CoverImg string `json:"coverImg" binding:"gt=0,required" errField:"coverImg"`
+	CoverImg string `form:"coverImg" binding:"gt=0,required" errField:"coverImg"`
 	// 副图
 	// TODO:此处的元素数量应该从配置中读取
-	SecondaryImg []string `json:"secondaryImg" binding:"gt=0,lte=1" errField:"secondaryImg"`
+	SecondaryImg []string `form:"secondaryImg" binding:"gt=0,lte=1" errField:"secondaryImg"`
 }
 
 func Add(c *gin.Context) {
@@ -42,6 +42,7 @@ func Add(c *gin.Context) {
 	if err != nil {
 		genRespByErrForAdd(resp, err)
 		c.JSON(http.StatusOK, resp)
+		return
 	}
 
 	// step1. 查询 kind & code 是否存在
@@ -146,6 +147,7 @@ func validateAddParam(param *AddParams, c *gin.Context) (err error) {
 
 func genRespByErrForAdd(resp *response.ResBody, err error) {
 	if paramTypeError,ok := err.(*wdmError.ParamTypeError); ok {
+		paramTypeError.GetFormFieldAndShouldType(&AddParams{})
 		resp.ParamTypeError(paramTypeError)
 	} else if bindingErr, ok := err.(wdmError.BindingValidatorError); ok {
 		resp.BindingValidatorError(bindingErr, map[string]interface{}{})
