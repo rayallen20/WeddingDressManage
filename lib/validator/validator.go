@@ -64,7 +64,7 @@ func removeField(errs map[string]string) []string {
 }
 
 // GenerateErrsInfo 生成数据校验错误信息
-func GenerateErrsInfo(err error) (errInfo []string, ok bool) {
+func GenerateErrsInfo(err error) (errInfos []string, ok bool) {
 	errs, ok := err.(validator.ValidationErrors)
 	if !ok {
 		// 表示错误类型转化失败的信息
@@ -74,7 +74,7 @@ func GenerateErrsInfo(err error) (errInfo []string, ok bool) {
 	return removeField(errs.Translate(trans)), ok
 }
 
-func StringIsNumber(str string) bool {
+func StringIsNumeric(str string) bool {
 	_, err := strconv.Atoi(str)
 	if err != nil {
 		return false

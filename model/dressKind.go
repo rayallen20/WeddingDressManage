@@ -16,7 +16,7 @@ type DressKind struct {
 	Id int
 
 	// 品类名称
-	Kind string
+	Name string
 
 	// 品类编码
 	Code string
@@ -29,16 +29,16 @@ type DressKind struct {
 }
 
 // FindByKindAndCode 根据品类名称和品类编码查询1条品类编码信息
-func (d *DressKind) FindByKindAndCode(kind, code string) (err error) {
-	d.Kind = kind
-	d.Code = code
-	d.Status = KindStatus["usable"]
-	res := db.Db.Where(d).Find(d)
+func (k *DressKind) FindByKindAndCode(name, code string) (err error) {
+	k.Name = name
+	k.Code = code
+	k.Status = KindStatus["usable"]
+	res := db.Db.Where(k).Find(k)
 	return res.Error
 }
 
 // FindAllUsableKinds 查询所有可用品类名称和对应的编码信息
-func FindAllUsableKinds() (kinds []DressKind, err error) {
+func (k DressKind) FindAllUsableKinds() (kinds []DressKind, err error) {
 	res := db.Db.Where("status = ?", KindStatus["usable"]).Order("id asc").Find(&kinds)
 	return kinds, res.Error
 }

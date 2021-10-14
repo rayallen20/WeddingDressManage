@@ -1,4 +1,4 @@
-package dress
+package kind
 
 import (
 	"WeddingDressManage/lib/wdmError"
@@ -10,7 +10,7 @@ type Kind struct {
 	Id int	`json:"id"`
 
 	// 品类名称
-	Kind string `json:"kind"`
+	Name string `json:"name"`
 
 	// 品类编码
 	Code string `json:"code"`
@@ -19,8 +19,9 @@ type Kind struct {
 	Status string `json:"status,omitempty"`
 }
 
-func (d *Kind) Show() (kinds []Kind, err error) {
-	dressKinds, dbErr := model.FindAllUsableKinds()
+func (k *Kind) Show() (kinds []Kind, err error) {
+	kindModel := &model.DressKind{}
+	dressKinds, dbErr := kindModel.FindAllUsableKinds()
 	if dbErr != nil {
 		err = wdmError.DBError {
 			Message: dbErr.Error(),
@@ -32,10 +33,20 @@ func (d *Kind) Show() (kinds []Kind, err error) {
 	for _, dressKind := range dressKinds {
 		kind := Kind{
 			Id: dressKind.Id,
-			Kind: dressKind.Kind,
+			Name: dressKind.Name,
 			Code: dressKind.Code,
 		}
 		kinds = append(kinds, kind)
 	}
 	return kinds, nil
+}
+
+func (k *Kind) FindByNameAndCode() (err error) {
+	kindModel := &model.DressKind{}
+	err = kindModel.FindByKindAndCode(k.Name, k.Code)
+	if err != nil {
+		return err
+	}
+	k.Id = kindModel.Id
+	return nil
 }

@@ -29,57 +29,72 @@ type DressCategory struct {
 	// 该品类礼服的总数量
 	Quantity int
 
+	// 租金
+	CharterMoney int
+
+	// 押金
+	CashPledge int
+
 	// 该品类礼服总共被出租的次数
 	RentNumber int
 
 	// 该品类礼服总送洗次数
 	LaundryNumber int
 
-	// 租金
-	RentMoney int
-
-	// 押金
-	CashPledge int
-
 	// 平均租金
 	AvgRentMoney int
 
-	// 主图
-	MainImg string
+	// 封面图
+	CoverImg string
 
 	// 副图
-	SecondaryImg string
+	// Tips:DB中的TEXT类型要在ORM中指明
+	// https://stackoverflow.com/questions/64035165/unsupported-data-type-error-on-gorm-field-where-custom-valuer-returns-nil
+	SecondaryImg string `gorm:"type:text"`
 
 	// 状态
 	Status string
+
+	// 排序字段
+	Sort int
 
 	CreatedTime time.Time `gorm:"autoCreateTime"`
 	UpdatedTime time.Time `gorm:"autoUpdateTime"`
 }
 
-func (d *DressCategory) FindByCodeAndSN(code, serialNumber string) (err error) {
-	d.SerialNumber = serialNumber
-	d.Code = code
-	res := db.Db.Where(d).Find(d)
+func (c *DressCategory) FindByKindIdAndCodeAndSN(kindId int, code, serialNumber string) (err error) {
+	c.KindId = kindId
+	c.Code = code
+	c.SerialNumber = serialNumber
+	res := db.Db.Where(c).Find(c)
 	return res.Error
 }
 
-func (d *DressCategory) Create(kindId, cashPledge, rentMoney, rentableQuantity, quantity int, code, categorySerialNumber, mainImg, secondaryImg string) (err error) {
-	d.KindId = kindId
-	d.CashPledge = cashPledge
-	d.RentMoney = rentMoney
-	d.Code = code
-	d.SerialNumber = categorySerialNumber
-	d.RentableQuantity = rentableQuantity
-	d.Quantity = quantity
-	d.MainImg = mainImg
-	d.SecondaryImg = secondaryImg
-	d.Status = CategoryStatus["usable"]
-	res := db.Db.Create(d)
-	return res.Error
-}
+// AddCategoryAndUnits 使用事务同时添加礼服品类和具体的礼服
+func (c *DressCategory) AddCategoryAndUnits(units []*DressUnit) ([]*DressUnit, error) {
+	tx := db.Db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
 
-func (d *DressCategory) Save() (err error) {
-	res := db.Db.Save(d)
-	return res.Error
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	if err := tx.Create(c).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	for _, unit := range units {
+		unit.CategoryId = c.Id
+	}
+
+	if err := tx.Create(units).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	return units, tx.Commit().Error
 }

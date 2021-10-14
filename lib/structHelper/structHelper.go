@@ -1,6 +1,9 @@
 package structHelper
 
-import "reflect"
+import (
+	"errors"
+	"reflect"
+)
 
 // StructAssign 使用反射机制 将结构体value的字段值 复制给结构体binding
 // 前提:两个结构体中的字段名相同
@@ -18,4 +21,21 @@ func StructAssign(binding interface{}, value interface{}) {
 			bVal.FieldByName(name).Set(reflect.ValueOf(vVal.Field(i).Interface()))
 		}
 	}
+}
+
+func GetFieldAndTag(obj interface{}, fieldName, tagName string) (map[string]string, error) {
+	s := reflect.TypeOf(obj).Elem()
+	for i := 0; i < s.NumField(); i++ {
+		if s.Field(i).Name == fieldName {
+			tagContent := s.Field(i).Tag.Get(tagName)
+			fieldType := s.Field(i).Type
+			fieldInfo := map[string]string{
+				"fieldName": fieldName,
+				"fieldType": fieldType.String(),
+				"tagContent": tagContent,
+			}
+			return fieldInfo, nil
+		}
+	}
+	return nil, errors.New(fieldName + "is not in " + reflect.TypeOf(obj).String())
 }

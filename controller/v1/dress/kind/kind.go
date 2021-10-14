@@ -1,15 +1,15 @@
 package kind
 
 import (
-	"WeddingDressManage/business/v1/dress"
+	"WeddingDressManage/business/v1/dress/kind"
 	"WeddingDressManage/lib/response"
 	"WeddingDressManage/lib/wdmError"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func Show(c *gin.Context)  {
-	kind := &dress.Kind{}
+func Show(c *gin.Context) {
+	kind := &kind.Kind{}
 	kinds, err := kind.Show()
 
 	resp := &response.ResBody{}

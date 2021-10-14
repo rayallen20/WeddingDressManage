@@ -1,6 +1,7 @@
 package main
 
 import (
+	"WeddingDressManage/controller/v1/dress/category"
 	"WeddingDressManage/controller/v1/dress/kind"
 	"WeddingDressManage/controller/v1/file/img"
 	"WeddingDressManage/lib/validator"
@@ -23,8 +24,8 @@ func main() {
 
 	// v1版本API
 	{
-		// 创建礼服
-		//v1.POST("/dress/create", dress.Add)
+		// 创建礼服品类并添加一件礼服
+		v1.POST("/category/add", category.Add)
 
 		// 显示全部品类编码
 		v1.GET("kind/show", kind.Show)
