@@ -34,19 +34,20 @@ type AddParams struct {
 	SecondaryImg []string `form:"secondaryImg" binding:"gt=0,lte=1" errField:"secondaryImg"`
 }
 
+// Add 添加礼服品类的同时 添加至少1件礼服
 func Add(c *gin.Context) {
 	resp := &response.ResBody{}
 	// 校验参数
 	param := &AddParams{}
 	err := validateAddParam(param, c)
 	if err != nil {
-		genRespByErrForAdd(resp, err)
+		resp.GenRespByParamErr(err)
 		c.JSON(http.StatusOK, resp)
 		return
 	}
 
 	// step1. 查询 kind & code 是否存在
-	kind := &kind.Kind{
+	kind := &kind.Kind {
 		Name: param.KindName,
 		Code: param.Code,
 	}
@@ -64,7 +65,7 @@ func Add(c *gin.Context) {
 	}
 
 	// step2. 查询 code & serialNumber是否存在
-	category := &category.Category{
+	category := &category.Category {
 		KindId: kind.Id,
 		Code: param.Code,
 		SerialNumber: param.SerialNumber,
@@ -83,7 +84,6 @@ func Add(c *gin.Context) {
 	}
 	// step3. 事务:创建品类 & 创建礼服
 
-	// 填充其他品类信息
 	fillCategoryForAdd(category, param)
 
 	// 创建礼服
@@ -102,6 +102,7 @@ func Add(c *gin.Context) {
 	return
 }
 
+// validateAddParam 为Add函数做参数校验
 func validateAddParam(param *AddParams, c *gin.Context) (err error) {
 	err = c.ShouldBindJSON(param)
 	if err != nil {
@@ -145,19 +146,7 @@ func validateAddParam(param *AddParams, c *gin.Context) (err error) {
 	return nil
 }
 
-func genRespByErrForAdd(resp *response.ResBody, err error) {
-	if paramTypeError,ok := err.(*wdmError.ParamTypeError); ok {
-		paramTypeError.GetFormFieldAndShouldType(&AddParams{})
-		resp.ParamTypeError(paramTypeError)
-	} else if bindingErr, ok := err.(wdmError.BindingValidatorError); ok {
-		resp.BindingValidatorError(bindingErr, map[string]interface{}{})
-	} else if paramValueError, ok := err.(wdmError.ParamValueError); ok {
-		resp.ParamValueError(paramValueError)
-	} else if numericStringError, ok := err.(wdmError.NumericStringError); ok {
-		resp.NumericStringError(numericStringError)
-	}
-}
-
+//fillCategoryForAdd 为Add函数根据请求参数填充其他品类信息
 func fillCategoryForAdd(category *category.Category, param *AddParams) {
 	category.RentableQuantity = param.UnitNumber
 	category.Quantity = param.UnitNumber
@@ -167,6 +156,7 @@ func fillCategoryForAdd(category *category.Category, param *AddParams) {
 	category.SecondaryImg = param.SecondaryImg
 }
 
+//makeUnitsForAdd 为Add函数根据请求参数创建具体礼服对象
 func makeUnitsForAdd(param *AddParams) []*unit.Unit {
 	units := make([]*unit.Unit, 0, param.UnitNumber)
 	for i := 0; i < param.UnitNumber; i++ {
@@ -191,6 +181,7 @@ type AddRespData struct {
 	SecondaryImg []string `json:"secondaryImg"`
 }
 
+// genRespDataForAdd 为Add函数生成响应体的data部分
 func genRespDataForAdd(category *category.Category) (data map[string]interface{}) {
 	respData := &AddRespData{
 		Id:               category.Id,

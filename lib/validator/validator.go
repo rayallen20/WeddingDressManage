@@ -74,6 +74,7 @@ func GenerateErrsInfo(err error) (errInfos []string, ok bool) {
 	return removeField(errs.Translate(trans)), ok
 }
 
+// StringIsNumeric 判断一个字符串的字面量是否能够被转换为整型
 func StringIsNumeric(str string) bool {
 	_, err := strconv.Atoi(str)
 	if err != nil {

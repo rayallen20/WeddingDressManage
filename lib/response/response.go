@@ -32,7 +32,7 @@ const (
 	// 形如"001"的字段 传值时传了个"AAA"
 	NumericStringError = 10102
 
-	// ParamValueError 校验请求参数错误
+	// ParamValueError 字段值错误
 	ParamValueError = 10103
 
 	// ParamTypeError 参数类型错误
@@ -64,49 +64,57 @@ var Message = map[int]string {
 	CategoryHasExisted: "category has existed",
 }
 
+// DBError 数据库错误时返回的响应体
 func (r *ResBody) DBError(err error, data map[string]interface{}) {
 	r.Code = DBError
 	r.Message = err.Error()
 	r.Data = data
 }
 
+// TransactionError 校验器翻译错误时返回的响应体
 func (r *ResBody) TransactionError(err error, data map[string]interface{}) {
 	r.Code = TransactionError
 	r.Message = err.Error()
 	r.Data = data
 }
 
+// Success 全部逻辑正确 正常响应时返回的响应体
 func (r *ResBody) Success(data map[string]interface{})  {
 	r.Code = Success
 	r.Message = Message[Success]
 	r.Data = data
 }
 
+// ReceiveFileError 从请求中接收文件失败返回的响应体
 func (r *ResBody) ReceiveFileError(err error,data map[string]interface{})  {
 	r.Code = ReceiveFileError
 	r.Message = err.Error()
 	r.Data = data
 }
 
+// FileTypeError 文件类型错误返回的响应体
 func (r *ResBody) FileTypeError(err error, data map[string]interface{}) {
 	r.Code = FileTypeError
 	r.Message = err.Error()
 	r.Data = data
 }
 
+// SaveFileError 保存文件错误时返回的响应体
 func (r *ResBody) SaveFileError(err error, data map[string]interface{})  {
 	r.Code = SaveFileError
 	r.Message = err.Error()
 	r.Data = data
 }
 
-func (r *ResBody) BindingValidatorError(err error, data map[string]interface{}) {
+// BindingValidatorError 将框架的ShouldBindJSON方法返回的错误转换为校验器错误时返回的响应体
+func (r *ResBody) bindingValidatorError(err error, data map[string]interface{}) {
 	r.Code = BindingValidatorError
 	r.Message = err.Error()
 	r.Data = data
 }
 
-func (r *ResBody) NumericStringError(err wdmError.NumericStringError) {
+// NumericStringError 字符串类型字段的值不能转换为整型时返回的响应体
+func (r *ResBody) numericStringError(err wdmError.NumericStringError) {
 	r.Code = NumericStringError
 	r.Message = Message[NumericStringError]
 	r.Data = map[string]interface{}{
@@ -114,7 +122,8 @@ func (r *ResBody) NumericStringError(err wdmError.NumericStringError) {
 	}
 }
 
-func (r *ResBody) ParamValueError(err wdmError.ParamValueError) {
+// ParamValueError 参数值错误时返回的响应体
+func (r *ResBody) paramValueError(err wdmError.ParamValueError) {
 	r.Code = ParamValueError
 	r.Message = Message[ParamValueError]
 	r.Data = map[string]interface{}{
@@ -122,7 +131,8 @@ func (r *ResBody) ParamValueError(err wdmError.ParamValueError) {
 	}
 }
 
-func (r *ResBody) ParamTypeError(err *wdmError.ParamTypeError) {
+// ParamTypeError 字段类型错误时返回的响应体
+func (r *ResBody) paramTypeError(err *wdmError.ParamTypeError) {
 	r.Code = ParamTypeError
 	r.Message = Message[ParamTypeError]
 	r.Data = map[string]interface{}{
@@ -130,14 +140,29 @@ func (r *ResBody) ParamTypeError(err *wdmError.ParamTypeError) {
 	}
 }
 
+// KindNotExistError 品类名称与编码不存在时返回的响应体
 func (r *ResBody) KindNotExistError(data map[string]interface{})  {
 	r.Code = KindIsNotExist
 	r.Message = Message[KindIsNotExist]
 	r.Data = data
 }
 
+// CategoryHasExistedError 品类信息已存在时返回的响应体
 func (r *ResBody) CategoryHasExistedError(data map[string]interface{}) {
 	r.Code = CategoryHasExisted
 	r.Message = Message[CategoryHasExisted]
 	r.Data = data
+}
+
+// GenRespByParamErr 当发生参数错误时返回的响应体
+func(r *ResBody) GenRespByParamErr(err error) {
+	if paramTypeError,ok := err.(*wdmError.ParamTypeError); ok {
+		r.paramTypeError(paramTypeError)
+	} else if bindingErr, ok := err.(wdmError.BindingValidatorError); ok {
+		r.bindingValidatorError(bindingErr, map[string]interface{}{})
+	} else if paramValueError, ok := err.(wdmError.ParamValueError); ok {
+		r.paramValueError(paramValueError)
+	} else if numericStringError, ok := err.(wdmError.NumericStringError); ok {
+		r.numericStringError(numericStringError)
+	}
 }
