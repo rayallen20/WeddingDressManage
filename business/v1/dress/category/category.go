@@ -103,9 +103,9 @@ func (c *Category) FindByKindIdAndCodeAndSN() (err error) {
 	return nil
 }
 
-func (c Category) Show() ([]Category, error) {
+func (c Category) Show(page int) ([]Category, error) {
 	categoryModel := &model.DressCategory{}
-	categoryInfos, err := categoryModel.FindByStatus()
+	categoryInfos, err := categoryModel.FindByStatus(page)
 	if err != nil {
 		return nil, err
 	}
@@ -130,4 +130,9 @@ func (c Category) Show() ([]Category, error) {
 	}
 
 	return categoryies, nil
+}
+
+func (c Category) CountTotalUsable() (count int64, err error) {
+	categoryModel := &model.DressCategory{}
+	return categoryModel.CountUsable()
 }

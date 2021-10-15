@@ -4,7 +4,7 @@ database:
   username:
   password:
   databaseName: wedding_dress_manage
-
+  pagesize:
 file:
   path:
   randNumLen: 4

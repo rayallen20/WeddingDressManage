@@ -100,8 +100,14 @@ func (c *DressCategory) AddCategoryAndUnits(units []*DressUnit) ([]*DressUnit, e
 	return units, tx.Commit().Error
 }
 
-func (c DressCategory) FindByStatus() ([]DressCategory, error) {
-	categoryInfos := make([]DressCategory, 0)
-	res := db.Db.Where("status", CategoryStatus["usable"]).Find(&categoryInfos).Order("id asc")
+func (c DressCategory) FindByStatus(page int) ([]DressCategory, error) {
+	var categoryInfos []DressCategory
+	res := db.Db.Scopes(db.Paginate(page)).Where("status", CategoryStatus["usable"]).Find(&categoryInfos).Order("id asc")
 	return categoryInfos, res.Error
+}
+
+func (c DressCategory) CountUsable() (int64, error) {
+	var count int64
+	res := db.Db.Table("dress_category").Where("status", CategoryStatus["usable"]).Count(&count)
+	return count, res.Error
 }

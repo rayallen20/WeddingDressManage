@@ -1,7 +1,10 @@
 package validator
 
 import (
+	"WeddingDressManage/lib/wdmError"
+	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
@@ -74,11 +77,58 @@ func GenerateErrsInfo(err error) (errInfos []string, ok bool) {
 	return removeField(errs.Translate(trans)), ok
 }
 
-// StringIsNumeric 判断一个字符串的字面量是否能够被转换为整型
-func StringIsNumeric(str string) bool {
-	_, err := strconv.Atoi(str)
+// ValidateParam 对请求参数做校验
+func ValidateParam(param interface{}, c *gin.Context) (err error) {
+	err = c.ShouldBindJSON(param)
 	if err != nil {
-		return false
+		if UnmarshalTypeErr, ok := err.(*json.UnmarshalTypeError); ok {
+			paramTypeErr := &wdmError.ParamTypeError {
+				Message: err.Error(),
+				StructFieldName: UnmarshalTypeErr.Field,
+			}
+			paramTypeErr.GetFormFieldAndShouldType(param)
+			return paramTypeErr
+		}
+
+		errInfos, ok := GenerateErrsInfo(err)
+		if !ok {
+			err = wdmError.BindingValidatorError{Message: err.Error()}
+			return
+		} else {
+			err = wdmError.ParamValueError {
+				Message: "",
+				Details: errInfos,
+			}
+			return
+		}
 	}
-	return true
+
+	nonNumericFieldsName := getNonNumericFieldsName(param)
+	if nonNumericFieldsName != nil {
+		err = wdmError.NumericStringError {
+			Message: "",
+			NotNumericFields: nonNumericFieldsName,
+		}
+		return
+	}
+
+	return nil
+}
+
+// getNonNumericFieldsName 获取请求参数中 所有要求字面量为数字的string类型 但不符合要求的字段名
+func getNonNumericFieldsName(param interface{}) []string {
+	var nonNumericFieldsName []string
+	structInfo := reflect.TypeOf(param).Elem()
+	valueInfo := reflect.ValueOf(param).Elem()
+	for i := 0; i < structInfo.NumField(); i++ {
+		numericTagContent := structInfo.Field(i).Tag.Get("numeric")
+		if numericTagContent == "true" {
+			numericFieldName := structInfo.Field(i).Name
+			numericFieldValue := valueInfo.FieldByName(numericFieldName).String()
+			if _, err := strconv.Atoi(numericFieldValue); err != nil {
+				nonNumericFieldsName = append(nonNumericFieldsName, numericFieldName)
+			}
+		}
+	}
+	return nonNumericFieldsName
 }

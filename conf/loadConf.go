@@ -13,17 +13,29 @@ type Config struct {
 	File File
 }
 
+// DataBase 数据库相关配置
 type DataBase struct {
+	// Domain 数据库地址
 	Domain string
+	// Port 数据库端口
 	Port string
+	// UserName 数据库用户名
 	UserName string
+	// Password 数据库密码
 	Password string
+	// DataBaseName 数据库名称
 	DataBaseName string
+	// PageSize 每页显示条数
+	PageSize int
 }
 
+// File 上传文件相关配置
 type File struct {
+	// Path 文件保存路径
 	Path string
+	// RandNumLen 重命名文件时在原文件名后添加的随机数字长度
 	RandNumLen int
+	// ImgType 允许上传的图片文件类型
 	ImgType []string
 }
 
@@ -33,7 +45,7 @@ var env string = "dev"
 // 本方法用于读取配置
 func (c *Config) load() error {
 	checkEnv()
-	filePath := GetConfigFilePath()
+	filePath := getConfigFilePath()
 	fileName := "config." + env + ".yaml"
 
 	v := viper.New()
@@ -64,7 +76,8 @@ func checkEnv() {
 	}
 }
 
-func GetConfigFilePath() string {
+// getConfigFilePath 获取配置文件路径
+func getConfigFilePath() string {
 	nowFilePath := currentFile()
 	filePathSlice := strings.Split(nowFilePath, "/")
 	var filePath string
@@ -76,6 +89,7 @@ func GetConfigFilePath() string {
 	return filePath
 }
 
+// currentFile 获取当前文件路径
 func currentFile() string {
 	_, file, _, ok := runtime.Caller(1)
 	if !ok {
