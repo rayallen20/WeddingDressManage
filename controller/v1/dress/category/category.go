@@ -152,7 +152,7 @@ func genRespByErrForAdd(resp *response.ResBody, err error) {
 	} else if bindingErr, ok := err.(wdmError.BindingValidatorError); ok {
 		resp.BindingValidatorError(bindingErr, map[string]interface{}{})
 	} else if paramValueError, ok := err.(wdmError.ParamValueError); ok {
-		resp.ParamValidatorError(paramValueError)
+		resp.ParamValueError(paramValueError)
 	} else if numericStringError, ok := err.(wdmError.NumericStringError); ok {
 		resp.NumericStringError(numericStringError)
 	}

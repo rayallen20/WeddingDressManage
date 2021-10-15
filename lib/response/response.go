@@ -32,8 +32,8 @@ const (
 	// 形如"001"的字段 传值时传了个"AAA"
 	NumericStringError = 10102
 
-	// ParamValidatorError 校验请求参数错误
-	ParamValidatorError = 10103
+	// ParamValueError 校验请求参数错误
+	ParamValueError = 10103
 
 	// ParamTypeError 参数类型错误
 	ParamTypeError = 10104
@@ -55,13 +55,13 @@ const (
 )
 
 var Message = map[int]string {
-	Success: "success",
-	FileTypeError: "file type must be jpg, jpeg or png",
-	NumericStringError:"following fields are not numeric data in string objects",
-	ParamValidatorError:"param validator error",
-	ParamTypeError:"param type error",
-	KindIsNotExist:"kind is not exist",
-	CategoryHasExisted:"category has existed",
+	Success:            "success",
+	FileTypeError:      "file type must be jpg, jpeg or png",
+	NumericStringError: "following fields are not numeric data in string objects",
+	ParamValueError:    "param value error",
+	ParamTypeError:     "param type error",
+	KindIsNotExist:     "kind is not exist",
+	CategoryHasExisted: "category has existed",
 }
 
 func (r *ResBody) DBError(err error, data map[string]interface{}) {
@@ -114,9 +114,9 @@ func (r *ResBody) NumericStringError(err wdmError.NumericStringError) {
 	}
 }
 
-func (r *ResBody) ParamValidatorError(err wdmError.ParamValueError) {
-	r.Code = ParamValidatorError
-	r.Message = Message[ParamValidatorError]
+func (r *ResBody) ParamValueError(err wdmError.ParamValueError) {
+	r.Code = ParamValueError
+	r.Message = Message[ParamValueError]
 	r.Data = map[string]interface{}{
 		"infos":err.Details,
 	}
