@@ -30,9 +30,12 @@ func main() {
 		// 显示全部品类编码
 		v1.GET("kind/show", kind.Show)
 
-		// 上传图片
-		v1.POST("img/upload", img.Upload)
+		// 显示全部可用品类信息
+		v1.GET("/category/show", category.Show)
 	}
+
+	// 上传图片
+	r.POST("/img/upload", img.Upload)
 
 	r.Run(":8000") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

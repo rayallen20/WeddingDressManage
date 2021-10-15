@@ -197,3 +197,22 @@ func genRespDataForAdd(category *category.Category) (data map[string]interface{}
 	}
 	return
 }
+
+// Show 展示所有可用的礼服品类信息
+func Show(c *gin.Context) {
+	resp := &response.ResBody{}
+	category := category.Category{}
+	categoryies, err := category.Show()
+	if err != nil {
+		resp.DBError(err, map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	data := map[string]interface{}{
+		"categories": categoryies,
+	}
+	resp.Success(data)
+	c.JSON(http.StatusOK, resp)
+	return
+}

@@ -62,6 +62,7 @@ type DressCategory struct {
 	UpdatedTime time.Time `gorm:"autoUpdateTime"`
 }
 
+// FindByKindIdAndCodeAndSN 根据KindId字段值 Code字段值 和 SerialCode字段值 查找1条信息
 func (c *DressCategory) FindByKindIdAndCodeAndSN(kindId int, code, serialNumber string) (err error) {
 	c.KindId = kindId
 	c.Code = code
@@ -97,4 +98,10 @@ func (c *DressCategory) AddCategoryAndUnits(units []*DressUnit) ([]*DressUnit, e
 		return nil, err
 	}
 	return units, tx.Commit().Error
+}
+
+func (c DressCategory) FindByStatus() ([]DressCategory, error) {
+	categoryInfos := make([]DressCategory, 0)
+	res := db.Db.Where("status", CategoryStatus["usable"]).Find(&categoryInfos).Order("id asc")
+	return categoryInfos, res.Error
 }

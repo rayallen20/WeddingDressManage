@@ -4,6 +4,7 @@ import (
 	"WeddingDressManage/business/v1/dress/unit"
 	"WeddingDressManage/lib/sliceHelper"
 	"WeddingDressManage/model"
+	"strings"
 )
 
 type Category struct {
@@ -100,4 +101,33 @@ func (c *Category) FindByKindIdAndCodeAndSN() (err error) {
 	}
 	c.Id = model.Id
 	return nil
+}
+
+func (c Category) Show() ([]Category, error) {
+	categoryModel := &model.DressCategory{}
+	categoryInfos, err := categoryModel.FindByStatus()
+	if err != nil {
+		return nil, err
+	}
+
+	categoryies := make([]Category, 0, len(categoryInfos))
+
+	for _, categoryInfo := range categoryInfos {
+		category := Category{
+			Id:               categoryInfo.Id,
+			Code:             categoryInfo.Code,
+			SerialNumber:     categoryInfo.SerialNumber,
+			RentableQuantity: categoryInfo.RentableQuantity,
+			CharterMoney:     categoryInfo.CharterMoney,
+			CashPledge:       categoryInfo.CashPledge,
+			RentNumber:       categoryInfo.RentNumber,
+			AvgRentMoney:     categoryInfo.AvgRentMoney,
+			CoverImg:         categoryInfo.CoverImg,
+			SecondaryImg:     strings.Split(categoryInfo.SecondaryImg, "|"),
+		}
+
+		categoryies = append(categoryies, category)
+	}
+
+	return categoryies, nil
 }

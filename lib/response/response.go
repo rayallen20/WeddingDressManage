@@ -71,7 +71,7 @@ func (r *ResBody) DBError(err error, data map[string]interface{}) {
 	r.Data = data
 }
 
-// TransactionError 校验器翻译错误时返回的响应体
+// TransactionError 事务错误时返回的响应体
 func (r *ResBody) TransactionError(err error, data map[string]interface{}) {
 	r.Code = TransactionError
 	r.Message = err.Error()
