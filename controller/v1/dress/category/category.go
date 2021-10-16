@@ -191,11 +191,39 @@ func Show(c *gin.Context) {
 		return
 	}
 
-	data := map[string]interface{}{
-		"categories": categoryies,
-		"totalPage": totalPage,
-	}
+	data := genRespDataForShow(categoryies)
+	data["totalPage"] = totalPage
 	resp.Success(data)
 	c.JSON(http.StatusOK, resp)
+	return
+}
+
+type ShowRespData struct {
+	SerialNumber string
+	RentNumber int
+	RentableQuantity int
+	AvgRentMoney int
+	CoverImg string
+	SecondaryImg []string
+}
+
+func genRespDataForShow(categoryies []category.Category) (data map[string]interface{}) {
+	categoriesResps := make([]ShowRespData, 0, len(categoryies))
+
+	for _, category := range categoryies {
+		categoriesResp := ShowRespData{
+			SerialNumber:     category.Code + "-" + category.SerialNumber,
+			RentNumber:       category.RentNumber,
+			RentableQuantity: category.RentableQuantity,
+			AvgRentMoney:     category.AvgRentMoney,
+			CoverImg: category.CoverImg,
+			SecondaryImg: category.SecondaryImg,
+		}
+		categoriesResps = append(categoriesResps, categoriesResp)
+	}
+
+	data = map[string]interface{}{
+		"categories":categoriesResps,
+	}
 	return
 }
