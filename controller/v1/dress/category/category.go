@@ -199,6 +199,7 @@ func Show(c *gin.Context) {
 }
 
 type ShowRespData struct {
+	Id int
 	SerialNumber string
 	RentNumber int
 	RentableQuantity int
@@ -212,6 +213,7 @@ func genRespDataForShow(categoryies []category.Category) (data map[string]interf
 
 	for _, category := range categoryies {
 		categoriesResp := ShowRespData{
+			Id: category.Id,
 			SerialNumber:     category.Code + "-" + category.SerialNumber,
 			RentNumber:       category.RentNumber,
 			RentableQuantity: category.RentableQuantity,
