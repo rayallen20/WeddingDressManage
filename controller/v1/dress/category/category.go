@@ -177,9 +177,13 @@ func Show(c *gin.Context) {
 	}
 
 	totalPage := int(math.Ceil(float64(totalUsableCategory) / float64(conf.Conf.DataBase.PageSize)))
+	data := map[string]interface{}{
+		"totalPage":totalPage,
+	}
 
 	if param.Page > totalPage {
-		resp.PageBeyondMaximumError(totalPage)
+		data["categories"] = []interface{}{}
+		resp.Success(data)
 		c.JSON(http.StatusOK, resp)
 		return
 	}
@@ -191,8 +195,7 @@ func Show(c *gin.Context) {
 		return
 	}
 
-	data := genRespDataForShow(categoryies)
-	data["totalPage"] = totalPage
+	data["categories"] = genRespDataForShow(categoryies)
 	resp.Success(data)
 	c.JSON(http.StatusOK, resp)
 	return
@@ -208,7 +211,7 @@ type ShowRespData struct {
 	SecondaryImg []string
 }
 
-func genRespDataForShow(categoryies []category.Category) (data map[string]interface{}) {
+func genRespDataForShow(categoryies []category.Category) ([]ShowRespData) {
 	categoriesResps := make([]ShowRespData, 0, len(categoryies))
 
 	for _, category := range categoryies {
@@ -224,8 +227,5 @@ func genRespDataForShow(categoryies []category.Category) (data map[string]interf
 		categoriesResps = append(categoriesResps, categoriesResp)
 	}
 
-	data = map[string]interface{}{
-		"categories":categoriesResps,
-	}
-	return
+	return categoriesResps
 }

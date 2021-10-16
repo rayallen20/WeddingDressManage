@@ -53,8 +53,6 @@ const (
 	// CategoryHasExisted 品类信息已存在
 	CategoryHasExisted = 10302
 
-	// PageBeyondMaximumPage 分页时前端所指定的页数超过了已有的最大页数
-	PageBeyondMaximumPage = 10303
 )
 
 var Message = map[int]string {
@@ -65,7 +63,6 @@ var Message = map[int]string {
 	ParamTypeError:     "param type error",
 	KindIsNotExist:     "kind is not exist",
 	CategoryHasExisted: "category has existed",
-	PageBeyondMaximumPage: "Page beyond maximum page.",
 }
 
 // DBError 数据库错误时返回的响应体
@@ -168,13 +165,5 @@ func(r *ResBody) GenRespByParamErr(err error) {
 		r.paramValueError(paramValueError)
 	} else if numericStringError, ok := err.(wdmError.NumericStringError); ok {
 		r.numericStringError(numericStringError)
-	}
-}
-
-func (r *ResBody) PageBeyondMaximumError(maximumPage int)  {
-	r.Code = PageBeyondMaximumPage
-	r.Message = Message[PageBeyondMaximumPage]
-	r.Data = map[string]interface{}{
-		"maximumPage": maximumPage,
 	}
 }
