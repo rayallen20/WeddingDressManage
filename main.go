@@ -35,6 +35,9 @@ func main() {
 
 		// 修改品类信息
 		v1.POST("/category/update", category.Update)
+
+		// 显示单条品类信息
+		v1.POST("/category/get", category.Get)
 	}
 
 	// 上传图片

@@ -153,6 +153,7 @@ func (c *Category) ExistById() error {
 	c.CharterMoney = model.CharterMoney
 	c.CashPledge = model.CashPledge
 	c.CoverImg = model.CoverImg
+	c.Status = model.Status
 	c.SecondaryImg = strings.Split(model.SecondaryImg, "|")
 	return nil
 }

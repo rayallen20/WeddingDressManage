@@ -7,6 +7,7 @@ import (
 	"WeddingDressManage/conf"
 	"WeddingDressManage/lib/response"
 	"WeddingDressManage/lib/validator"
+	"WeddingDressManage/model"
 	"github.com/gin-gonic/gin"
 	"math"
 	"net/http"
@@ -203,16 +204,16 @@ func Show(c *gin.Context) {
 }
 
 type ShowRespData struct {
-	Id int
-	SerialNumber string
-	RentNumber int
-	RentableQuantity int
-	AvgRentMoney int
-	CoverImg string
-	SecondaryImg []string
+	Id int `json:"id"`
+	SerialNumber string `json:"serialNumber"`
+	RentNumber int `json:"rentNumber"`
+	RentableQuantity int `json:"rentableQuantity"`
+	AvgRentMoney int `json:"avgRentMoney"`
+	CoverImg string `json:"coverImg"`
+	SecondaryImg []string `json:"secondaryImg"`
 }
 
-func genRespDataForShow(categoryies []category.Category) ([]ShowRespData) {
+func genRespDataForShow(categoryies []category.Category) []ShowRespData {
 	categoriesResps := make([]ShowRespData, 0, len(categoryies))
 
 	for _, category := range categoryies {
@@ -269,6 +270,12 @@ func Update(c *gin.Context) {
 		return
 	}
 
+	if category.Status == model.CategoryStatus["unusable"] {
+		resp.CategoryIsUnusable(map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
 	sn := category.Code + "-" + category.SerialNumber
 	if sn != param.SerialNumber {
 		resp.CategoryHasNotExist(map[string]interface{}{})
@@ -291,3 +298,68 @@ func Update(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 	return
 }
+
+type GetParams struct {
+	Id int `form:"id" binding:"gte=1,required" errField:"id"`
+}
+
+// Get 根据id显示1条礼服品类信息
+func Get(c *gin.Context) {
+	resp := &response.ResBody{}
+	param := &GetParams{}
+	err := c.ShouldBindJSON(param)
+	if err != nil {
+		resp.GenRespByParamErr(err)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	category := &category.Category{
+		Id: param.Id,
+	}
+
+	err = category.ExistById()
+	if err != nil {
+		resp.DBError(err, map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	if category.Status == model.CategoryStatus["unusable"] {
+		resp.CategoryIsUnusable(map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	// 序列号为空 说明品类信息不存在
+	if category.SerialNumber == "" {
+		resp.CategoryHasNotExist(map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	data := map[string]interface{}{
+		"info":&GetRespData{
+			Id:           category.Id,
+			SerialNumber: category.SerialNumber,
+			CharterMoney: category.CharterMoney,
+			CashPledge:   category.CashPledge,
+			CoverImg:     category.CoverImg,
+			SecondaryImg: category.SecondaryImg,
+		},
+	}
+
+	resp.Success(data)
+	c.JSON(http.StatusOK, resp)
+	return
+}
+
+type GetRespData struct {
+	Id int `json:"id"`
+	SerialNumber string `json:"serialNumber"`
+	CharterMoney int `json:"charterMoney"`
+	CashPledge int `json:"cashPledge"`
+	CoverImg string `json:"coverImg"`
+	SecondaryImg []string `json:"secondaryImg"`
+}
+

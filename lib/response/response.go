@@ -60,6 +60,9 @@ const (
 	// CategoryHasNotExist 品类信息不存在
 	CategoryHasNotExist = 10303
 
+	// CategoryIsUnusable 品类信息不可用
+	CategoryIsUnusable = 10304
+
 )
 
 var Message = map[int]string {
@@ -72,6 +75,7 @@ var Message = map[int]string {
 	CategoryHasExisted: "category has existed",
 	SNFormatError: 		"serial number format error",
 	CategoryHasNotExist: "category has not exist",
+	CategoryIsUnusable: "category is unusable",
 }
 
 // DBError 数据库错误时返回的响应体
@@ -188,5 +192,11 @@ func (r *ResBody) SNFormatError(data map[string]interface{}) {
 func (r *ResBody) CategoryHasNotExist(data map[string]interface{}) {
 	r.Code = CategoryHasNotExist
 	r.Message = Message[CategoryHasNotExist]
+	r.Data = data
+}
+
+func (r *ResBody) CategoryIsUnusable(data map[string]interface{}) {
+	r.Code = CategoryIsUnusable
+	r.Message = Message[CategoryIsUnusable]
 	r.Data = data
 }
