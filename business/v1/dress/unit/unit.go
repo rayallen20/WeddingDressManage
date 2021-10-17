@@ -13,9 +13,6 @@ type Unit struct {
 	// 尺码
 	Size string `json:"size"`
 
-	// 平均租赁价 单位:分
-	AvgCharterMoney int `json:"avgCharterMoney"`
-
 	// 出租次数
 	RentNumber int `json:"rentNumber"`
 

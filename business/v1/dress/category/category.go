@@ -148,10 +148,16 @@ func (c *Category) ExistById() error {
 	}
 
 	c.Id = model.Id
+	c.KindId = model.KindId
 	c.Code = model.Code
 	c.SerialNumber = model.SerialNumber
+	c.RentableQuantity = model.RentableQuantity
+	c.Quantity = model.Quantity
 	c.CharterMoney = model.CharterMoney
 	c.CashPledge = model.CashPledge
+	c.RentNumber = model.RentNumber
+	c.LaundryNumber = model.LaundryNumber
+	c.AvgRentMoney = model.AvgRentMoney
 	c.CoverImg = model.CoverImg
 	c.Status = model.Status
 	c.SecondaryImg = strings.Split(model.SecondaryImg, "|")

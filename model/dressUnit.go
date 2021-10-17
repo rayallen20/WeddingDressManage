@@ -1,6 +1,7 @@
 package model
 
 import (
+	"WeddingDressManage/lib/db"
 	"time"
 )
 
@@ -53,9 +54,6 @@ type DressUnit struct {
 	// 尺码
 	Size string
 
-	// 平均租赁价 单位:分
-	AvgCharterMoney int
-
 	// 出租次数
 	RentNumber int
 
@@ -78,3 +76,28 @@ type DressUnit struct {
 	UpdatedTime time.Time `gorm:"autoUpdateTime"`
 }
 
+func (u *DressUnit) FindMaxSerialNumberByCategoryId() error {
+	res := db.Db.Debug().Select("serial_number").Where(u).Order("serial_number desc").First(u)
+	return res.Error
+}
+
+func (u DressUnit) AddUnitsAndUpdateCategory(units []*DressUnit, category *DressCategory) error {
+	tx := db.Db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// 更新品类信息中的 品类下礼服总数 和 品类可租礼服数 信息
+	if err := tx.Table("dress_category").Updates(category).Error; err != nil {
+		return err
+	}
+
+	// 创建礼服
+	if err := tx.Create(units).Error; err != nil {
+		return err
+	}
+
+	return tx.Commit().Error
+}

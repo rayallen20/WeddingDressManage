@@ -75,4 +75,10 @@ func (j *ParamTypeError) GetFormFieldAndShouldType(obj interface{})  {
 	j.ShouldType = fieldInfo["fieldType"]
 }
 
+type TransactionError struct {
+	Message string
+}
 
+func (t TransactionError) Error() string {
+	return t.Message
+}

@@ -3,6 +3,7 @@ package main
 import (
 	"WeddingDressManage/controller/v1/dress/category"
 	"WeddingDressManage/controller/v1/dress/kind"
+	"WeddingDressManage/controller/v1/dress/unit"
 	"WeddingDressManage/controller/v1/file/img"
 	"WeddingDressManage/lib/validator"
 	"fmt"
@@ -38,6 +39,9 @@ func main() {
 
 		// 显示单条品类信息
 		v1.POST("/category/get", category.Get)
+
+		// 在已有品类下添加礼服
+		v1.POST("/unit/add", unit.Add)
 	}
 
 	// 上传图片
