@@ -106,8 +106,20 @@ func (c DressCategory) FindByStatus(page int) ([]DressCategory, error) {
 	return categoryInfos, res.Error
 }
 
+// CountUsable 统计状态为可用的礼服品类信息数量
 func (c DressCategory) CountUsable() (int64, error) {
 	var count int64
 	res := db.Db.Table("dress_category").Where("status", CategoryStatus["usable"]).Count(&count)
 	return count, res.Error
+}
+
+// FindById 根据id字段值查找1条数据
+func (c *DressCategory) FindById() error {
+	res := db.Db.Where(c).Find(c)
+	return res.Error
+}
+
+func (c *DressCategory) Update() error {
+	res := db.Db.Model(c).Updates(c)
+	return res.Error
 }

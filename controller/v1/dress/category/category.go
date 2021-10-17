@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"math"
 	"net/http"
+	"strings"
 )
 
 type AddParams struct {
@@ -228,4 +229,65 @@ func genRespDataForShow(categoryies []category.Category) ([]ShowRespData) {
 	}
 
 	return categoriesResps
+}
+
+type UpdateParams struct {
+	Id int `form:"id" binding:"gte=1,required" errField:"id"`
+	SerialNumber string `form:"serialNumber" binding:"gte=1,required" errField:"serialNumber"`
+	CharterMoney int `form:"charterMoney" binding:"gte=1,required" errField:"charterMoney"`
+	CashPledge int `form:"cashPledge" binding:"gte=1,required" errField:"cashPledge"`
+	CoverImg string `form:"coverImg" binding:"gte=1,required" errField:"coverImg"`
+	SecondaryImg []string `form:"secondaryImg" binding:"gt=0,lte=1" errField:"secondaryImg"`
+}
+
+func Update(c *gin.Context) {
+	resp := &response.ResBody{}
+	param := &UpdateParams{}
+	err := validator.ValidateParam(param, c)
+	if err != nil {
+		resp.GenRespByParamErr(err)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	// step1. 确认品类信息是否存在
+
+	codeAndSN := strings.Split(param.SerialNumber, "-")
+	if len(codeAndSN) != 2 {
+		resp.SNFormatError(map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	category := &category.Category{
+		Id:               param.Id,
+	}
+	err = category.ExistById()
+	if err != nil {
+		resp.DBError(err, map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	sn := category.Code + "-" + category.SerialNumber
+	if sn != param.SerialNumber {
+		resp.CategoryHasNotExist(map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	category.CharterMoney = param.CharterMoney
+	category.CashPledge = param.CashPledge
+	category.CoverImg = param.CoverImg
+	category.SecondaryImg = param.SecondaryImg
+	err = category.Update()
+	if err != nil {
+		resp.DBError(err, map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	resp.Success(map[string]interface{}{})
+	c.JSON(http.StatusOK, resp)
+	return
 }

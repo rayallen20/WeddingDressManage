@@ -136,3 +136,35 @@ func (c Category) CountTotalUsable() (count int64, err error) {
 	categoryModel := &model.DressCategory{}
 	return categoryModel.CountUsable()
 }
+
+func (c *Category) ExistById() error {
+	model := &model.DressCategory{
+		Id: c.Id,
+	}
+
+	err := model.FindById()
+	if err != nil {
+		return err
+	}
+
+	c.Id = model.Id
+	c.Code = model.Code
+	c.SerialNumber = model.SerialNumber
+	c.CharterMoney = model.CharterMoney
+	c.CashPledge = model.CashPledge
+	c.CoverImg = model.CoverImg
+	c.SecondaryImg = strings.Split(model.SecondaryImg, "|")
+	return nil
+}
+
+func (c *Category) Update() error {
+	secondaryImg := sliceHelper.ConvertStrSliceToStr(c.SecondaryImg, "|")
+	model := &model.DressCategory{
+		Id: c.Id,
+		CharterMoney: c.CharterMoney,
+		CashPledge: c.CashPledge,
+		CoverImg: c.CoverImg,
+		SecondaryImg: secondaryImg,
+	}
+	return model.Update()
+}

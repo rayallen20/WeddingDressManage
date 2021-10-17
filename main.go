@@ -32,6 +32,9 @@ func main() {
 
 		// 显示全部可用品类信息
 		v1.GET("/category/show", category.Show)
+
+		// 修改品类信息
+		v1.POST("/category/update", category.Update)
 	}
 
 	// 上传图片

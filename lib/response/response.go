@@ -38,6 +38,10 @@ const (
 	// ParamTypeError 参数类型错误
 	ParamTypeError = 10104
 
+	// SNFormatError 礼服品类序列号的组成格式为: 编码前缀-序号
+	// 故按"-"分割后 长度不为2 即格式不正确时 会出现此错误
+	SNFormatError = 10105
+
 	// ReceiveFileError 接收文件错误
 	ReceiveFileError = 10200
 
@@ -53,6 +57,9 @@ const (
 	// CategoryHasExisted 品类信息已存在
 	CategoryHasExisted = 10302
 
+	// CategoryHasNotExist 品类信息不存在
+	CategoryHasNotExist = 10303
+
 )
 
 var Message = map[int]string {
@@ -63,6 +70,8 @@ var Message = map[int]string {
 	ParamTypeError:     "param type error",
 	KindIsNotExist:     "kind is not exist",
 	CategoryHasExisted: "category has existed",
+	SNFormatError: 		"serial number format error",
+	CategoryHasNotExist: "category has not exist",
 }
 
 // DBError 数据库错误时返回的响应体
@@ -166,4 +175,18 @@ func(r *ResBody) GenRespByParamErr(err error) {
 	} else if numericStringError, ok := err.(wdmError.NumericStringError); ok {
 		r.numericStringError(numericStringError)
 	}
+}
+
+// SNFormatError 序列号格式错误时 返回的响应体
+func (r *ResBody) SNFormatError(data map[string]interface{}) {
+	r.Code = SNFormatError
+	r.Message = Message[SNFormatError]
+	r.Data = data
+}
+
+// CategoryHasNotExist 品类信息不存在时返回的响应体
+func (r *ResBody) CategoryHasNotExist(data map[string]interface{}) {
+	r.Code = CategoryHasNotExist
+	r.Message = Message[CategoryHasNotExist]
+	r.Data = data
 }
