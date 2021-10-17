@@ -341,7 +341,7 @@ func Get(c *gin.Context) {
 	data := map[string]interface{}{
 		"info":&GetRespData{
 			Id:           category.Id,
-			SerialNumber: category.SerialNumber,
+			SerialNumber: category.Code + "-" + category.SerialNumber,
 			CharterMoney: category.CharterMoney,
 			CashPledge:   category.CashPledge,
 			CoverImg:     category.CoverImg,
