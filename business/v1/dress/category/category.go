@@ -175,3 +175,26 @@ func (c *Category) Update() error {
 	}
 	return model.Update()
 }
+
+func (c *Category) AddUnits(units []unit.Unit) error {
+	unitModels := make([]*model.DressUnit, 0, len(units))
+	for i := 0; i < len(units); i++ {
+		unitModel := &model.DressUnit{
+			CategoryId:    c.Id,
+			SerialNumber:  units[i].SerialNumber,
+			Size:          units[i].Size,
+			CoverImg:      units[i].CoverImg,
+			SecondaryImg:  sliceHelper.ConvertStrSliceToStr(units[i].SecondaryImg, "|"),
+			Status:        model.UnitStatus["rentable"],
+		}
+		unitModels = append(unitModels, unitModel)
+	}
+
+	categoryModel := &model.DressCategory{
+		Id:               c.Id,
+		RentableQuantity: c.RentableQuantity,
+		Quantity:         c.Quantity,
+	}
+
+	return unitModels[0].AddUnitsAndUpdateCategory(unitModels, categoryModel)
+}

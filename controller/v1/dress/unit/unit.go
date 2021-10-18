@@ -2,8 +2,8 @@ package unit
 
 import (
 	"WeddingDressManage/business/v1/dress/category"
+	"WeddingDressManage/business/v1/dress/unit"
 	"WeddingDressManage/lib/response"
-	"WeddingDressManage/lib/sliceHelper"
 	"WeddingDressManage/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -73,33 +73,21 @@ func Add(c *gin.Context) {
 		return
 	}
 
-	units := make([]*model.DressUnit, 0, param.UnitNumber)
+	units := make([]unit.Unit, 0, param.UnitNumber)
 
 	for i := 0; i < param.UnitNumber; i++ {
-		unit := &model.DressUnit{
+		unit := unit.Unit{
 			CategoryId: category.Id,
 			SerialNumber: unitModel.SerialNumber + i + 1,
 			Size: param.Size,
 			CoverImg: param.CoverImg,
-			SecondaryImg: sliceHelper.ConvertStrSliceToStr(param.SecondaryImg, "|"),
+			SecondaryImg: param.SecondaryImg,
 			Status: model.UnitStatus["rentable"],
 		}
 		units = append(units, unit)
 	}
 
-	categoryModel := &model.DressCategory{
-		Id:               category.Id,
-		RentableQuantity: category.RentableQuantity,
-		Quantity:         category.Quantity,
-	}
-
-	err = unitModel.AddUnitsAndUpdateCategory(units, categoryModel)
-	if err != nil {
-		resp.TransactionError(err, map[string]interface{}{})
-		c.JSON(http.StatusOK, resp)
-		return
-	}
-
+	err = category.AddUnits(units)
 	resp.Success(map[string]interface{}{})
 	c.JSON(http.StatusOK, resp)
 	return
