@@ -307,7 +307,7 @@ type GetParams struct {
 func Get(c *gin.Context) {
 	resp := &response.ResBody{}
 	param := &GetParams{}
-	err := c.ShouldBindJSON(param)
+	err := validator.ValidateParam(param, c)
 	if err != nil {
 		resp.GenRespByParamErr(err)
 		c.JSON(http.StatusOK, resp)

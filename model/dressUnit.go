@@ -5,17 +5,6 @@ import (
 	"time"
 )
 
-var DressStatus = map[string]string{
-	// 可租借
-	"rentable": "rentable",
-	// 租借中
-	"rentOut": "rentOut",
-	// 送洗中
-	"laundry": "laundry",
-	// 已赠与
-	"gift": "gift",
-}
-
 // UnitStatus 礼服状态
 var UnitStatus = map[string]string{
 	// 可租
@@ -100,4 +89,20 @@ func (u DressUnit) AddUnitsAndUpdateCategory(units []*DressUnit, category *Dress
 	}
 
 	return tx.Commit().Error
+}
+
+func (u DressUnit) FindByCategoryIdAndStatus(categoryId, page int, status []string) (usableUnits []DressUnit, err error) {
+	usableUnits = make([]DressUnit, 0)
+	res := db.Db.Scopes(db.Paginate(page)).Where("category_id = ?", categoryId).
+		Where("status IN ?", status).Order("id asc").Find(&usableUnits)
+	return usableUnits, res.Error
+}
+
+// CountUsableByCategoryId 统计指定礼服品类下 状态为可用(可租/已租/送洗)的礼服数量
+func (u DressUnit) CountUsableByCategoryId(categoryId int) (int64, error) {
+	var count int64
+	res := db.Db.Table("dress_unit").Where("category_id = ?", categoryId).
+		Where("status IN ?", []string{UnitStatus["rentable"], UnitStatus["rentOut"], UnitStatus["laundry"]}).
+		Count(&count)
+	return count, res.Error
 }

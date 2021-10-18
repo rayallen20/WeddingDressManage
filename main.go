@@ -42,6 +42,9 @@ func main() {
 
 		// 在已有品类下添加礼服
 		v1.POST("/unit/add", unit.Add)
+
+		// 查看指定品类下可用(非赠与且非废弃状态)的礼服信息集合
+		v1.POST("/unit/showUsable", unit.ShowUsable)
 	}
 
 	// 上传图片

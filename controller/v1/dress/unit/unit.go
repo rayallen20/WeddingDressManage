@@ -3,9 +3,12 @@ package unit
 import (
 	"WeddingDressManage/business/v1/dress/category"
 	"WeddingDressManage/business/v1/dress/unit"
+	"WeddingDressManage/conf"
 	"WeddingDressManage/lib/response"
+	"WeddingDressManage/lib/validator"
 	"WeddingDressManage/model"
 	"github.com/gin-gonic/gin"
+	"math"
 	"net/http"
 	"strings"
 )
@@ -23,7 +26,7 @@ type AddParams struct {
 func Add(c *gin.Context) {
 	resp := &response.ResBody{}
 	param := &AddParams{}
-	err := c.ShouldBindJSON(param)
+	err := validator.ValidateParam(param, c)
 	if err != nil {
 		resp.GenRespByParamErr(err)
 		c.JSON(http.StatusOK, resp)
@@ -37,7 +40,7 @@ func Add(c *gin.Context) {
 		return
 	}
 
-	category := &category.Category{
+	category := &category.Category {
 		Id: param.CategoryId,
 	}
 	err = category.ExistById()
@@ -46,7 +49,7 @@ func Add(c *gin.Context) {
 		c.JSON(http.StatusOK, resp)
 		return
 	}
-	
+
 	if category.Status == model.CategoryStatus["unusable"] {
 		resp.CategoryIsUnusable(map[string]interface{}{})
 		c.JSON(http.StatusOK, resp)
@@ -91,4 +94,93 @@ func Add(c *gin.Context) {
 	resp.Success(map[string]interface{}{})
 	c.JSON(http.StatusOK, resp)
 	return
+}
+
+type ShowUsableParams struct {
+	CategoryId int `form:"categoryId" binding:"gte=1,required" errField:"categoryId"`
+	SerialNumber string `form:"serialNumber" binding:"gte=1,required" errField:"serialNumber"`
+	Page int `form:"page" binding:"gte=1,required" errField:"page"`
+}
+
+// ShowUsable 查看指定品类下可用(非赠与且非废弃状态)的礼服信息集合
+func ShowUsable(c *gin.Context) {
+	resp := &response.ResBody{}
+	param := &ShowUsableParams{}
+	err := validator.ValidateParam(param, c)
+	if err != nil {
+		resp.GenRespByParamErr(err)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	// 查询品类信息是否存在
+	category := &category.Category{
+		Id: param.CategoryId,
+	}
+	err = category.ExistById()
+	if err != nil {
+		resp.DBError(err, map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	sn := category.Code + "-" + category.SerialNumber
+	if category.SerialNumber == "" || param.SerialNumber != sn {
+		resp.CategoryHasNotExist(map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	unit := unit.Unit{}
+	units, err := unit.ShowUsable(param.CategoryId, param.Page)
+	if err != nil {
+		resp.DBError(err, map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	usableCount, err := unit.CountCategoryUsable(param.CategoryId)
+	if err != nil {
+		resp.DBError(err, map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	totalPage := int(math.Ceil(float64(usableCount) / float64(conf.Conf.DataBase.PageSize)))
+
+	data := map[string]interface{}{
+		"units":genRespDataForShowUsable(units, category.Code + "-" + category.SerialNumber),
+		"totalPage":totalPage,
+	}
+	resp.Success(data)
+	c.JSON(http.StatusOK, resp)
+	return
+}
+
+type ShowUsableRespData struct {
+	UnitId int `json:"unitId"`
+	CategorySerialNumber string `json:"serialNumber"`
+	UnitSerialNumber int `json:"unitSerialNumber"`
+	Size string `json:"size"`
+	Status string `json:"status"`
+	CoverImg string `json:"coverImg"`
+	SecondaryImg []string `json:"secondaryImg"`
+}
+
+func genRespDataForShowUsable(units []unit.Unit, categorySN string) []ShowUsableRespData {
+	respDatas := make([]ShowUsableRespData, 0, len(units))
+
+	for i := 0; i < len(units); i++ {
+		respData := ShowUsableRespData{
+			UnitId:               units[i].Id,
+			CategorySerialNumber: categorySN,
+			UnitSerialNumber:     units[i].SerialNumber,
+			Size:                 units[i].Size,
+			Status:               units[i].Status,
+			CoverImg:             units[i].CoverImg,
+			SecondaryImg:         units[i].SecondaryImg,
+		}
+		respDatas = append(respDatas, respData)
+	}
+	return respDatas
 }

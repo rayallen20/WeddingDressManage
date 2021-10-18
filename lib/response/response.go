@@ -195,6 +195,7 @@ func (r *ResBody) CategoryHasNotExist(data map[string]interface{}) {
 	r.Data = data
 }
 
+// CategoryIsUnusable 品类信息为不可用时返回的响应体
 func (r *ResBody) CategoryIsUnusable(data map[string]interface{}) {
 	r.Code = CategoryIsUnusable
 	r.Message = Message[CategoryIsUnusable]
