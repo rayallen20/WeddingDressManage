@@ -46,13 +46,7 @@ func Add(c *gin.Context) {
 		c.JSON(http.StatusOK, resp)
 		return
 	}
-
-	if category.SerialNumber == "" {
-		resp.CategoryHasNotExist(map[string]interface{}{})
-		c.JSON(http.StatusOK, resp)
-		return
-	}
-
+	
 	if category.Status == model.CategoryStatus["unusable"] {
 		resp.CategoryIsUnusable(map[string]interface{}{})
 		c.JSON(http.StatusOK, resp)
