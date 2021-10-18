@@ -159,7 +159,7 @@ func ShowUsable(c *gin.Context) {
 
 type ShowUsableRespData struct {
 	UnitId int `json:"unitId"`
-	CategorySerialNumber string `json:"CategorySerialNumber"`
+	CategorySerialNumber string `json:"categorySerialNumber"`
 	UnitSerialNumber int `json:"unitSerialNumber"`
 	Size string `json:"size"`
 	Status string `json:"status"`
@@ -248,7 +248,7 @@ func ShowUnusable(c *gin.Context) {
 
 type ShowUnusableRespData struct {
 	UnitId int `json:"unitId"`
-	CategorySerialNumber string `json:"CategorySerialNumber"`
+	CategorySerialNumber string `json:"categorySerialNumber"`
 	UnitSerialNumber int `json:"unitSerialNumber"`
 	Size string `json:"size"`
 	Status string `json:"status"`
