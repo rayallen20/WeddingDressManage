@@ -45,6 +45,9 @@ func main() {
 
 		// 查看指定品类下可用(非赠与且非废弃状态)的礼服信息集合
 		v1.POST("/unit/showUsable", unit.ShowUsable)
+
+		// 查看指定品类下不可用(赠与或废弃状态)的礼服信息集合
+		v1.POST("/unit/showUnusable", unit.ShowUnusable)
 	}
 
 	// 上传图片

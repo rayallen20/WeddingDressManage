@@ -149,7 +149,7 @@ func ShowUsable(c *gin.Context) {
 	totalPage := int(math.Ceil(float64(usableCount) / float64(conf.Conf.DataBase.PageSize)))
 
 	data := map[string]interface{}{
-		"units":genRespDataForShowUsable(units, category.Code + "-" + category.SerialNumber),
+		"units":genRespDataForShowUsable(units, sn),
 		"totalPage":totalPage,
 	}
 	resp.Success(data)
@@ -168,6 +168,95 @@ type ShowUsableRespData struct {
 }
 
 func genRespDataForShowUsable(units []unit.Unit, categorySN string) []ShowUsableRespData {
+	respDatas := make([]ShowUsableRespData, 0, len(units))
+
+	for i := 0; i < len(units); i++ {
+		respData := ShowUsableRespData{
+			UnitId:               units[i].Id,
+			CategorySerialNumber: categorySN,
+			UnitSerialNumber:     units[i].SerialNumber,
+			Size:                 units[i].Size,
+			Status:               units[i].Status,
+			CoverImg:             units[i].CoverImg,
+			SecondaryImg:         units[i].SecondaryImg,
+		}
+		respDatas = append(respDatas, respData)
+	}
+	return respDatas
+}
+
+type ShowUnusableParams struct {
+	CategoryId int `form:"categoryId" binding:"gte=1,required" errField:"categoryId"`
+	SerialNumber string `form:"serialNumber" binding:"gte=1,required" errField:"serialNumber"`
+	Page int `form:"page" binding:"gte=1,required" errField:"page"`
+}
+
+// ShowUnusable 查看指定品类下不可用(赠与 或 废弃状态)的礼服信息集合
+func ShowUnusable(c *gin.Context) {
+	resp := &response.ResBody{}
+	param := &ShowUsableParams{}
+	err := validator.ValidateParam(param, c)
+	if err != nil {
+		resp.GenRespByParamErr(err)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	// 查询品类信息是否存在
+	category := &category.Category{
+		Id: param.CategoryId,
+	}
+	err = category.ExistById()
+	if err != nil {
+		resp.DBError(err, map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	sn := category.Code + "-" + category.SerialNumber
+	if category.SerialNumber == "" || param.SerialNumber != sn {
+		resp.CategoryHasNotExist(map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	unit := unit.Unit{}
+	units, err := unit.ShowUnusable(param.CategoryId, param.Page)
+	if err != nil {
+		resp.DBError(err, map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	usableCount, err := unit.CountCategoryUnusable(param.CategoryId)
+	if err != nil {
+		resp.DBError(err, map[string]interface{}{})
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	totalPage := int(math.Ceil(float64(usableCount) / float64(conf.Conf.DataBase.PageSize)))
+
+	data := map[string]interface{}{
+		"units":genRespDataForShowUnusable(units, sn),
+		"totalPage":totalPage,
+	}
+	resp.Success(data)
+	c.JSON(http.StatusOK, resp)
+	return
+}
+
+type ShowUnusableRespData struct {
+	UnitId int `json:"unitId"`
+	CategorySerialNumber string `json:"serialNumber"`
+	UnitSerialNumber int `json:"unitSerialNumber"`
+	Size string `json:"size"`
+	Status string `json:"status"`
+	CoverImg string `json:"coverImg"`
+	SecondaryImg []string `json:"secondaryImg"`
+}
+
+func genRespDataForShowUnusable(units []unit.Unit, categorySN string) []ShowUsableRespData {
 	respDatas := make([]ShowUsableRespData, 0, len(units))
 
 	for i := 0; i < len(units); i++ {

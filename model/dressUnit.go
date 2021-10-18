@@ -106,3 +106,12 @@ func (u DressUnit) CountUsableByCategoryId(categoryId int) (int64, error) {
 		Count(&count)
 	return count, res.Error
 }
+
+// CountUnusableByCategoryId 统计指定礼服品类下 状态为不可用(赠与/废弃)的礼服数量
+func (u DressUnit) CountUnusableByCategoryId(categoryId int) (int64, error) {
+	var count int64
+	res := db.Db.Table("dress_unit").Where("category_id = ?", categoryId).
+		Where("status IN ?", []string{UnitStatus["gift"], UnitStatus["obsolete"]}).
+		Count(&count)
+	return count, res.Error
+}
