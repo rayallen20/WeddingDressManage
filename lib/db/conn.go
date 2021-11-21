@@ -32,6 +32,6 @@ func init() {
 
 // fillConnArgs 根据配置拼接连接数据库的必要信息
 func fillConnArgs() (args string) {
-	return conf.Conf.DataBase.UserName + ":" + conf.Conf.DataBase.Password +"@tcp(" + conf.Conf.DataBase.Domain +
-		":" + conf.Conf.DataBase.Port + ")/" + conf.Conf.DataBase.DataBaseName + "?charset=utf8&parseTime=True&loc=Local"
+	return conf.Conf.Database.User + ":" + conf.Conf.Database.Password +"@tcp(" + conf.Conf.Database.Domain +
+		":" + conf.Conf.Database.Port + ")/" + conf.Conf.Database.Name + "?charset=utf8&parseTime=True&loc=Local"
 }
