@@ -17,11 +17,20 @@ const (
 	// InvalidUnmarshalError JSON反序列化错误
 	InvalidUnmarshalError = 501
 
+	// DbError 数据库错误
+	DbError = 502
+
 	// FieldTypeError 字段类型错误
 	FieldTypeError = 10201
 
 	// ValidateError 参数校验错误
 	ValidateError = 10202
+
+	// KindNotExist 大类信息不存在
+	KindNotExist = 10301
+
+	// CategoryHasExist 品类信息已存在
+	CategoryHasExist = 10302
 )
 
 var message = map[int]string{
@@ -51,4 +60,22 @@ func (r *RespBody) ValidateError(errs []*sysError.ValidateError)  {
 	r.Data = map[string]interface{}{
 		"validateFailInfos":validateFailInfos,
 	}
+}
+
+func (r *RespBody) DbError(err *sysError.DbError)  {
+	r.Code = DbError
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) KindNotExistError(err *sysError.KindNotExistError) {
+	r.Code = KindNotExist
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) CategoryHasExistError(err *sysError.CategoryHasExistError)  {
+	r.Code = CategoryHasExist
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
 }

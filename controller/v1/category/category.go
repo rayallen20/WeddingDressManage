@@ -1,8 +1,9 @@
 package category
 
 import (
-	"WeddingDressManage/lib/param/v1/dress/category/request"
+	"WeddingDressManage/business/v1/dress"
 	"WeddingDressManage/lib/sysError"
+	"WeddingDressManage/param/v1/dress/category/request"
 	"WeddingDressManage/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -28,6 +29,30 @@ func Add(c *gin.Context) {
 	validateErrors := param.Validate(err)
 	if validateErrors != nil {
 		resp.ValidateError(validateErrors)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	category := &dress.Category{}
+	err = category.Add(param)
+
+	// 数据库错误
+	if dbError, ok := err.(*sysError.DbError); ok {
+		resp.DbError(dbError)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	// kind不存在错误
+	if kindNotExistError, ok := err.(*sysError.KindNotExistError); ok {
+		resp.KindNotExistError(kindNotExistError)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	// category已存在错误
+	if categoryHasExistError, ok := err.(*sysError.CategoryHasExistError); ok {
+		resp.CategoryHasExistError(categoryHasExistError)
 		c.JSON(http.StatusOK, resp)
 		return
 	}

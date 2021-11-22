@@ -1,8 +1,7 @@
 package main
 
 import (
-	"WeddingDressManage/controller/v1/dress/category"
-	_ "WeddingDressManage/lib/validator"
+	"WeddingDressManage/controller/v1/category"
 	"github.com/gin-gonic/gin"
 )
 

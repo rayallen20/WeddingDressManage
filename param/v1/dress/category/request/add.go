@@ -15,9 +15,8 @@ type AddParam struct {
 // Category 添加新品类礼服接口请求参数中 品类信息部分
 type Category struct {
 	// Kind 品类编码前缀
-	Kind string `form:"kind" binding:"gt=0,required" errField:"kind"`
+	KindId int `form:"kindId" binding:"gt=0,required" errField:"kindId"`
 	// SequenceNumber 品类序号
-	// SequenceNumber string `form:"sequenceNumber" binding:"gt=0,required" errField:"sequenceNumber" numeric:"true"`
 	SequenceNumber string `form:"sequenceNumber" binding:"gt=0,required,numeric" errField:"sequenceNumber"`
 	// CharterMoney 租金
 	CharterMoney int `form:"charterMoney" binding:"gt=0,required" errField:"charterMoney"`
