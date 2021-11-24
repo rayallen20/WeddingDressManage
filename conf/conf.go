@@ -19,7 +19,7 @@ func init()  {
 // 	Config 配置对象
 type Config struct {
 	Database Database
-	Upload Upload
+	File     File
 }
 
 // load 读取配置文件至Config对象
@@ -59,10 +59,12 @@ type Database struct {
 	Name string
 }
 
-// Upload 上传文件相关配置
-type Upload struct {
-	// Path 文件保存路径
+// File 上传文件相关配置
+type File struct {
+	// Path 文件本地保存路径
 	Path string
+	// DomainName 文件服务器域名
+	DomainName string
 }
 
 // env 用于区分生产/研发环境的变量 默认为研发环境

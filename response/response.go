@@ -14,6 +14,9 @@ type RespBody struct {
 // 102XX:参数校验错误
 // 103XX:业务逻辑错误
 const (
+	// Success 成功响应
+	Success = 200
+
 	// InvalidUnmarshalError JSON反序列化错误
 	InvalidUnmarshalError = 501
 
@@ -35,6 +38,13 @@ const (
 
 var message = map[int]string{
 	ValidateError: "validate error",
+	Success: "success",
+}
+
+func (r *RespBody) Success(data map[string]interface{}) {
+	r.Code = Success
+	r.Message = message[Success]
+	r.Data = data
 }
 
 func (r *RespBody) InvalidUnmarshalError(err *sysError.InvalidUnmarshalError)  {

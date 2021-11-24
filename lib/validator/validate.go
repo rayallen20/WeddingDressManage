@@ -20,6 +20,7 @@ func Validate(err error) []*sysError.ValidateError {
 }
 
 // generateValidateErrors 根据校验失败错误 创建系统校验失败错误
+// TODO:此处对自定义校验错误的处理有问题 暴露了后端结构体的层次结构
 func generateValidateErrors(validateFailMap map[string]string) []*sysError.ValidateError {
 	validateErrors := make([]*sysError.ValidateError, 0, len(validateFailMap))
 

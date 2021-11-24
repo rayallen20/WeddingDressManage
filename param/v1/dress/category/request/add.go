@@ -1,6 +1,7 @@
 package request
 
 import (
+	"WeddingDressManage/lib/helper/urlHelper"
 	"WeddingDressManage/lib/sysError"
 	"WeddingDressManage/lib/validator"
 	"github.com/gin-gonic/gin"
@@ -8,14 +9,19 @@ import (
 
 // AddParam 添加新品类礼服接口请求参数
 type AddParam struct {
-	Category Category `form:"category" binding:"required" errField:"category"`
-	Dress    Dress    `form:"dress" binding:"required" errField:"category"`
+	Kind *Kind `form:"kind" binding:"required" errField:"category"`
+	Category *Category `form:"category" binding:"required" errField:"category"`
+	Dress    *Dress    `form:"dress" binding:"required" errField:"category"`
+}
+
+// Kind 添加新品类礼服接口请求参数中 礼服大类信息部分
+type Kind struct {
+	// Id 礼服大类信息Id
+	Id int `form:"id" binding:"gt=0,required" errField:"id"`
 }
 
 // Category 添加新品类礼服接口请求参数中 品类信息部分
 type Category struct {
-	// Kind 品类编码前缀
-	KindId int `form:"kindId" binding:"gt=0,required" errField:"kindId"`
 	// SequenceNumber 品类序号
 	SequenceNumber string `form:"sequenceNumber" binding:"gt=0,required,numeric" errField:"sequenceNumber"`
 	// CharterMoney 租金
@@ -23,14 +29,14 @@ type Category struct {
 	// CashPledge 押金
 	CashPledge int `form:"cashPledge" binding:"gt=0,required" errField:"cashPledge"`
 	// CoverImg 封面图
-	CoverImg string `form:"coverImg" binding:"gt=0,required" errField:"coverImg"`
+	CoverImg string `form:"coverImg" binding:"gt=0,required,imgUrl" errField:"coverImg"`
 	// SecondaryImg 副图
-	SecondaryImg []string `form:"secondaryImg" binding:"gt=0,lte=1" errField:"secondaryImg"`
+	SecondaryImg []string `form:"secondaryImg" binding:"gt=0,lte=1,imgUrls" errField:"secondaryImg"`
 }
 
 // Dress 添加新品类礼服接口请求参数中 礼服信息部分
 type Dress struct {
-	DressNumber int `form:"dressNumber" binding:"gt=0,required" errField:"dressNumber"`
+	Number int `form:"number" binding:"gt=0,required" errField:"number"`
 	Size string `form:"size" binding:"required,oneof=S M F L XL XXL D" errField:"size"`
 }
 
@@ -38,6 +44,17 @@ func (a *AddParam) Bind(c *gin.Context) error {
 	return validator.Bind(a, []interface{}{&AddParam{}, &Category{}, &Dress{}}, c)
 }
 
-func (a AddParam) Validate(err error) []*sysError.ValidateError {
+func (a *AddParam) Validate(err error) []*sysError.ValidateError {
 	return validator.Validate(err)
+}
+
+// ExtractUri 将校验参数中的封面图和副图的网址转化为uri
+func (a *AddParam) ExtractUri() {
+	a.Category.CoverImg = urlHelper.GetUriFromWebsite(a.Category.CoverImg)
+	secondaryImgUris := make([]string, 0, len(a.Category.SecondaryImg))
+	for _, secondaryImgWebsite := range a.Category.SecondaryImg {
+		secondaryImgUri := urlHelper.GetUriFromWebsite(secondaryImgWebsite)
+		secondaryImgUris = append(secondaryImgUris, secondaryImgUri)
+	}
+	a.Category.SecondaryImg = secondaryImgUris
 }

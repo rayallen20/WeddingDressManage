@@ -5,7 +5,9 @@ import (
 	"WeddingDressManage/lib/sysError"
 	"WeddingDressManage/param/v1/dress/category/request"
 	"WeddingDressManage/response"
+	"WeddingDressManage/syslog"
 	"github.com/gin-gonic/gin"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -32,6 +34,7 @@ func Add(c *gin.Context) {
 		c.JSON(http.StatusOK, resp)
 		return
 	}
+	param.ExtractUri()
 
 	category := &dress.Category{}
 	err = category.Add(param)
@@ -56,4 +59,17 @@ func Add(c *gin.Context) {
 		c.JSON(http.StatusOK, resp)
 		return
 	}
+
+	// 记录日志
+	bodyBytes, _ := ioutil.ReadAll(c.Request.Body)
+	body := string(bodyBytes[:])
+	log := &syslog.CreateCategory{
+		Data:     body,
+		TargetId: category.Id,
+	}
+	log.Logger()
+
+	resp.Success(map[string]interface{}{})
+	c.JSON(http.StatusOK, resp)
+	return
 }

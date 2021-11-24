@@ -25,6 +25,7 @@ type Dress struct {
 	Id int
 	CategoryId int
 	SerialNumber int
+	Size string
 	RentCounter int
 	LaundryCounter int
 	MaintainCounter int
@@ -32,5 +33,5 @@ type Dress struct {
 	SecondaryImg string `gorm:"text"`
 	Status string
 	CreatedTime time.Time `gorm:"autoCreateTime"`
-	UpdatedTime time.Time `gorm:"autoUpdatedTime"`
+	UpdatedTime time.Time `gorm:"autoUpdateTime"`
 }

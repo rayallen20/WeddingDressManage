@@ -34,11 +34,7 @@ func init() {
 			return name
 		})
 
-		// 注册自定义校验tag与校验函数的映射
-		err := v.RegisterValidation("numeric", Numeric)
-		if err != nil {
-			panic("register custom validation failed")
-		}
+		registerCustomValidation(v)
 
 		enT := en.New()
 		uni := ut.New(enT, enT)
@@ -67,4 +63,22 @@ func init() {
 	}
 
 	panic("init translator for validator failed:can not convert Validator.Engine to *Validate")
+}
+
+// registerCustomValidation 注册自定义校验tag与校验函数的映射
+func registerCustomValidation(v *validator.Validate) {
+	err := v.RegisterValidation("numeric", Numeric)
+	if err != nil {
+		panic("register custom validation numeric failed:" + err.Error())
+	}
+
+	err = v.RegisterValidation("imgUrl", ImgUrl)
+	if err != nil {
+		panic("register custom validation imgUrl failed:" + err.Error())
+	}
+
+	err = v.RegisterValidation("imgUrls", ImgUrls)
+	if err != nil {
+		panic("register custom validation imgUrls failed:" + err.Error())
+	}
 }
