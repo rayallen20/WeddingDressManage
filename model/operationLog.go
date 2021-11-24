@@ -2,6 +2,7 @@ package model
 
 import (
 	"WeddingDressManage/lib/db"
+	"fmt"
 	"time"
 )
 
@@ -49,5 +50,8 @@ type OperationLog struct {
 }
 
 func (o *OperationLog) Save()  {
-	db.Db.Create(o)
+	err := db.Db.Create(o).Error
+	if err != nil {
+		fmt.Printf("%v\n", err)
+	}
 }

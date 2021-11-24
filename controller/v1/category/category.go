@@ -6,6 +6,7 @@ import (
 	"WeddingDressManage/param/v1/dress/category/request"
 	"WeddingDressManage/response"
 	"WeddingDressManage/syslog"
+	"bytes"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
@@ -14,6 +15,13 @@ import (
 func Add(c *gin.Context) {
 	var param *request.AddParam = &request.AddParam{}
 	var resp *response.RespBody = &response.RespBody{}
+
+	// 复制一份请求体 用作后续记录日志
+	// ioutil.ReadAll()会将c.Request.body的内容直接提取出来 而非复制一份
+	// 所以后续还要把提取出来的内容还原到c.Request.body上
+	bodyBytes, _ := ioutil.ReadAll(c.Request.Body)
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+
 	err := param.Bind(c)
 
 	if invalidUnmarshalError, ok := err.(*sysError.InvalidUnmarshalError); ok {
@@ -60,11 +68,10 @@ func Add(c *gin.Context) {
 		return
 	}
 
+
 	// 记录日志
-	bodyBytes, _ := ioutil.ReadAll(c.Request.Body)
-	body := string(bodyBytes[:])
 	log := &syslog.CreateCategory{
-		Data:     body,
+		Data:     string(bodyBytes),
 		TargetId: category.Id,
 	}
 	log.Logger()
