@@ -19,6 +19,7 @@ var CategoryStatus = map[string]string {
 type DressCategory struct {
 	Id int
 	KindId int
+	Kind *DressKind `gorm:"foreignKey:KindId"`
 	SerialNumber string
 	Quantity int
 	RentableQuantity int
@@ -37,8 +38,7 @@ type DressCategory struct {
 
 // FindBySerialNumber 根据礼服品类编码 查找1条品类信息 默认为非脱销状态
 func (c *DressCategory) FindBySerialNumber() error {
-	res := db.Db.Not("status = ?", CategoryStatus["haltSales"]).Where(c).First(c)
-	return res.Error
+	return db.Db.Not("status = ?", CategoryStatus["haltSales"]).Preload("Kind").Where(c).First(c).Error
 }
 
 // AddCategoryAndDresses 使用事务同时创建礼服品类信息和礼服信息
@@ -69,4 +69,11 @@ func (c *DressCategory) AddCategoryAndDresses(dressORMs []*Dress) error {
 	}
 
 	return tx.Commit().Error
+}
+
+// FindNormal 查询状态不为haltSales的礼服品类信息
+func (c *DressCategory) FindNormal(currentPage, itemPerPage int) (categories []*DressCategory, err error) {
+	categories = make([]*DressCategory, 0, itemPerPage)
+	err = db.Db.Scopes(db.Paginate(currentPage, itemPerPage)).Not("status", CategoryStatus["haltSales"]).Preload("Kind").Find(&categories).Error
+	return categories, err
 }

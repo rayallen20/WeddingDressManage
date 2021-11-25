@@ -13,7 +13,11 @@ func main() {
 
 	// v1版本API
 	{
+		// 添加新品类礼服
 		v1.POST("category/create", category.Add)
+
+		// 查看礼服
+		v1.POST("/category/show", category.Show)
 	}
 
 	r.Run(":8000")

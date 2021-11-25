@@ -2,6 +2,7 @@ package dress
 
 import (
 	"WeddingDressManage/lib/helper/sliceHelper"
+	"WeddingDressManage/lib/helper/urlHelper"
 	"WeddingDressManage/lib/sysError"
 	"WeddingDressManage/model"
 	"WeddingDressManage/param/v1/dress/category/request"
@@ -71,6 +72,7 @@ func(c *Category) createCategoryORMForAdd(categoryORM *model.DressCategory, para
 	categoryORM.KindId = param.Kind.Id
 	categoryORM.Quantity = param.Dress.Number
 	categoryORM.RentableQuantity = param.Dress.Number
+	categoryORM.CharterMoney = param.Category.CharterMoney
 	categoryORM.AvgCharterMoney = 0
 	categoryORM.CashPledge = param.Category.CashPledge
 	categoryORM.RentCounter = 0
@@ -103,6 +105,13 @@ func(c *Category) createDressORMForAdd(param *request.AddParam) []*model.Dress {
 // fill 根据ORM信息填充品类对象
 func(c *Category) fill(orm *model.DressCategory)  {
 	c.Id = orm.Id
+	c.Kind = &Kind {
+		Id:     orm.Kind.Id,
+		Name:   orm.Kind.Name,
+		Code:   orm.Kind.Code,
+		Status: orm.Kind.Status,
+	}
+	c.SerialNumber = orm.SerialNumber
 	c.Quantity = orm.Quantity
 	c.RentableQuantity = orm.RentableQuantity
 	c.CharterMoney = orm.CharterMoney
@@ -111,7 +120,25 @@ func(c *Category) fill(orm *model.DressCategory)  {
 	c.RentCounter = orm.RentCounter
 	c.LaundryCounter = orm.LaundryCounter
 	c.MaintainCounter = orm.MaintainCounter
-	c.CoverImg = orm.CoverImg
-	c.SecondaryImg = strings.Split(orm.SecondaryImg, "|")
+	c.CoverImg = urlHelper.GenFullImgWebSite(orm.CoverImg)
+	c.SecondaryImg = urlHelper.GenFullImgWebSites(strings.Split(orm.SecondaryImg, "|"))
 	c.Status = orm.Status
+}
+
+func(c *Category) Show(param *request.ShowParam) (categories []*Category, err error) {
+	model := &model.DressCategory{}
+	orms, err := model.FindNormal(param.Pagination.CurrentPage, param.Pagination.ItemPerPage)
+	if err != nil {
+		return nil, &sysError.DbError{RealError: err}
+	}
+
+	categories = make([]*Category, 0, len(orms))
+
+	for _, orm := range orms {
+		category := &Category{}
+		category.fill(orm)
+		categories = append(categories, category)
+	}
+
+	return categories, nil
 }

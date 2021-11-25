@@ -63,6 +63,8 @@ type Database struct {
 type File struct {
 	// Path 文件本地保存路径
 	Path string
+	// Protocol 文件服务器协议
+	Protocol string
 	// DomainName 文件服务器域名
 	DomainName string
 }
