@@ -1,4 +1,4 @@
-package request
+package category
 
 import (
 	"WeddingDressManage/lib/helper/urlHelper"
@@ -9,7 +9,7 @@ import (
 
 // AddParam 添加新品类礼服接口请求参数
 type AddParam struct {
-	Kind *Kind `form:"kind" binding:"required" errField:"category"`
+	Kind *Kind         `form:"kind" binding:"required" errField:"category"`
 	Category *Category `form:"category" binding:"required" errField:"category"`
 	Dress    *Dress    `form:"dress" binding:"required" errField:"category"`
 }

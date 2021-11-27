@@ -5,9 +5,10 @@ import (
 	"WeddingDressManage/lib/helper/urlHelper"
 	"WeddingDressManage/lib/sysError"
 	"WeddingDressManage/model"
-	"WeddingDressManage/param/v1/dress/category/request"
+	"WeddingDressManage/param/v1/request/category"
 	"errors"
 	"gorm.io/gorm"
+	"math"
 	"strings"
 )
 
@@ -29,7 +30,8 @@ type Category struct {
 	Status string
 }
 
-func (c *Category) Add(param *request.AddParam) error {
+// Add 创建新品类并在该品类下添加礼服
+func (c *Category) Add(param *category.AddParam) error {
 	// step1. 校验kind是否存在 若不存在则报错
 	kind := &Kind{
 		Id: param.Kind.Id,
@@ -68,7 +70,7 @@ func (c *Category) Add(param *request.AddParam) error {
 }
 
 // createCategoryORMForAdd 为添加新品类礼服创建品类信息ORM
-func(c *Category) createCategoryORMForAdd(categoryORM *model.DressCategory, param *request.AddParam) {
+func(c *Category) createCategoryORMForAdd(categoryORM *model.DressCategory, param *category.AddParam) {
 	categoryORM.KindId = param.Kind.Id
 	categoryORM.Quantity = param.Dress.Number
 	categoryORM.RentableQuantity = param.Dress.Number
@@ -84,7 +86,7 @@ func(c *Category) createCategoryORMForAdd(categoryORM *model.DressCategory, para
 }
 
 // createDressORMForAdd 为添加新品类礼服创建礼服信息ORM集合
-func(c *Category) createDressORMForAdd(param *request.AddParam) []*model.Dress {
+func(c *Category) createDressORMForAdd(param *category.AddParam) []*model.Dress {
 	dressORMs := make([]*model.Dress, 0, param.Dress.Number)
 	for i := 1; i <= param.Dress.Number; i++ {
 		dressORM := &model.Dress{
@@ -125,11 +127,12 @@ func(c *Category) fill(orm *model.DressCategory)  {
 	c.Status = orm.Status
 }
 
-func(c *Category) Show(param *request.ShowParam) (categories []*Category, err error) {
+// Show 礼服品类展示
+func(c *Category) Show(param *category.ShowParam) (categories []*Category,totalPage int, err error) {
 	model := &model.DressCategory{}
 	orms, err := model.FindNormal(param.Pagination.CurrentPage, param.Pagination.ItemPerPage)
 	if err != nil {
-		return nil, &sysError.DbError{RealError: err}
+		return nil, totalPage, &sysError.DbError{RealError: err}
 	}
 
 	categories = make([]*Category, 0, len(orms))
@@ -140,5 +143,12 @@ func(c *Category) Show(param *request.ShowParam) (categories []*Category, err er
 		categories = append(categories, category)
 	}
 
-	return categories, nil
+	// 计算总页数
+	count, err := model.CountNormal()
+	if err != nil {
+		return nil, totalPage, &sysError.DbError{RealError: err}
+	}
+
+	totalPage = int(math.Ceil(float64(count) / float64(param.Pagination.ItemPerPage)))
+	return categories, totalPage, nil
 }

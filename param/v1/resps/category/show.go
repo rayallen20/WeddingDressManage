@@ -1,9 +1,9 @@
-package resps
+package category
 
 import "WeddingDressManage/business/v1/dress"
 
-// CategoryResponse 响应体中的品类信息部分
-type CategoryResponse struct {
+// Response 响应体中的品类信息部分
+type Response struct {
 	Id               int           `json:"id"`
 	Kind             *kindResponse `json:"kind"`
 	SerialNumber     string        `json:"serialNumber"`
@@ -27,32 +27,32 @@ type kindResponse struct {
 	Status string `json:"status"`
 }
 
-func (c *CategoryResponse) fill(category *dress.Category) {
-	c.Id = category.Id
-	c.Kind = &kindResponse{
+func (r *Response) fill(category *dress.Category) {
+	r.Id = category.Id
+	r.Kind = &kindResponse{
 		Id:     category.Kind.Id,
 		Name:   category.Kind.Name,
 		Code:   category.Kind.Code,
 		Status: category.Kind.Status,
 	}
-	c.SerialNumber = category.SerialNumber
-	c.Quantity = category.Quantity
-	c.RentableQuantity = category.RentableQuantity
-	c.CharterMoney = category.CharterMoney
-	c.AvgCharterMoney = category.AvgCharterMoney
-	c.CashPledge = category.CashPledge
-	c.RentCounter = category.RentCounter
-	c.LaundryCounter = category.LaundryCounter
-	c.MaintainCounter = category.MaintainCounter
-	c.CoverImg = category.CoverImg
-	c.SecondaryImg = category.SecondaryImg
-	c.Status = category.Status
+	r.SerialNumber = category.SerialNumber
+	r.Quantity = category.Quantity
+	r.RentableQuantity = category.RentableQuantity
+	r.CharterMoney = category.CharterMoney
+	r.AvgCharterMoney = category.AvgCharterMoney
+	r.CashPledge = category.CashPledge
+	r.RentCounter = category.RentCounter
+	r.LaundryCounter = category.LaundryCounter
+	r.MaintainCounter = category.MaintainCounter
+	r.CoverImg = category.CoverImg
+	r.SecondaryImg = category.SecondaryImg
+	r.Status = category.Status
 }
 
-func (c CategoryResponse) Generate(categories []*dress.Category) (resps []*CategoryResponse) {
-	resps = make([]*CategoryResponse, 0, len(categories))
+func (c Response) Generate(categories []*dress.Category) (resps []*Response) {
+	resps = make([]*Response, 0, len(categories))
 	for _, category := range categories {
-		resp := &CategoryResponse{}
+		resp := &Response{}
 		resp.fill(category)
 		resps = append(resps, resp)
 	}

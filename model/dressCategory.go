@@ -36,6 +36,10 @@ type DressCategory struct {
 	UpdatedTime time.Time `gorm:"autoUpdateTime"`
 }
 
+func (c *DressCategory) FindById() error {
+	return db.Db.Where(c).First(c).Error
+}
+
 // FindBySerialNumber 根据礼服品类编码 查找1条品类信息 默认为非脱销状态
 func (c *DressCategory) FindBySerialNumber() error {
 	return db.Db.Not("status = ?", CategoryStatus["haltSales"]).Preload("Kind").Where(c).First(c).Error
@@ -68,7 +72,12 @@ func (c *DressCategory) AddCategoryAndDresses(dressORMs []*Dress) error {
 		return err
 	}
 
-	return tx.Commit().Error
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
 }
 
 // FindNormal 查询状态不为haltSales的礼服品类信息
@@ -76,4 +85,10 @@ func (c *DressCategory) FindNormal(currentPage, itemPerPage int) (categories []*
 	categories = make([]*DressCategory, 0, itemPerPage)
 	err = db.Db.Scopes(db.Paginate(currentPage, itemPerPage)).Not("status", CategoryStatus["haltSales"]).Preload("Kind").Find(&categories).Error
 	return categories, err
+}
+
+// CountNormal  统计状态不为haltSales的礼服品类信息条目
+func (c *DressCategory) CountNormal() (count int64, err error) {
+	err = db.Db.Not("status", CategoryStatus["haltSales"]).Find(&DressCategory{}).Count(&count).Error
+	return count, err
 }

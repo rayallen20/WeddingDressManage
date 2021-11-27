@@ -1,4 +1,4 @@
-package param
+package requestiface
 
 import (
 	"WeddingDressManage/lib/sysError"

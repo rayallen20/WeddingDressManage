@@ -3,26 +3,23 @@ package category
 import (
 	"WeddingDressManage/business/v1/dress"
 	"WeddingDressManage/lib/sysError"
-	"WeddingDressManage/param/v1/dress/category/request"
-	"WeddingDressManage/param/v1/dress/category/resps"
+	categoryRequest "WeddingDressManage/param/v1/request/category"
+	categoryResponse "WeddingDressManage/param/v1/resps/category"
+	"WeddingDressManage/param/v1/resps/pagination"
 	"WeddingDressManage/response"
 	"WeddingDressManage/syslog"
-	"bytes"
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
 	"net/http"
 )
 
 // Add 添加新品类礼服
 func Add(c *gin.Context) {
-	var param *request.AddParam = &request.AddParam{}
+	var param *categoryRequest.AddParam = &categoryRequest.AddParam{}
 	var resp *response.RespBody = &response.RespBody{}
 
-	// 复制一份请求体 用作后续记录日志
-	// ioutil.ReadAll()会将c.Request.body的内容直接提取出来 而非复制一份
-	// 所以后续还要把提取出来的内容还原到c.Request.body上
-	bodyBytes, _ := ioutil.ReadAll(c.Request.Body)
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	// 记录请求参数
+	logger := &syslog.CreateCategory{}
+	logger.GetData(c)
 
 	err := param.Bind(c)
 
@@ -72,11 +69,8 @@ func Add(c *gin.Context) {
 
 
 	// 记录日志
-	log := &syslog.CreateCategory{
-		Data:     string(bodyBytes),
-		TargetId: category.Id,
-	}
-	log.Logger()
+	logger.TargetId = category.Id
+	logger.Logger()
 
 	resp.Success(map[string]interface{}{})
 	c.JSON(http.StatusOK, resp)
@@ -85,7 +79,7 @@ func Add(c *gin.Context) {
 
 // Show 礼服品类展示
 func Show(c *gin.Context) {
-	var param *request.ShowParam = &request.ShowParam{}
+	var param *categoryRequest.ShowParam = &categoryRequest.ShowParam{}
 	var resp *response.RespBody = &response.RespBody{}
 
 	err := param.Bind(c)
@@ -110,7 +104,7 @@ func Show(c *gin.Context) {
 	}
 
 	category := &dress.Category{}
-	categories, err := category.Show(param)
+	categories, totalPage, err := category.Show(param)
 	if err != nil {
 		if dbError, ok := err.(*sysError.DbError); ok {
 			resp.DbError(dbError)
@@ -119,10 +113,16 @@ func Show(c *gin.Context) {
 		}
 	}
 
-	respParam := &resps.CategoryResponse{}
-	respParams := respParam.Generate(categories)
+	categoryParam := &categoryResponse.Response{}
+	categoryParams := categoryParam.Generate(categories)
+	paginationParam := &pagination.Response{
+		CurrentPage: param.Pagination.CurrentPage,
+		ItemCounter: param.Pagination.ItemPerPage,
+		TotalPage:   totalPage,
+	}
 	resp.Success(map[string]interface{}{
-		"categories":respParams,
+		"categories":categoryParams,
+		"pagination":paginationParam,
 	})
 	c.JSON(http.StatusOK, resp)
 	return

@@ -1,4 +1,4 @@
-package request
+package category
 
 import (
 	"WeddingDressManage/lib/sysError"

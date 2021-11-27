@@ -2,13 +2,13 @@ package validator
 
 import (
 	"WeddingDressManage/lib/sysError"
-	"WeddingDressManage/param"
+	"WeddingDressManage/param/v1/request/requestiface"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 )
 
 // Bind 将请求参数反序列化为结构体的实例 返回的错误若没有明确为绑定错误 则请求参数已经绑定到结构体的实例上了
-func Bind(param param.RequestParam, allParams []interface{}, c *gin.Context) error {
+func Bind(param requestiface.RequestParam, allParams []interface{}, c *gin.Context) error {
 	err := c.ShouldBindJSON(param)
 	if err != nil {
 		// 1. nil结构体 *json.InvalidUnmarshalError

@@ -34,6 +34,9 @@ const (
 
 	// CategoryHasExist 品类信息已存在
 	CategoryHasExist = 10302
+
+	// CategoryNotExist 品类信息不存在
+	CategoryNotExist = 10303
 )
 
 var message = map[int]string{
@@ -86,6 +89,12 @@ func (r *RespBody) KindNotExistError(err *sysError.KindNotExistError) {
 
 func (r *RespBody) CategoryHasExistError(err *sysError.CategoryHasExistError)  {
 	r.Code = CategoryHasExist
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) CategoryNotExistError(err *sysError.CategoryNotExistError)  {
+	r.Code = CategoryNotExist
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }

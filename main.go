@@ -2,6 +2,7 @@ package main
 
 import (
 	"WeddingDressManage/controller/v1/category"
+	"WeddingDressManage/controller/v1/dress"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,8 +17,11 @@ func main() {
 		// 添加新品类礼服
 		v1.POST("category/create", category.Add)
 
-		// 查看礼服
+		// 礼服品类展示
 		v1.POST("/category/show", category.Show)
+
+		// 添加已有品类礼服
+		v1.POST("/dress/add", dress.Add)
 	}
 
 	r.Run(":8000")

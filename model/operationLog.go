@@ -51,3 +51,37 @@ type OperationLog struct {
 func (o *OperationLog) Save()  {
 	db.Db.Create(o)
 }
+
+func (o *OperationLog) SaveWithSecondaryLog(secondaryLogs []*OperationSecondaryEntity) error {
+	tx := db.Db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if err := tx.Create(o).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	for _, secondaryLog := range secondaryLogs {
+		secondaryLog.OperationLogId = o.Id
+	}
+
+	if err := tx.Create(secondaryLogs).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
+}
