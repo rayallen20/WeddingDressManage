@@ -125,7 +125,11 @@ func(c *Category) fill(orm *model.DressCategory)  {
 	c.LaundryCounter = orm.LaundryCounter
 	c.MaintainCounter = orm.MaintainCounter
 	c.CoverImg = urlHelper.GenFullImgWebSite(orm.CoverImg)
-	c.SecondaryImg = urlHelper.GenFullImgWebSites(strings.Split(orm.SecondaryImg, "|"))
+	if orm.SecondaryImg != "" {
+		c.SecondaryImg = urlHelper.GenFullImgWebSites(strings.Split(orm.SecondaryImg, "|"))
+	} else {
+		c.SecondaryImg = make([]string, 0)
+	}
 	c.Status = orm.Status
 }
 
