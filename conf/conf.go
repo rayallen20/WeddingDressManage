@@ -67,6 +67,8 @@ type File struct {
 	Protocol string
 	// DomainName 文件服务器域名
 	DomainName string
+	// ImgUri 图片uri
+	ImgUri string
 }
 
 // env 用于区分生产/研发环境的变量 默认为研发环境

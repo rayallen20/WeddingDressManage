@@ -35,7 +35,7 @@ func (i *Img) Upload(param *img.UploadParam) error {
 		return saveFileErr
 	}
 
-	i.Url = conf.Conf.File.Protocol + conf.Conf.File.DomainName + "/" + i.waitSaveFile.Filename
+	i.Url = conf.Conf.File.Protocol + conf.Conf.File.DomainName + conf.Conf.File.ImgUri + "/" + i.waitSaveFile.Filename
 	return nil
 }
 
