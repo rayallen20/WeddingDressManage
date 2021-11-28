@@ -3,7 +3,7 @@ package dress
 import (
 	"WeddingDressManage/business/v1/dress"
 	"WeddingDressManage/lib/sysError"
-	dressRequest "WeddingDressManage/param/v1/request/dress"
+	dressRequest "WeddingDressManage/param/request/v1/dress"
 	"WeddingDressManage/response"
 	"WeddingDressManage/syslog"
 	"github.com/gin-gonic/gin"

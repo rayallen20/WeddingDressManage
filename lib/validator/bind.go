@@ -2,7 +2,7 @@ package validator
 
 import (
 	"WeddingDressManage/lib/sysError"
-	"WeddingDressManage/param/v1/request/requestiface"
+	"WeddingDressManage/param/request/requestiface"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 )

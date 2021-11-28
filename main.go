@@ -1,6 +1,7 @@
 package main
 
 import (
+	"WeddingDressManage/controller/img"
 	"WeddingDressManage/controller/v1/category"
 	"WeddingDressManage/controller/v1/dress"
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,9 @@ func main() {
 		// 添加已有品类礼服
 		v1.POST("/dress/add", dress.Add)
 	}
+
+	// 上传文件
+	r.POST("/upload/img", img.Upload)
 
 	r.Run(":8000")
 }

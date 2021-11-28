@@ -3,9 +3,9 @@ package category
 import (
 	"WeddingDressManage/business/v1/dress"
 	"WeddingDressManage/lib/sysError"
-	categoryRequest "WeddingDressManage/param/v1/request/category"
-	categoryResponse "WeddingDressManage/param/v1/resps/category"
-	"WeddingDressManage/param/v1/resps/pagination"
+	categoryRequest "WeddingDressManage/param/request/v1/category"
+	categoryResponse "WeddingDressManage/param/resps/v1/category"
+	"WeddingDressManage/param/resps/v1/pagination"
 	"WeddingDressManage/response"
 	"WeddingDressManage/syslog"
 	"github.com/gin-gonic/gin"

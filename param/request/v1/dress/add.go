@@ -9,7 +9,7 @@ import (
 
 type AddParam struct {
 	Category *Category `form:"category" errField:"category"`
-	Dress *Dress `form:"dress" errField:"dress"`
+	Dress *Dress       `form:"dress" errField:"dress"`
 }
 
 // Category 品类信息参数

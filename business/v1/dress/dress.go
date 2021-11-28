@@ -5,7 +5,7 @@ import (
 	"WeddingDressManage/lib/helper/urlHelper"
 	"WeddingDressManage/lib/sysError"
 	"WeddingDressManage/model"
-	"WeddingDressManage/param/v1/request/dress"
+	"WeddingDressManage/param/request/v1/dress"
 	"errors"
 	"gorm.io/gorm"
 	"strings"

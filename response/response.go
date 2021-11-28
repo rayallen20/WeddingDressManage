@@ -20,6 +20,12 @@ const (
 	// InvalidUnmarshalError JSON反序列化错误
 	InvalidUnmarshalError = 501
 
+	// ReceiveFileError 接收文件错误
+	ReceiveFileError = 502
+
+	// SaveFileError 保存文件错误
+	SaveFileError = 503
+
 	// DbError 数据库错误
 	DbError = 502
 
@@ -95,6 +101,18 @@ func (r *RespBody) CategoryHasExistError(err *sysError.CategoryHasExistError)  {
 
 func (r *RespBody) CategoryNotExistError(err *sysError.CategoryNotExistError)  {
 	r.Code = CategoryNotExist
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) ReceiveFileError(err *sysError.ReceiveFileError)  {
+	r.Code = ReceiveFileError
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) SaveFileError(err *sysError.SaveFileError)  {
+	r.Code = SaveFileError
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }
