@@ -31,7 +31,7 @@ type Category struct {
 	// CoverImg 封面图
 	CoverImg string `form:"coverImg" binding:"gt=0,required,imgUrl" errField:"coverImg"`
 	// SecondaryImg 副图
-	SecondaryImg []string `form:"secondaryImg" binding:"gt=0,lte=1,imgUrls" errField:"secondaryImg"`
+	SecondaryImg []string `form:"secondaryImg" binding:"gte=0,lte=1,imgUrls" errField:"secondaryImg"`
 }
 
 // Dress 添加新品类礼服接口请求参数中 礼服信息部分
