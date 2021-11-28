@@ -117,7 +117,7 @@ func Show(c *gin.Context) {
 	categoryParams := categoryParam.Generate(categories)
 	paginationParam := &pagination.Response{
 		CurrentPage: param.Pagination.CurrentPage,
-		ItemCounter: param.Pagination.ItemPerPage,
+		ItemPerPage: param.Pagination.ItemPerPage,
 		TotalPage:   totalPage,
 	}
 	resp.Success(map[string]interface{}{
