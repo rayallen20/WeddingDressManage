@@ -107,11 +107,13 @@ func(c *Category) createDressORMForAdd(param *categoryRequest.AddParam) []*model
 // fill 根据ORM信息填充品类对象
 func(c *Category) fill(orm *model.DressCategory)  {
 	c.Id = orm.Id
-	c.Kind = &Kind {
-		Id:     orm.Kind.Id,
-		Name:   orm.Kind.Name,
-		Code:   orm.Kind.Code,
-		Status: orm.Kind.Status,
+	if orm.Kind != nil {
+		c.Kind = &Kind {
+			Id:     orm.Kind.Id,
+			Name:   orm.Kind.Name,
+			Code:   orm.Kind.Code,
+			Status: orm.Kind.Status,
+		}
 	}
 	c.SerialNumber = orm.SerialNumber
 	c.Quantity = orm.Quantity

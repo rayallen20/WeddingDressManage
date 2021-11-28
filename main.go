@@ -11,12 +11,12 @@ func main() {
 	r := gin.Default()
 
 	// 路由分组
-	v1 := r.Group("/v1/")
+	v1 := r.Group("/v1")
 
 	// v1版本API
 	{
 		// 添加新品类礼服
-		v1.POST("category/create", category.Add)
+		v1.POST("/category/create", category.Add)
 
 		// 礼服品类展示
 		v1.POST("/category/show", category.Show)
