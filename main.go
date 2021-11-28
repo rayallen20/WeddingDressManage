@@ -28,5 +28,5 @@ func main() {
 	// 上传文件
 	r.POST("/upload/img", img.Upload)
 
-	r.Run(":8000")
+	r.Run("127.0.0.1:8000")
 }
