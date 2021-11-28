@@ -30,7 +30,7 @@ func GetUrlFromWebSite(website string) (url string) {
 
 // GenFullImgWebSite 根据uri生成一个完整图片地址
 func GenFullImgWebSite(uri string) string {
-	return conf.Conf.File.Protocol + conf.Conf.File.DomainName + uri
+	return conf.Conf.File.Protocol + conf.Conf.File.DomainName + conf.Conf.File.ImgUri + uri
 }
 
 // GenFullImgWebSites 根据给定uri集合生成一个完整图片地址集合
@@ -38,7 +38,7 @@ func GenFullImgWebSites(uris []string) []string {
 	webSites := make([]string, 0, len(uris))
 
 	for _, uri := range uris {
-		webSite := conf.Conf.File.Protocol + conf.Conf.File.DomainName + uri
+		webSite := conf.Conf.File.Protocol + conf.Conf.File.DomainName + conf.Conf.File.ImgUri + uri
 		webSites = append(webSites, webSite)
 	}
 	return webSites
