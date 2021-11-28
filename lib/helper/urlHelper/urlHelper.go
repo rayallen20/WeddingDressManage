@@ -43,3 +43,22 @@ func GenFullImgWebSites(uris []string) []string {
 	}
 	return webSites
 }
+
+// GetUniqueUriFromImgUri 从一个图片uri中 获取唯一部分 即:/img/xxx.png中 /xxx.png的部分
+func GetUniqueUriFromImgUri(uri string) string {
+	uriSegment := strings.Split(uri, "/")
+	uniqueUri := "/" + uriSegment[len(uriSegment) - 1]
+	return uniqueUri
+}
+
+// GetUniqueUriFromImgUris 从一个图片uri中 获取唯一部分 即:/img/xxx.png中 /xxx.png的部分
+func GetUniqueUriFromImgUris(uris []string) []string {
+	uniqueUris := make([]string, 0, len(uris))
+	for _, uri := range uris {
+		uriSegment := strings.Split(uri, "/")
+		uniqueUri := "/" + uriSegment[len(uriSegment) - 1]
+		uniqueUris = append(uniqueUris, uniqueUri)
+	}
+
+	return uniqueUris
+}

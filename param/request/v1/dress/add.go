@@ -41,10 +41,12 @@ func (a *AddParam) Validate(err error) []*sysError.ValidateError {
 // ExtractUri 将校验参数中的封面图和副图的网址转化为uri
 func (a *AddParam) ExtractUri() {
 	a.Dress.CoverImg = urlHelper.GetUriFromWebsite(a.Dress.CoverImg)
+	a.Dress.CoverImg = urlHelper.GetUniqueUriFromImgUri(a.Dress.CoverImg)
 	secondaryImgUris := make([]string, 0, len(a.Dress.SecondaryImg))
 	for _, secondaryImgWebsite := range a.Dress.SecondaryImg {
 		secondaryImgUri := urlHelper.GetUriFromWebsite(secondaryImgWebsite)
 		secondaryImgUris = append(secondaryImgUris, secondaryImgUri)
 	}
 	a.Dress.SecondaryImg = secondaryImgUris
+	a.Dress.SecondaryImg = urlHelper.GetUniqueUriFromImgUris(a.Dress.SecondaryImg)
 }
