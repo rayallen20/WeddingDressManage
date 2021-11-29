@@ -49,7 +49,7 @@ func (r *Response) fill(category *dress.Category) {
 	r.Status = category.Status
 }
 
-func (c Response) Generate(categories []*dress.Category) (resps []*Response) {
+func (r *Response) Generate(categories []*dress.Category) (resps []*Response) {
 	resps = make([]*Response, 0, len(categories))
 	for _, category := range categories {
 		resp := &Response{}

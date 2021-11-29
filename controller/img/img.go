@@ -4,6 +4,7 @@ import (
 	business "WeddingDressManage/business/img"
 	"WeddingDressManage/lib/sysError"
 	"WeddingDressManage/param/request/img"
+	imgResponse "WeddingDressManage/param/resps/img"
 	"WeddingDressManage/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -40,10 +41,8 @@ func Upload(c *gin.Context)  {
 		}
 	}
 
-	data := map[string]interface{}{
-		"url":imgBiz.Url,
-	}
-	resp.Success(data)
+	respParam := &imgResponse.Response{Url: imgBiz.Url}
+	resp.Success(map[string]interface{}{"url":respParam.Url})
 	c.JSON(http.StatusOK, resp)
 	return
 }
