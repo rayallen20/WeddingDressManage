@@ -17,10 +17,10 @@ type Kind struct {
 
 // FindById 根据Id属性值查找礼服大类信息
 func (k *Kind) FindById() error {
-	kindModel := &model.DressKind{
+	orm := &model.DressKind{
 		Id: k.Id,
 	}
-	err := kindModel.FindById()
+	err := orm.FindById()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			kindNotExistError := &sysError.KindNotExistError{NotExistId: k.Id}
@@ -29,8 +29,33 @@ func (k *Kind) FindById() error {
 		return err
 	}
 
-	k.Code = kindModel.Code
-	k.Name = kindModel.Name
-	k.Status = kindModel.Status
+	k.fill(orm)
+
 	return nil
+}
+
+// fill 根据DressKind orm填充一个biz层的Kind对象
+func (k *Kind) fill(orm *model.DressKind)  {
+	k.Id = orm.Id
+	k.Code = orm.Code
+	k.Name = orm.Name
+	k.Status = orm.Status
+}
+
+func (k *Kind) Show() ([]*Kind, error) {
+	orm := &model.DressKind{}
+	orms, err := orm.FindAllOnSale()
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		dbErr := &sysError.DbError{RealError: err}
+		return nil, dbErr
+	}
+
+	kinds := make([]*Kind, 0, len(orms))
+	for _, kindOrm := range orms {
+		kind := &Kind{}
+		kind.fill(kindOrm)
+		kinds = append(kinds, kind)
+	}
+
+	return kinds, nil
 }

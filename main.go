@@ -4,6 +4,7 @@ import (
 	"WeddingDressManage/controller/img"
 	"WeddingDressManage/controller/v1/category"
 	"WeddingDressManage/controller/v1/dress"
+	"WeddingDressManage/controller/v1/kind"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,6 +24,9 @@ func main() {
 
 		// 添加已有品类礼服
 		v1.POST("/dress/add", dress.Add)
+
+		// 礼服大类展示
+		v1.GET("/kind/show", kind.Show)
 	}
 
 	// 上传文件

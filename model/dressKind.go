@@ -28,3 +28,10 @@ func (k *DressKind) FindById() error {
 	res := db.Db.Where("status = ?", KindStatus["onSale"]).First(k)
 	return res.Error
 }
+
+// FindAllOnSale 查询所有在售状态的大类信息
+func (k DressKind) FindAllOnSale() ([]*DressKind, error) {
+	orms := make([]*DressKind, 0)
+	err := db.Db.Where("status", KindStatus["onSale"]).Find(&orms).Error
+	return orms, err
+}
