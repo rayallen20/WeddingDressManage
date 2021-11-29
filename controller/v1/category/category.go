@@ -186,6 +186,10 @@ func Update(c *gin.Context) {
 	resp := &response.RespBody{}
 	param := &categoryRequest.UpdateParam{}
 
+	// 记录请求参数
+	logger := &syslog.UpdateCategory{}
+	logger.GetData(c)
+
 	err := param.Bind(c)
 	if invalidUnmarshalError, ok := err.(*sysError.InvalidUnmarshalError); ok {
 		resp.InvalidUnmarshalError(invalidUnmarshalError)
@@ -229,6 +233,9 @@ func Update(c *gin.Context) {
 			return
 		}
 	}
+
+	logger.TargetId = categoryBiz.Id
+	logger.Logger()
 
 	resp.Success(map[string]interface{}{})
 	c.JSON(http.StatusOK, resp)
