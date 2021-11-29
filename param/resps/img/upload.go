@@ -1,5 +1,5 @@
 package img
 
-type Response struct {
+type UploadResponse struct {
 	Url string `json:"url"`
 }

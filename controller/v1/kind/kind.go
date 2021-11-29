@@ -21,7 +21,7 @@ func Show(c *gin.Context)  {
 		return
 	}
 
-	respParam := &responseParam.Response{}
+	respParam := &responseParam.ShowResponse{}
 	respParams := respParam.Generate(kinds)
 
 	data := map[string]interface{}{

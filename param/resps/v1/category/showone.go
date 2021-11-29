@@ -2,10 +2,9 @@ package category
 
 import "WeddingDressManage/business/v1/dress"
 
-// ShowResponse 响应体中的品类信息部分
-type ShowResponse struct {
+type ShowOneResponse struct {
 	Id               int               `json:"id"`
-	Kind             *showKindResponse `json:"kind"`
+	Kind             *showOneKindResponse `json:"kind"`
 	SerialNumber     string            `json:"serialNumber"`
 	Quantity         int           `json:"quantity"`
 	RentableQuantity int           `json:"rentableQuantity"`
@@ -20,43 +19,33 @@ type ShowResponse struct {
 	Status           string        `json:"status"`
 }
 
-type showKindResponse struct {
+type showOneKindResponse struct {
 	Id     int    `json:"id"`
 	Name   string `json:"name"`
 	Code   string `json:"code"`
 	Status string `json:"status"`
 }
 
-func (r *ShowResponse) fill(category *dress.Category) {
-	r.Id = category.Id
+func (s *ShowOneResponse) Fill(category *dress.Category) {
+	s.Id = category.Id
 	if category.Kind != nil {
-		r.Kind = &showKindResponse{
+		s.Kind = &showOneKindResponse{
 			Id:     category.Kind.Id,
 			Name:   category.Kind.Name,
 			Code:   category.Kind.Code,
 			Status: category.Kind.Status,
 		}
 	}
-	r.SerialNumber = category.SerialNumber
-	r.Quantity = category.Quantity
-	r.RentableQuantity = category.RentableQuantity
-	r.CharterMoney = category.CharterMoney
-	r.AvgCharterMoney = category.AvgCharterMoney
-	r.CashPledge = category.CashPledge
-	r.RentCounter = category.RentCounter
-	r.LaundryCounter = category.LaundryCounter
-	r.MaintainCounter = category.MaintainCounter
-	r.CoverImg = category.CoverImg
-	r.SecondaryImg = category.SecondaryImg
-	r.Status = category.Status
-}
-
-func (r *ShowResponse) Generate(categories []*dress.Category) (resps []*ShowResponse) {
-	resps = make([]*ShowResponse, 0, len(categories))
-	for _, category := range categories {
-		resp := &ShowResponse{}
-		resp.fill(category)
-		resps = append(resps, resp)
-	}
-	return resps
+	s.SerialNumber = category.SerialNumber
+	s.Quantity = category.Quantity
+	s.RentableQuantity = category.RentableQuantity
+	s.CharterMoney = category.CharterMoney
+	s.AvgCharterMoney = category.AvgCharterMoney
+	s.CashPledge = category.CashPledge
+	s.RentCounter = category.RentCounter
+	s.LaundryCounter = category.LaundryCounter
+	s.MaintainCounter = category.MaintainCounter
+	s.CoverImg = category.CoverImg
+	s.SecondaryImg = category.SecondaryImg
+	s.Status = category.Status
 }

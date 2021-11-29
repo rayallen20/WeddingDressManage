@@ -41,7 +41,7 @@ func Upload(c *gin.Context)  {
 		}
 	}
 
-	respParam := &imgResponse.Response{Url: imgBiz.Url}
+	respParam := &imgResponse.UploadResponse{Url: imgBiz.Url}
 	resp.Success(map[string]interface{}{"url":respParam.Url})
 	c.JSON(http.StatusOK, resp)
 	return

@@ -113,7 +113,7 @@ func Show(c *gin.Context) {
 		}
 	}
 
-	categoryParam := &categoryResponse.Response{}
+	categoryParam := &categoryResponse.ShowResponse{}
 	categoryParams := categoryParam.Generate(categories)
 	paginationParam := &pagination.Response{
 		CurrentPage: param.Pagination.CurrentPage,
@@ -124,6 +124,57 @@ func Show(c *gin.Context) {
 		"categories":categoryParams,
 		"pagination":paginationParam,
 	})
+	c.JSON(http.StatusOK, resp)
+	return
+}
+
+// ShowOne 展示1条品类信息
+func ShowOne(c *gin.Context) {
+	resp := &response.RespBody{}
+	param := &categoryRequest.ShowOneParam{}
+	err := param.Bind(c)
+
+	if invalidUnmarshalError, ok := err.(*sysError.InvalidUnmarshalError); ok {
+		resp.InvalidUnmarshalError(invalidUnmarshalError)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	if unmarshalTypeError, ok := err.(*sysError.UnmarshalTypeError); ok {
+		resp.FieldTypeError(unmarshalTypeError)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	validateErrors := param.Validate(err)
+	if validateErrors != nil {
+		resp.ValidateError(validateErrors)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	categoryBiz := &dress.Category{}
+	err = categoryBiz.ShowOne(param)
+
+	if dbErr, ok := err.(*sysError.DbError); ok {
+		resp.DbError(dbErr)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	if notExistErr, ok := err.(*sysError.CategoryNotExistError); ok {
+		resp.CategoryNotExistError(notExistErr)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	respParam := &categoryResponse.ShowOneResponse{}
+	respParam.Fill(categoryBiz)
+	data := map[string]interface{}{
+		"category":respParam,
+	}
+
+	resp.Success(data)
 	c.JSON(http.StatusOK, resp)
 	return
 }

@@ -8,18 +8,18 @@ import (
 )
 
 type AddParam struct {
-	Category *Category `form:"category" errField:"category"`
-	Dress *Dress       `form:"dress" errField:"dress"`
+	Category *addCategoryParam `form:"category" errField:"category"`
+	Dress *addDressPram        `form:"dress" errField:"dress"`
 }
 
-// Category 品类信息参数
-type Category struct {
+// AddCategoryParam 品类信息参数
+type addCategoryParam struct {
 	// Id 品类ID
 	Id int `form:"id" binding:"gt=0,required" errField:"id"`
 }
 
-// Dress 礼服信息参数
-type Dress struct {
+// AddDressPram 礼服信息参数
+type addDressPram struct {
 	// Size 尺码
 	Size string `form:"size" binding:"required,oneof=S M F L XL XXL D" errField:"size"`
 	// Number 礼服数量
@@ -31,11 +31,11 @@ type Dress struct {
 }
 
 func (a *AddParam) Bind(c *gin.Context) error {
-	return validator.Bind(a, []interface{}{a, &Category{}, &Dress{}}, c)
+	return validator.Bind(a, []interface{}{a, &addCategoryParam{}, &addDressPram{}}, c)
 }
 
-func (a *AddParam) Validate(err error) []*sysError.ValidateError {
-	return validator.Validate(err)
+func (a *AddParam) Validate(errs error) []*sysError.ValidateError {
+	return validator.Validate(errs)
 }
 
 // ExtractUri 将校验参数中的封面图和副图的网址转化为uri

@@ -9,19 +9,19 @@ import (
 
 // AddParam 添加新品类礼服接口请求参数
 type AddParam struct {
-	Kind *Kind         `form:"kind" binding:"required" errField:"category"`
-	Category *Category `form:"category" binding:"required" errField:"category"`
-	Dress    *Dress    `form:"dress" binding:"required" errField:"category"`
+	Kind *addKindParam         `form:"kind" binding:"required" errField:"category"`
+	Category *addCategoryParam `form:"category" binding:"required" errField:"category"`
+	Dress    *addDressParam    `form:"dress" binding:"required" errField:"category"`
 }
 
-// Kind 添加新品类礼服接口请求参数中 礼服大类信息部分
-type Kind struct {
+// addKindParam 添加新品类礼服接口请求参数中 礼服大类信息部分
+type addKindParam struct {
 	// Id 礼服大类信息Id
 	Id int `form:"id" binding:"gt=0,required" errField:"id"`
 }
 
-// Category 添加新品类礼服接口请求参数中 品类信息部分
-type Category struct {
+// addCategoryParam 添加新品类礼服接口请求参数中 品类信息部分
+type addCategoryParam struct {
 	// SequenceNumber 品类序号
 	SequenceNumber string `form:"sequenceNumber" binding:"gt=0,required,numeric" errField:"sequenceNumber"`
 	// CharterMoney 租金
@@ -34,14 +34,14 @@ type Category struct {
 	SecondaryImg []string `form:"secondaryImg" binding:"gte=0,lte=1,imgUrls" errField:"secondaryImg"`
 }
 
-// Dress 添加新品类礼服接口请求参数中 礼服信息部分
-type Dress struct {
+// addDressParam 添加新品类礼服接口请求参数中 礼服信息部分
+type addDressParam struct {
 	Number int `form:"number" binding:"gt=0,required" errField:"number"`
 	Size string `form:"size" binding:"required,oneof=S M F L XL XXL D" errField:"size"`
 }
 
 func (a *AddParam) Bind(c *gin.Context) error {
-	return validator.Bind(a, []interface{}{&AddParam{}, &Category{}, &Dress{}}, c)
+	return validator.Bind(a, []interface{}{&AddParam{}, &addCategoryParam{}, &addDressParam{}}, c)
 }
 
 func (a *AddParam) Validate(err error) []*sysError.ValidateError {

@@ -158,3 +158,20 @@ func(c *Category) Show(param *categoryRequest.ShowParam) (categories []*Category
 	totalPage = int(math.Ceil(float64(count) / float64(param.Pagination.ItemPerPage)))
 	return categories, totalPage, nil
 }
+
+func (c *Category) ShowOne(param *categoryRequest.ShowOneParam) error {
+	orm := &model.DressCategory{Id: param.Category.Id}
+	err := orm.FindById()
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		dbErr := &sysError.DbError{RealError: err}
+		return dbErr
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		notExistErr := &sysError.CategoryNotExistError{Id: param.Category.Id}
+		return notExistErr
+	}
+
+	c.fill(orm)
+	return nil
+}

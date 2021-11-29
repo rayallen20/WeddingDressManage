@@ -27,6 +27,9 @@ func main() {
 
 		// 礼服大类展示
 		v1.GET("/kind/show", kind.Show)
+
+		// 单条礼服品类信息展示
+		v1.POST("/category/showOne", category.ShowOne)
 	}
 
 	// 上传文件

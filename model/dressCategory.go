@@ -37,7 +37,7 @@ type DressCategory struct {
 }
 
 func (c *DressCategory) FindById() error {
-	return db.Db.Where(c).First(c).Error
+	return db.Db.Where(c).Preload("Kind").First(c).Error
 }
 
 // FindBySerialNumber 根据礼服品类编码 查找1条品类信息 默认为非脱销状态
