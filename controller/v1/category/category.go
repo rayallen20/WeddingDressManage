@@ -156,16 +156,18 @@ func ShowOne(c *gin.Context) {
 	categoryBiz := &dress.Category{}
 	err = categoryBiz.ShowOne(param)
 
-	if dbErr, ok := err.(*sysError.DbError); ok {
-		resp.DbError(dbErr)
-		c.JSON(http.StatusOK, resp)
-		return
-	}
+	if err != nil {
+		if dbErr, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
 
-	if notExistErr, ok := err.(*sysError.CategoryNotExistError); ok {
-		resp.CategoryNotExistError(notExistErr)
-		c.JSON(http.StatusOK, resp)
-		return
+		if notExistErr, ok := err.(*sysError.CategoryNotExistError); ok {
+			resp.CategoryNotExistError(notExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
 	}
 
 	respParam := &categoryResponse.ShowOneResponse{}
@@ -175,6 +177,60 @@ func ShowOne(c *gin.Context) {
 	}
 
 	resp.Success(data)
+	c.JSON(http.StatusOK, resp)
+	return
+}
+
+// Update 修改品类信息
+func Update(c *gin.Context) {
+	resp := &response.RespBody{}
+	param := &categoryRequest.UpdateParam{}
+
+	err := param.Bind(c)
+	if invalidUnmarshalError, ok := err.(*sysError.InvalidUnmarshalError); ok {
+		resp.InvalidUnmarshalError(invalidUnmarshalError)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	if unmarshalTypeError, ok := err.(*sysError.UnmarshalTypeError); ok {
+		resp.FieldTypeError(unmarshalTypeError)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	validateErrors := param.Validate(err)
+	if validateErrors != nil {
+		resp.ValidateError(validateErrors)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	param.ExtractUri()
+
+	categoryBiz := &dress.Category{}
+	err = categoryBiz.Update(param)
+	if err != nil {
+		if dbErr, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if notExistErr, ok := err.(*sysError.CategoryNotExistError); ok {
+			resp.CategoryNotExistError(notExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if dbErr, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+	}
+
+	resp.Success(map[string]interface{}{})
 	c.JSON(http.StatusOK, resp)
 	return
 }

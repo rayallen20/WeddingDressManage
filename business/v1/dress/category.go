@@ -159,6 +159,7 @@ func(c *Category) Show(param *categoryRequest.ShowParam) (categories []*Category
 	return categories, totalPage, nil
 }
 
+// ShowOne 根据id展示1条品类信息
 func (c *Category) ShowOne(param *categoryRequest.ShowOneParam) error {
 	orm := &model.DressCategory{Id: param.Category.Id}
 	err := orm.FindById()
@@ -174,4 +175,42 @@ func (c *Category) ShowOne(param *categoryRequest.ShowOneParam) error {
 
 	c.fill(orm)
 	return nil
+}
+
+func (c *Category) Update(param *categoryRequest.UpdateParam) error {
+	//orm := &model.DressCategory{
+	//	Id: param.Category.Id,
+	//	CharterMoney: param.Category.CharterMoney,
+	//	CashPledge: param.Category.CashPledge,
+	//	CoverImg: param.Category.CoverImg,
+	//	SecondaryImg: sliceHelper.ImpactSliceToStr(param.Category.SecondaryImg, "|"),
+	//}
+
+	orm := &model.DressCategory{Id: param.Category.Id}
+	err := orm.FindById()
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		dbErr := &sysError.DbError{RealError: err}
+		return dbErr
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		notExistErr := &sysError.CategoryNotExistError{Id: param.Category.Id}
+		return notExistErr
+	}
+
+	orm = &model.DressCategory{
+		Id: param.Category.Id,
+		CharterMoney: param.Category.CharterMoney,
+		CashPledge: param.Category.CashPledge,
+		CoverImg: param.Category.CoverImg,
+		SecondaryImg: sliceHelper.ImpactSliceToStr(param.Category.SecondaryImg, "|"),
+	}
+
+	err = orm.Updates()
+
+	if err != nil {
+		c.fill(orm)
+	}
+
+	return err
 }

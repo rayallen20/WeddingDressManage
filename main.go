@@ -30,6 +30,9 @@ func main() {
 
 		// 单条礼服品类信息展示
 		v1.POST("/category/showOne", category.ShowOne)
+
+		// 品类信息修改
+		v1.POST("/category/update", category.Update)
 	}
 
 	// 上传文件

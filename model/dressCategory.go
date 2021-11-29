@@ -92,3 +92,8 @@ func (c *DressCategory) CountNormal() (count int64, err error) {
 	err = db.Db.Not("status", CategoryStatus["haltSales"]).Find(&DressCategory{}).Count(&count).Error
 	return count, err
 }
+
+// Updates 对一个指定了primary key的ORM 更新指定字段
+func (c *DressCategory) Updates() error {
+	return db.Db.Updates(c).Error
+}
