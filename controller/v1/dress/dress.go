@@ -104,6 +104,14 @@ func ShowUsable(c *gin.Context) {
 	categoryBiz, dressBizs, totalPage, err := dressBiz.ShowUsable(param)
 	if dbErr, ok := err.(*sysError.DbError); ok {
 		resp.DbError(dbErr)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	if categoryNotExistErr, ok := err.(*sysError.CategoryNotExistError); ok {
+		resp.CategoryNotExistError(categoryNotExistErr)
+		c.JSON(http.StatusOK, resp)
+		return
 	}
 
 	paginationResp := &pagination.Response{

@@ -8,7 +8,7 @@ import (
 type ShowUsableResponse struct {
 	Category   *showUsableCategoryResponse  `json:"category"`
 	Dresses    []*showUsableDressesResponse `json:"dresses"`
-	Pagination *pagination.Response
+	Pagination *pagination.Response			`json:"pagination"`
 }
 
 type showUsableCategoryResponse struct {

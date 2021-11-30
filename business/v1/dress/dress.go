@@ -8,7 +8,6 @@ import (
 	"WeddingDressManage/param/request/v1/dress"
 	"WeddingDressManage/param/resps/v1/pagination"
 	"errors"
-	"fmt"
 	"gorm.io/gorm"
 	"strings"
 )
@@ -133,7 +132,7 @@ func (d *Dress) fill(orm *model.Dress)  {
 	d.Status = orm.Status
 }
 
-func (d *Dress) ShowUsable(param *dress.ShowUsableParam) (category *Category, dresses []*Dress, totalPage int, err error) {
+func (d *Dress) ShowUsable(param *dress.ShowUsableParam) (category *Category, usableDresses []*Dress, totalPage int, err error) {
 	// step1. 查品类信息是否存在
 	categoryOrm := &model.DressCategory{Id: param.Category.Id}
 	err = categoryOrm.FindById()
@@ -157,19 +156,18 @@ func (d *Dress) ShowUsable(param *dress.ShowUsableParam) (category *Category, dr
 	// Tips: 查询总页数时使用的orm由于已经被用作查询过 所以导致其内部有Id字段等信息 故此处需重新创建一个orm
 	dressOrm = &model.Dress{CategoryId: param.Category.Id}
 	usableDressOrms, err := dressOrm.FindUsableByCategoryId(param.Pagination.CurrentPage, param.Pagination.ItemPerPage)
-	fmt.Printf("%d\n", len(usableDressOrms))
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil, 0, &sysError.DbError{RealError: err}
 	}
 
 	category = &Category{}
 	category.fill(categoryOrm)
-	dresses = make([]*Dress, 0, len(usableDressOrms))
+	usableDresses = make([]*Dress, 0, len(usableDressOrms))
 	for _, usableOrm := range usableDressOrms {
-		dress := &Dress{}
-		dress.fill(usableOrm)
-		dresses = append(dresses, dress)
+		usableDress := &Dress{}
+		usableDress.fill(usableOrm)
+		usableDresses = append(usableDresses, usableDress)
 	}
 
-	return category, dresses, totalPage, nil
+	return category, usableDresses, totalPage, nil
 }
