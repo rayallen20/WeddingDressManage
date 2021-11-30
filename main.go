@@ -39,7 +39,7 @@ func main() {
 		v1.POST("/category/update", category.Update)
 
 		// 指定品类下可用礼服展示
-		// v1.POST("/dress/showUsable")
+		v1.POST("/dress/showUsable", dress.ShowUsable)
 	}
 
 	// 上传文件

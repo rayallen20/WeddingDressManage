@@ -137,6 +137,7 @@ func(c *Category) fill(orm *model.DressCategory)  {
 func(c *Category) Show(param *categoryRequest.ShowParam) (categories []*Category,totalPage int, err error) {
 	model := &model.DressCategory{}
 	orms, err := model.FindNormal(param.Pagination.CurrentPage, param.Pagination.ItemPerPage)
+	// TODO:此处要对没查到做handle?
 	if err != nil {
 		return nil, totalPage, &sysError.DbError{RealError: err}
 	}

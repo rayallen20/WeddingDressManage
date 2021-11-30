@@ -6,7 +6,9 @@ import (
 	"WeddingDressManage/lib/sysError"
 	"WeddingDressManage/model"
 	"WeddingDressManage/param/request/v1/dress"
+	"WeddingDressManage/param/resps/v1/pagination"
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"strings"
 )
@@ -96,14 +98,8 @@ func (d *Dress) fill(orm *model.Dress)  {
 	d.Id = orm.Id
 	d.CategoryId = orm.CategoryId
 	if orm.Category != nil {
-		d.Category = &Category{
+		d.Category = &Category {
 			Id:               orm.Category.Id,
-			Kind:             &Kind{
-				Id:     orm.Category.Kind.Id,
-				Name:   orm.Category.Kind.Name,
-				Code:   orm.Category.Kind.Code,
-				Status: orm.Category.Kind.Status,
-			},
 			SerialNumber:     orm.Category.SerialNumber,
 			Quantity:         orm.Category.Quantity,
 			RentableQuantity: orm.Category.RentableQuantity,
@@ -117,6 +113,15 @@ func (d *Dress) fill(orm *model.Dress)  {
 			SecondaryImg:     urlHelper.GenFullImgWebSites(strings.Split(orm.Category.SecondaryImg, "|")),
 			Status:           orm.Category.Status,
 		}
+
+		if orm.Category.Kind != nil {
+			d.Category.Kind = &Kind{
+				Id:     orm.Category.Kind.Id,
+				Name:   orm.Category.Kind.Name,
+				Code:   orm.Category.Kind.Code,
+				Status: orm.Category.Kind.Status,
+			}
+		}
 	}
 	d.SerialNumber = orm.SerialNumber
 	d.Size = orm.Size
@@ -126,4 +131,45 @@ func (d *Dress) fill(orm *model.Dress)  {
 	d.CoverImg = urlHelper.GenFullImgWebSite(orm.CoverImg)
 	d.SecondaryImg = urlHelper.GenFullImgWebSites(strings.Split(orm.SecondaryImg, "|"))
 	d.Status = orm.Status
+}
+
+func (d *Dress) ShowUsable(param *dress.ShowUsableParam) (category *Category, dresses []*Dress, totalPage int, err error) {
+	// step1. 查品类信息是否存在
+	categoryOrm := &model.DressCategory{Id: param.Category.Id}
+	err = categoryOrm.FindById()
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil, 0, &sysError.DbError{RealError: err}
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil, 0, &sysError.CategoryNotExistError{Id: param.Category.Id}
+	}
+
+	// step2. 查询总页数
+	dressOrm := &model.Dress{CategoryId: param.Category.Id}
+	count, err := dressOrm.CountUsableByCategoryId()
+	if err != nil {
+		return nil, nil, 0, &sysError.DbError{RealError: err}
+	}
+	totalPage = pagination.CalcTotalPage(count, param.Pagination.ItemPerPage)
+
+	// step3. 根据品类信息分页查询礼服
+	// Tips: 查询总页数时使用的orm由于已经被用作查询过 所以导致其内部有Id字段等信息 故此处需重新创建一个orm
+	dressOrm = &model.Dress{CategoryId: param.Category.Id}
+	usableDressOrms, err := dressOrm.FindUsableByCategoryId(param.Pagination.CurrentPage, param.Pagination.ItemPerPage)
+	fmt.Printf("%d\n", len(usableDressOrms))
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil, 0, &sysError.DbError{RealError: err}
+	}
+
+	category = &Category{}
+	category.fill(categoryOrm)
+	dresses = make([]*Dress, 0, len(usableDressOrms))
+	for _, usableOrm := range usableDressOrms {
+		dress := &Dress{}
+		dress.fill(usableOrm)
+		dresses = append(dresses, dress)
+	}
+
+	return category, dresses, totalPage, nil
 }

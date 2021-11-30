@@ -15,6 +15,8 @@ import (
 // preOnSale:预上架
 // laundry:送洗中
 // maintain:维护中
+// discard:已销库
+// gift:已赠与
 var DressStatus = map[string]string{
 	"onSale":"onSale",
 	"preRent":"preRent",
@@ -23,6 +25,8 @@ var DressStatus = map[string]string{
 	"preOnSale":"preOnSale",
 	"laundry":"laundry",
 	"maintain":"maintain",
+	"discard":"discard",
+	"gift":"gift",
 }
 
 // Dress dress表的ORM
@@ -77,4 +81,19 @@ func (d *Dress) AddDressesAndUpdateCategory(categoryORM *DressCategory, dressORM
 	}
 
 	return tx.Commit().Error
+}
+
+// FindUsableByCategoryId 查找指定品类下的可用礼服信息
+// 可用:礼服状态不为已赠与 且 不为已销库的状态 即为可用状态
+func (d *Dress) FindUsableByCategoryId(currentPage, itemPerPage int) (dresses []*Dress, err error) {
+	dresses = make([]*Dress, 0, itemPerPage)
+	err = db.Db.Scopes(db.Paginate(currentPage, itemPerPage)).Not("status", []string{DressStatus["discard"], DressStatus["gift"]}).
+		Where(d).Preload("Category").Preload("Category.Kind").Find(&dresses).Error
+	return dresses, err
+}
+
+// CountUsableByCategoryId 统计指定品类下可用礼服的数量
+func (d *Dress) CountUsableByCategoryId() (count int64, err error) {
+	err = db.Db.Not("status", []string{DressStatus["discard"], DressStatus["gift"]}).Where(d).Find(d).Count(&count).Error
+	return count, err
 }
