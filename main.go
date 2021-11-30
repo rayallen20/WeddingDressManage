@@ -5,11 +5,15 @@ import (
 	"WeddingDressManage/controller/v1/category"
 	"WeddingDressManage/controller/v1/dress"
 	"WeddingDressManage/controller/v1/kind"
+	"WeddingDressManage/middleware"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	r := gin.Default()
+
+	// 调用允许所有请求源的中间件
+	r.Use(middleware.Cors())
 
 	// 路由分组
 	v1 := r.Group("/v1")
@@ -33,6 +37,9 @@ func main() {
 
 		// 品类信息修改
 		v1.POST("/category/update", category.Update)
+
+		// 指定品类下可用礼服展示
+		// v1.POST("/dress/showUsable")
 	}
 
 	// 上传文件
