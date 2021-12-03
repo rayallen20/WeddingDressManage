@@ -1,4 +1,4 @@
-package syslog
+package logInterface
 
 import "github.com/gin-gonic/gin"
 

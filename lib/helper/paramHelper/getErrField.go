@@ -12,11 +12,11 @@ func GetErrFieldValue(objs []interface{}, exceptionFieldName string) string {
 	fieldNameAndErrField := extractFieldNameAndErrField(objs)
 	exceptionFieldNames := strings.Split(exceptionFieldName, ".")
 
-	for index, exceptionFieldName := range exceptionFieldNames {
+	for index, exceptionFieldNameSegment := range exceptionFieldNames {
 		found = false
 		for _, v := range fieldNameAndErrField {
 			for k1, v1 := range v {
-				if k1 == exceptionFieldName {
+				if k1 == exceptionFieldNameSegment {
 					found = true
 					if index == len(exceptionFieldNames) - 1 {
 						res += v1

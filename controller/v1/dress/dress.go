@@ -2,6 +2,7 @@ package dress
 
 import (
 	"WeddingDressManage/business/v1/dress"
+	"WeddingDressManage/controller"
 	"WeddingDressManage/lib/sysError"
 	dressRequest "WeddingDressManage/param/request/v1/dress"
 	dressResponse "WeddingDressManage/param/resps/v1/dress"
@@ -15,50 +16,33 @@ import (
 // Add 在已有品类下添加礼服
 func Add(c *gin.Context) {
 	var param *dressRequest.AddParam = &dressRequest.AddParam{}
-	var resp *response.RespBody = &response.RespBody{}
+	var logger *syslog.AddDress = &syslog.AddDress{}
 
-	// 记录请求参数
-	logger := &syslog.AddDress{}
-	logger.GetData(c)
-
-	err := param.Bind(c)
-
-	if invalidUnmarshalError, ok := err.(*sysError.InvalidUnmarshalError); ok {
-		resp.InvalidUnmarshalError(invalidUnmarshalError)
+	resp := controller.CheckParam(param, c, nil)
+	if resp != nil {
 		c.JSON(http.StatusOK, resp)
-		return
 	}
 
-	if unmarshalTypeError, ok := err.(*sysError.UnmarshalTypeError); ok {
-		resp.FieldTypeError(unmarshalTypeError)
-		c.JSON(http.StatusOK, resp)
-		return
-	}
-
-	validateErrors := param.Validate(err)
-	if validateErrors != nil {
-		resp.ValidateError(validateErrors)
-		c.JSON(http.StatusOK, resp)
-		return
-	}
-
+	resp = &response.RespBody{}
 	param.ExtractUri()
 
 	dressBiz := &dress.Dress{}
 	dresses, err := dressBiz.Add(param)
 
-	// 数据库错误
-	if dbError, ok := err.(*sysError.DbError); ok {
-		resp.DbError(dbError)
-		c.JSON(http.StatusOK, resp)
-		return
-	}
+	if err != nil {
+		// 数据库错误
+		if dbError, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbError)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
 
-	// 品类信息不存在错误
-	if categoryNotExistError, ok := err.(*sysError.CategoryNotExistError); ok {
-		resp.CategoryNotExistError(categoryNotExistError)
-		c.JSON(http.StatusOK, resp)
-		return
+		// 品类信息不存在错误
+		if categoryNotExistError, ok := err.(*sysError.CategoryNotExistError); ok {
+			resp.CategoryNotExistError(categoryNotExistError)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
 	}
 
 	// 记录日志
@@ -77,41 +61,28 @@ func Add(c *gin.Context) {
 
 // ShowUsable 展示指定品类下的可用礼服信息
 func ShowUsable(c *gin.Context) {
-	param := &dressRequest.ShowUsableParam{}
-	resp := &response.RespBody{}
-
-	err := param.Bind(c)
-	if invalidUnmarshalError, ok := err.(*sysError.InvalidUnmarshalError); ok {
-		resp.InvalidUnmarshalError(invalidUnmarshalError)
+	var param *dressRequest.ShowUsableParam = &dressRequest.ShowUsableParam{}
+	resp := controller.CheckParam(param, c, nil)
+	if resp != nil {
 		c.JSON(http.StatusOK, resp)
-		return
 	}
 
-	if unmarshalTypeError, ok := err.(*sysError.UnmarshalTypeError); ok {
-		resp.FieldTypeError(unmarshalTypeError)
-		c.JSON(http.StatusOK, resp)
-		return
-	}
-
-	validateErrors := param.Validate(err)
-	if validateErrors != nil {
-		resp.ValidateError(validateErrors)
-		c.JSON(http.StatusOK, resp)
-		return
-	}
+	resp = &response.RespBody{}
 
 	dressBiz := &dress.Dress{}
 	categoryBiz, dressBizs, totalPage, err := dressBiz.ShowUsable(param)
-	if dbErr, ok := err.(*sysError.DbError); ok {
-		resp.DbError(dbErr)
-		c.JSON(http.StatusOK, resp)
-		return
-	}
+	if err != nil {
+		if dbErr, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
 
-	if categoryNotExistErr, ok := err.(*sysError.CategoryNotExistError); ok {
-		resp.CategoryNotExistError(categoryNotExistErr)
-		c.JSON(http.StatusOK, resp)
-		return
+		if categoryNotExistErr, ok := err.(*sysError.CategoryNotExistError); ok {
+			resp.CategoryNotExistError(categoryNotExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
 	}
 
 	paginationResp := &pagination.Response{

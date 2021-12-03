@@ -2,6 +2,7 @@ package img
 
 import (
 	business "WeddingDressManage/business/img"
+	"WeddingDressManage/controller"
 	"WeddingDressManage/lib/sysError"
 	"WeddingDressManage/param/request/img"
 	imgResponse "WeddingDressManage/param/resps/img"
@@ -11,28 +12,15 @@ import (
 )
 
 func Upload(c *gin.Context)  {
-	param := &img.UploadParam{}
-	resp := &response.RespBody{}
-	err := param.Bind(c)
-
-	// 接收文件错误
-	if err != nil {
-		receiveErr := &sysError.ReceiveFileError{RealError: err}
-		resp.ReceiveFileError(receiveErr)
+	var param *img.UploadParam = &img.UploadParam{}
+	resp := controller.CheckParam(param, c, nil)
+	if resp != nil {
 		c.JSON(http.StatusOK, resp)
-		return
 	}
-
-	// 校验
-	errs := param.Validate(err)
-	if errs != nil {
-		resp.ValidateError(errs)
-		c.JSON(http.StatusOK, resp)
-		return
-	}
+	resp = &response.RespBody{}
 
 	imgBiz := &business.Img{}
-	err = imgBiz.Upload(param)
+	err := imgBiz.Upload(param)
 	if err != nil {
 		if saveFileErr, ok := err.(*sysError.SaveFileError); ok {
 			resp.SaveFileError(saveFileErr)

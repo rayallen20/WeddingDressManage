@@ -179,14 +179,6 @@ func (c *Category) ShowOne(param *categoryRequest.ShowOneParam) error {
 }
 
 func (c *Category) Update(param *categoryRequest.UpdateParam) error {
-	//orm := &model.DressCategory{
-	//	Id: param.Category.Id,
-	//	CharterMoney: param.Category.CharterMoney,
-	//	CashPledge: param.Category.CashPledge,
-	//	CoverImg: param.Category.CoverImg,
-	//	SecondaryImg: sliceHelper.ImpactSliceToStr(param.Category.SecondaryImg, "|"),
-	//}
-
 	orm := &model.DressCategory{Id: param.Category.Id}
 	err := orm.FindById()
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
