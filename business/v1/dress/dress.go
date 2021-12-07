@@ -14,17 +14,17 @@ import (
 
 // Dress 礼服类 即具体的每一件礼服
 type Dress struct {
-	Id int
-	CategoryId int
-	Category *Category
-	SerialNumber int
-	Size string
-	RentCounter int
-	LaundryCounter int
+	Id              int
+	CategoryId      int
+	Category        *Category
+	SerialNumber    int
+	Size            string
+	RentCounter     int
+	LaundryCounter  int
 	MaintainCounter int
-	CoverImg string
-	SecondaryImg []string
-	Status string
+	CoverImg        string
+	SecondaryImg    []string
+	Status          string
 }
 
 func (d *Dress) Add(param *dress.AddParam) ([]*Dress, error) {
@@ -93,11 +93,11 @@ func (d *Dress) createDressORMForAdd(param *dress.AddParam, maxSerialNumber int)
 	return dressORMs
 }
 
-func (d *Dress) fill(orm *model.Dress)  {
+func (d *Dress) fill(orm *model.Dress) {
 	d.Id = orm.Id
 	d.CategoryId = orm.CategoryId
 	if orm.Category != nil {
-		d.Category = &Category {
+		d.Category = &Category{
 			Id:               orm.Category.Id,
 			SerialNumber:     orm.Category.SerialNumber,
 			Quantity:         orm.Category.Quantity,
@@ -170,4 +170,30 @@ func (d *Dress) ShowUsable(param *dress.ShowUsableParam) (category *Category, us
 	}
 
 	return category, usableDresses, totalPage, nil
+}
+
+func (d *Dress) ApplyDiscard(param *dress.ApplyDiscardParam) error {
+	// step1. 查询礼服是否存在
+	orm := &model.Dress{Id: param.Dress.Id}
+	err := orm.FindById()
+	if err != nil {
+		return &sysError.DbError{RealError: err}
+	}
+
+	// step2. 确认礼服状态 当礼服状态为已赠与 或 已销库 时 不可提出销库申请
+	d.fill(orm)
+	if d.Status == model.DressStatus["gift"] || d.Status == model.DressStatus["discard"] {
+		return &sysError.DressHasUnavailableError{UnavailableStatus: d.Status}
+	}
+
+	discardAskBiz := &DiscardAsk{
+		Dress: d,
+		Note:  param.DiscardAsk.Note,
+	}
+
+	err = discardAskBiz.Apply()
+	if err != nil {
+		return &sysError.DbError{RealError: err}
+	}
+	return nil
 }

@@ -3,9 +3,9 @@ package response
 import "WeddingDressManage/lib/sysError"
 
 type RespBody struct {
-	Code int `json:"code"`
-	Message string `json:"message"`
-	Data map[string]interface{} `json:"data"`
+	Code    int                    `json:"code"`
+	Message string                 `json:"message"`
+	Data    map[string]interface{} `json:"data"`
 }
 
 // 错误码规则:
@@ -43,11 +43,14 @@ const (
 
 	// CategoryNotExist 品类信息不存在
 	CategoryNotExist = 10303
+
+	// DressHasUnavailable 礼服状态已经为不可用错误
+	DressHasUnavailable = 10304
 )
 
 var message = map[int]string{
 	ValidateError: "validate error",
-	Success: "success",
+	Success:       "success",
 }
 
 func (r *RespBody) Success(data map[string]interface{}) {
@@ -56,7 +59,7 @@ func (r *RespBody) Success(data map[string]interface{}) {
 	r.Data = data
 }
 
-func (r *RespBody) InvalidUnmarshalError(err *sysError.InvalidUnmarshalError)  {
+func (r *RespBody) InvalidUnmarshalError(err *sysError.InvalidUnmarshalError) {
 	r.Code = InvalidUnmarshalError
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
@@ -68,7 +71,7 @@ func (r *RespBody) FieldTypeError(err *sysError.UnmarshalTypeError) {
 	r.Data = map[string]interface{}{}
 }
 
-func (r *RespBody) ValidateError(errs []*sysError.ValidateError)  {
+func (r *RespBody) ValidateError(errs []*sysError.ValidateError) {
 	validateFailInfos := make([]string, 0, len(errs))
 	for _, validateError := range errs {
 		validateFailInfo := validateError.Error()
@@ -77,11 +80,11 @@ func (r *RespBody) ValidateError(errs []*sysError.ValidateError)  {
 	r.Code = ValidateError
 	r.Message = message[ValidateError]
 	r.Data = map[string]interface{}{
-		"validateFailInfos":validateFailInfos,
+		"validateFailInfos": validateFailInfos,
 	}
 }
 
-func (r *RespBody) DbError(err *sysError.DbError)  {
+func (r *RespBody) DbError(err *sysError.DbError) {
 	r.Code = DbError
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
@@ -93,26 +96,32 @@ func (r *RespBody) KindNotExistError(err *sysError.KindNotExistError) {
 	r.Data = map[string]interface{}{}
 }
 
-func (r *RespBody) CategoryHasExistError(err *sysError.CategoryHasExistError)  {
+func (r *RespBody) CategoryHasExistError(err *sysError.CategoryHasExistError) {
 	r.Code = CategoryHasExist
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }
 
-func (r *RespBody) CategoryNotExistError(err *sysError.CategoryNotExistError)  {
+func (r *RespBody) CategoryNotExistError(err *sysError.CategoryNotExistError) {
 	r.Code = CategoryNotExist
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }
 
-func (r *RespBody) ReceiveFileError(err *sysError.ReceiveFileError)  {
+func (r *RespBody) ReceiveFileError(err *sysError.ReceiveFileError) {
 	r.Code = ReceiveFileError
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }
 
-func (r *RespBody) SaveFileError(err *sysError.SaveFileError)  {
+func (r *RespBody) SaveFileError(err *sysError.SaveFileError) {
 	r.Code = SaveFileError
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) DressHasUnavailableError(err *sysError.DressHasUnavailableError) {
+	r.Code = DressHasUnavailable
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }

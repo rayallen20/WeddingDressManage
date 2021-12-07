@@ -40,6 +40,9 @@ func main() {
 
 		// 指定品类下可用礼服展示
 		v1.POST("/dress/showUsable", dress.ShowUsable)
+
+		// 礼服销库申请
+		v1.POST("/dress/applyDiscard", dress.ApplyDiscard)
 	}
 
 	// 上传文件

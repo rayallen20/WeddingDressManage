@@ -21,6 +21,7 @@ func Add(c *gin.Context) {
 	resp := controller.CheckParam(param, c, nil)
 	if resp != nil {
 		c.JSON(http.StatusOK, resp)
+		return
 	}
 
 	resp = &response.RespBody{}
@@ -65,6 +66,7 @@ func ShowUsable(c *gin.Context) {
 	resp := controller.CheckParam(param, c, nil)
 	if resp != nil {
 		c.JSON(http.StatusOK, resp)
+		return
 	}
 
 	resp = &response.RespBody{}
@@ -94,9 +96,43 @@ func ShowUsable(c *gin.Context) {
 	respParam := &dressResponse.ShowUsableResponse{}
 	respParam.Fill(categoryBiz, dressBizs, paginationResp)
 	data := map[string]interface{}{
-		"data":respParam,
+		"data": respParam,
 	}
 	resp.Success(data)
+	c.JSON(http.StatusOK, resp)
+	return
+}
+
+// ApplyDiscard 礼服销库申请
+func ApplyDiscard(c *gin.Context) {
+	var param *dressRequest.ApplyDiscardParam = &dressRequest.ApplyDiscardParam{}
+	var logger *syslog.ApplyDiscardDress = &syslog.ApplyDiscardDress{}
+	// TODO:补logger
+	resp := controller.CheckParam(param, c, logger)
+	if resp != nil {
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	resp = &response.RespBody{}
+	dressBiz := &dress.Dress{}
+	err := dressBiz.ApplyDiscard(param)
+	if dbErr, ok := err.(*sysError.DbError); ok {
+		resp.DbError(dbErr)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	if unavailableErr, ok := err.(*sysError.DressHasUnavailableError); ok {
+		resp.DressHasUnavailableError(unavailableErr)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	logger.TargetId = dressBiz.Id
+	logger.Logger()
+
+	resp.Success(map[string]interface{}{})
 	c.JSON(http.StatusOK, resp)
 	return
 }

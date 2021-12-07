@@ -14,20 +14,20 @@ import (
 
 // Category 礼服品类 相当于超市中商品的二级分类 例如:"食品-速冻食品" "食品-零食" "日用品-洗衣液"等类别
 type Category struct {
-	Id int
-	Kind *Kind
-	SerialNumber string
-	Quantity int
+	Id               int
+	Kind             *Kind
+	SerialNumber     string
+	Quantity         int
 	RentableQuantity int
-	CharterMoney int
-	AvgCharterMoney int
-	CashPledge int
-	RentCounter int
-	LaundryCounter int
-	MaintainCounter int
-	CoverImg string
-	SecondaryImg []string
-	Status string
+	CharterMoney     int
+	AvgCharterMoney  int
+	CashPledge       int
+	RentCounter      int
+	LaundryCounter   int
+	MaintainCounter  int
+	CoverImg         string
+	SecondaryImg     []string
+	Status           string
 }
 
 // Add 创建新品类并在该品类下添加礼服
@@ -70,7 +70,7 @@ func (c *Category) Add(param *categoryRequest.AddParam) error {
 }
 
 // createCategoryORMForAdd 为添加新品类礼服创建品类信息ORM
-func(c *Category) createCategoryORMForAdd(categoryORM *model.DressCategory, param *categoryRequest.AddParam) {
+func (c *Category) createCategoryORMForAdd(categoryORM *model.DressCategory, param *categoryRequest.AddParam) {
 	categoryORM.KindId = param.Kind.Id
 	categoryORM.Quantity = param.Dress.Number
 	categoryORM.RentableQuantity = param.Dress.Number
@@ -86,12 +86,12 @@ func(c *Category) createCategoryORMForAdd(categoryORM *model.DressCategory, para
 }
 
 // createDressORMForAdd 为添加新品类礼服创建礼服信息ORM集合
-func(c *Category) createDressORMForAdd(param *categoryRequest.AddParam) []*model.Dress {
+func (c *Category) createDressORMForAdd(param *categoryRequest.AddParam) []*model.Dress {
 	dressORMs := make([]*model.Dress, 0, param.Dress.Number)
 	for i := 1; i <= param.Dress.Number; i++ {
 		dressORM := &model.Dress{
 			SerialNumber:    i,
-			Size: param.Dress.Size,
+			Size:            param.Dress.Size,
 			RentCounter:     0,
 			LaundryCounter:  0,
 			MaintainCounter: 0,
@@ -105,10 +105,10 @@ func(c *Category) createDressORMForAdd(param *categoryRequest.AddParam) []*model
 }
 
 // fill 根据ORM信息填充品类对象
-func(c *Category) fill(orm *model.DressCategory)  {
+func (c *Category) fill(orm *model.DressCategory) {
 	c.Id = orm.Id
 	if orm.Kind != nil {
-		c.Kind = &Kind {
+		c.Kind = &Kind{
 			Id:     orm.Kind.Id,
 			Name:   orm.Kind.Name,
 			Code:   orm.Kind.Code,
@@ -134,7 +134,7 @@ func(c *Category) fill(orm *model.DressCategory)  {
 }
 
 // Show 礼服品类展示
-func(c *Category) Show(param *categoryRequest.ShowParam) (categories []*Category,totalPage int, err error) {
+func (c *Category) Show(param *categoryRequest.ShowParam) (categories []*Category, totalPage int, err error) {
 	model := &model.DressCategory{}
 	orms, err := model.FindNormal(param.Pagination.CurrentPage, param.Pagination.ItemPerPage)
 	// TODO:此处要对没查到做handle?
@@ -191,19 +191,17 @@ func (c *Category) Update(param *categoryRequest.UpdateParam) error {
 		return notExistErr
 	}
 
-	orm = &model.DressCategory{
-		Id: param.Category.Id,
-		CharterMoney: param.Category.CharterMoney,
-		CashPledge: param.Category.CashPledge,
-		CoverImg: param.Category.CoverImg,
-		SecondaryImg: sliceHelper.ImpactSliceToStr(param.Category.SecondaryImg, "|"),
-	}
-
+	orm.CharterMoney = param.Category.CharterMoney
+	orm.CashPledge = param.Category.CashPledge
+	orm.CoverImg = param.Category.CoverImg
+	orm.SecondaryImg = sliceHelper.ImpactSliceToStr(param.Category.SecondaryImg, "|")
 	err = orm.Updates()
 
 	if err != nil {
-		c.fill(orm)
+		dbErr := &sysError.DbError{RealError: err}
+		return dbErr
 	}
 
-	return err
+	c.fill(orm)
+	return nil
 }

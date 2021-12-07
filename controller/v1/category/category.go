@@ -90,8 +90,8 @@ func Show(c *gin.Context) {
 		TotalPage:   totalPage,
 	}
 	resp.Success(map[string]interface{}{
-		"categories":categoryParams,
-		"pagination":paginationParam,
+		"categories": categoryParams,
+		"pagination": paginationParam,
 	})
 	c.JSON(http.StatusOK, resp)
 	return
@@ -127,7 +127,7 @@ func ShowOne(c *gin.Context) {
 	respParam := &categoryResponse.ShowOneResponse{}
 	respParam.Fill(categoryBiz)
 	data := map[string]interface{}{
-		"category":respParam,
+		"category": respParam,
 	}
 
 	resp.Success(data)

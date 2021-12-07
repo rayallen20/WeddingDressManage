@@ -18,32 +18,32 @@ import (
 // discard:已销库
 // gift:已赠与
 var DressStatus = map[string]string{
-	"onSale":"onSale",
-	"preRent":"preRent",
-	"rentOut":"rentOut",
-	"pending":"pending",
-	"preOnSale":"preOnSale",
-	"laundry":"laundry",
-	"maintain":"maintain",
-	"discard":"discard",
-	"gift":"gift",
+	"onSale":    "onSale",
+	"preRent":   "preRent",
+	"rentOut":   "rentOut",
+	"pending":   "pending",
+	"preOnSale": "preOnSale",
+	"laundry":   "laundry",
+	"maintain":  "maintain",
+	"discard":   "discard",
+	"gift":      "gift",
 }
 
 // Dress dress表的ORM
 type Dress struct {
-	Id int
-	CategoryId int
-	Category *DressCategory `gorm:"foreignKey:CategoryId"`
-	SerialNumber int
-	Size string
-	RentCounter int
-	LaundryCounter int
+	Id              int
+	CategoryId      int
+	Category        *DressCategory `gorm:"foreignKey:CategoryId"`
+	SerialNumber    int
+	Size            string
+	RentCounter     int
+	LaundryCounter  int
 	MaintainCounter int
-	CoverImg string
-	SecondaryImg string `gorm:"text"`
-	Status string
-	CreatedTime time.Time `gorm:"autoCreateTime"`
-	UpdatedTime time.Time `gorm:"autoUpdateTime"`
+	CoverImg        string
+	SecondaryImg    string `gorm:"text"`
+	Status          string
+	CreatedTime     time.Time `gorm:"autoCreateTime"`
+	UpdatedTime     time.Time `gorm:"autoUpdateTime"`
 }
 
 // FindMaxSerialNumberByCategoryId 根据品类Id 查找该品类下 礼服序号的最大值
@@ -96,4 +96,8 @@ func (d *Dress) FindUsableByCategoryId(currentPage, itemPerPage int) (dresses []
 func (d *Dress) CountUsableByCategoryId() (count int64, err error) {
 	err = db.Db.Not("status", []string{DressStatus["discard"], DressStatus["gift"]}).Where(d).Find(d).Count(&count).Error
 	return count, err
+}
+
+func (d *Dress) FindById() error {
+	return db.Db.Where(d).Preload("Category").Preload("Category.Kind").First(d).Error
 }
