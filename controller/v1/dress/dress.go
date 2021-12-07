@@ -123,8 +123,14 @@ func ApplyDiscard(c *gin.Context) {
 		return
 	}
 
-	if unavailableErr, ok := err.(*sysError.DressHasUnavailableError); ok {
-		resp.DressHasUnavailableError(unavailableErr)
+	if hasGiftedErr, ok := err.(*sysError.DressHasGiftedError); ok {
+		resp.DressHasGiftedError(hasGiftedErr)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	if hasDiscardedErr, ok := err.(*sysError.DressHasDiscardedError); ok {
+		resp.DressHasDiscardedError(hasDiscardedErr)
 		c.JSON(http.StatusOK, resp)
 		return
 	}

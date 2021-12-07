@@ -44,8 +44,11 @@ const (
 	// CategoryNotExist 品类信息不存在
 	CategoryNotExist = 10303
 
-	// DressHasUnavailable 礼服状态已经为不可用错误
-	DressHasUnavailable = 10304
+	// DressHasGifted 礼服状态已经为赠与
+	DressHasGifted = 10304
+
+	// DressHasDiscarded 礼服状态已经为销库
+	DressHasDiscarded = 10305
 )
 
 var message = map[int]string{
@@ -120,8 +123,14 @@ func (r *RespBody) SaveFileError(err *sysError.SaveFileError) {
 	r.Data = map[string]interface{}{}
 }
 
-func (r *RespBody) DressHasUnavailableError(err *sysError.DressHasUnavailableError) {
-	r.Code = DressHasUnavailable
+func (r *RespBody) DressHasGiftedError(err *sysError.DressHasGiftedError) {
+	r.Code = DressHasGifted
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) DressHasDiscardedError(err *sysError.DressHasDiscardedError) {
+	r.Code = DressHasDiscarded
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }

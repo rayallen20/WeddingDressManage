@@ -182,8 +182,12 @@ func (d *Dress) ApplyDiscard(param *dress.ApplyDiscardParam) error {
 
 	// step2. 确认礼服状态 当礼服状态为已赠与 或 已销库 时 不可提出销库申请
 	d.fill(orm)
-	if d.Status == model.DressStatus["gift"] || d.Status == model.DressStatus["discard"] {
-		return &sysError.DressHasUnavailableError{UnavailableStatus: d.Status}
+	if d.Status == model.DressStatus["gift"] {
+		return &sysError.DressHasGiftedError{}
+	}
+
+	if d.Status == model.DressStatus["discard"] {
+		return &sysError.DressHasDiscardedError{}
 	}
 
 	discardAskBiz := &DiscardAsk{
