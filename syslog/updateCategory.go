@@ -8,22 +8,21 @@ import (
 )
 
 type UpdateCategory struct {
-	data string
+	data     string
 	TargetId int
 }
 
-
-func (u *UpdateCategory) GetData(ginContext *gin.Context)  {
-	bodyBytes, _ := ioutil.ReadAll(ginContext.Request.Body)
+func (u *UpdateCategory) GetData(c *gin.Context) {
+	bodyBytes, _ := ioutil.ReadAll(c.Request.Body)
 	u.data = string(bodyBytes)
-	ginContext.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 }
 
-func (u *UpdateCategory) Logger()  {
+func (u *UpdateCategory) Logger() {
 	logModel := &model.OperationLog{
-		Kind:        model.OperationType["updateCategory"],
-		TargetId:    u.TargetId,
-		Data:        u.data,
+		Kind:     model.OperationType["updateCategory"],
+		TargetId: u.TargetId,
+		Data:     u.data,
 	}
 	logModel.Save()
 }

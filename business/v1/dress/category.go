@@ -6,9 +6,9 @@ import (
 	"WeddingDressManage/lib/sysError"
 	"WeddingDressManage/model"
 	categoryRequest "WeddingDressManage/param/request/v1/category"
+	"WeddingDressManage/param/resps/v1/pagination"
 	"errors"
 	"gorm.io/gorm"
-	"math"
 	"strings"
 )
 
@@ -135,8 +135,8 @@ func (c *Category) fill(orm *model.DressCategory) {
 
 // Show 礼服品类展示
 func (c *Category) Show(param *categoryRequest.ShowParam) (categories []*Category, totalPage int, err error) {
-	model := &model.DressCategory{}
-	orms, err := model.FindNormal(param.Pagination.CurrentPage, param.Pagination.ItemPerPage)
+	categoryOrm := &model.DressCategory{}
+	orms, err := categoryOrm.FindNormal(param.Pagination.CurrentPage, param.Pagination.ItemPerPage)
 	// TODO:此处要对没查到做handle?
 	if err != nil {
 		return nil, totalPage, &sysError.DbError{RealError: err}
@@ -151,12 +151,12 @@ func (c *Category) Show(param *categoryRequest.ShowParam) (categories []*Categor
 	}
 
 	// 计算总页数
-	count, err := model.CountNormal()
+	count, err := categoryOrm.CountNormal()
 	if err != nil {
 		return nil, totalPage, &sysError.DbError{RealError: err}
 	}
 
-	totalPage = int(math.Ceil(float64(count) / float64(param.Pagination.ItemPerPage)))
+	totalPage = pagination.CalcTotalPage(count, param.Pagination.ItemPerPage)
 	return categories, totalPage, nil
 }
 

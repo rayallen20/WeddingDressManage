@@ -22,5 +22,6 @@ func (a *DiscardAsk) Apply() error {
 	if err != nil {
 		return &sysError.DbError{RealError: err}
 	}
+
 	return nil
 }

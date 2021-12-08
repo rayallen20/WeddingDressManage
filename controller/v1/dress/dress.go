@@ -28,7 +28,7 @@ func Add(c *gin.Context) {
 	param.ExtractUri()
 
 	dressBiz := &dress.Dress{}
-	dresses, err := dressBiz.Add(param)
+	dressBizs, err := dressBiz.Add(param)
 
 	if err != nil {
 		// 数据库错误
@@ -47,10 +47,11 @@ func Add(c *gin.Context) {
 	}
 
 	// 记录日志
-	dressIds := make([]int, 0, len(dresses))
+	dressIds := make([]int, 0, len(dressBizs))
 
-	for _, dress := range dresses {
-		dressIds = append(dressIds, dress.Id)
+	// Tips:此处由于之前已经使用过dressBiz 这一变量名 故命名为dressObj是无奈之举
+	for _, dressObj := range dressBizs {
+		dressIds = append(dressIds, dressObj.Id)
 	}
 
 	logger.TargetIds = dressIds
@@ -85,6 +86,12 @@ func ShowUsable(c *gin.Context) {
 			c.JSON(http.StatusOK, resp)
 			return
 		}
+
+		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+			resp.DressNotExistError(dressNotExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
 	}
 
 	paginationResp := &pagination.Response{
@@ -107,7 +114,6 @@ func ShowUsable(c *gin.Context) {
 func ApplyDiscard(c *gin.Context) {
 	var param *dressRequest.ApplyDiscardParam = &dressRequest.ApplyDiscardParam{}
 	var logger *syslog.ApplyDiscardDress = &syslog.ApplyDiscardDress{}
-	// TODO:补logger
 	resp := controller.CheckParam(param, c, logger)
 	if resp != nil {
 		c.JSON(http.StatusOK, resp)
@@ -117,22 +123,84 @@ func ApplyDiscard(c *gin.Context) {
 	resp = &response.RespBody{}
 	dressBiz := &dress.Dress{}
 	err := dressBiz.ApplyDiscard(param)
-	if dbErr, ok := err.(*sysError.DbError); ok {
-		resp.DbError(dbErr)
+
+	if err != nil {
+		if dbErr, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+			resp.DressNotExistError(dressNotExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if hasGiftedErr, ok := err.(*sysError.DressHasGiftedError); ok {
+			resp.DressHasGiftedError(hasGiftedErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if hasDiscardedErr, ok := err.(*sysError.DressHasDiscardedError); ok {
+			resp.DressHasDiscardedError(hasDiscardedErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+	}
+
+	logger.TargetId = dressBiz.Id
+	logger.Logger()
+
+	resp.Success(map[string]interface{}{})
+	c.JSON(http.StatusOK, resp)
+	return
+}
+
+func ApplyGift(c *gin.Context) {
+	var param *dressRequest.ApplyGiftParam = &dressRequest.ApplyGiftParam{}
+	var logger *syslog.ApplyGiftDress = &syslog.ApplyGiftDress{}
+	resp := controller.CheckParam(param, c, logger)
+	if resp != nil {
 		c.JSON(http.StatusOK, resp)
 		return
 	}
 
-	if hasGiftedErr, ok := err.(*sysError.DressHasGiftedError); ok {
-		resp.DressHasGiftedError(hasGiftedErr)
-		c.JSON(http.StatusOK, resp)
-		return
-	}
+	resp = &response.RespBody{}
+	dressBiz := &dress.Dress{}
+	err := dressBiz.ApplyGift(param)
 
-	if hasDiscardedErr, ok := err.(*sysError.DressHasDiscardedError); ok {
-		resp.DressHasDiscardedError(hasDiscardedErr)
-		c.JSON(http.StatusOK, resp)
-		return
+	if err != nil {
+		if dbErr, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+			resp.DressNotExistError(dressNotExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if hasGiftedErr, ok := err.(*sysError.DressHasGiftedError); ok {
+			resp.DressHasGiftedError(hasGiftedErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if hasDiscardedErr, ok := err.(*sysError.DressHasDiscardedError); ok {
+			resp.DressHasDiscardedError(hasDiscardedErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if customerNotExistErr, ok := err.(*sysError.CustomerNotExistError); ok {
+			resp.CustomerNotExistError(customerNotExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
 	}
 
 	logger.TargetId = dressBiz.Id

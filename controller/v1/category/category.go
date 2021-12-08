@@ -163,12 +163,6 @@ func Update(c *gin.Context) {
 			c.JSON(http.StatusOK, resp)
 			return
 		}
-
-		if dbErr, ok := err.(*sysError.DbError); ok {
-			resp.DbError(dbErr)
-			c.JSON(http.StatusOK, resp)
-			return
-		}
 	}
 
 	logger.TargetId = categoryBiz.Id

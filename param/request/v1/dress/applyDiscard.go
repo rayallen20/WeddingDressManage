@@ -8,7 +8,7 @@ import (
 
 type ApplyDiscardParam struct {
 	Dress      *applyDiscardDressParam      `form:"dress" binding:"required" errField:"dress"`
-	DiscardAsk *applyDiscardDiscardAskParam `form:"discardAskParam" binding:"required" errField:"discardAsk"`
+	DiscardAsk *applyDiscardDiscardAskParam `form:"discardAsk" binding:"required" errField:"discardAsk"`
 }
 
 type applyDiscardDressParam struct {

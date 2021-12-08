@@ -43,6 +43,9 @@ func main() {
 
 		// 礼服销库申请
 		v1.POST("/dress/applyDiscard", dress.ApplyDiscard)
+
+		// 礼服赠与申请
+		v1.POST("/dress/applyGift", dress.ApplyGift)
 	}
 
 	// 上传文件

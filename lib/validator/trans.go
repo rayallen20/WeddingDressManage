@@ -86,4 +86,9 @@ func registerCustomValidation(v *validator.Validate) {
 	if err != nil {
 		panic("register custom validation imgFile failed:" + err.Error())
 	}
+
+	err = v.RegisterValidation("mobile", Mobile)
+	if err != nil {
+		panic("register custom validation mobile failed:" + err.Error())
+	}
 }

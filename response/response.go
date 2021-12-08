@@ -49,6 +49,12 @@ const (
 
 	// DressHasDiscarded 礼服状态已经为销库
 	DressHasDiscarded = 10305
+
+	// DressNotExist 礼服不存在
+	DressNotExist = 10306
+
+	// CustomerNotExist 客户不存在
+	CustomerNotExist = 10307
 )
 
 var message = map[int]string{
@@ -131,6 +137,18 @@ func (r *RespBody) DressHasGiftedError(err *sysError.DressHasGiftedError) {
 
 func (r *RespBody) DressHasDiscardedError(err *sysError.DressHasDiscardedError) {
 	r.Code = DressHasDiscarded
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) DressNotExistError(err *sysError.DressNotExistError) {
+	r.Code = DressNotExist
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) CustomerNotExistError(err *sysError.CustomerNotExistError) {
+	r.Code = CustomerNotExist
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }

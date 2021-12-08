@@ -1,6 +1,7 @@
 package dress
 
 import (
+	"WeddingDressManage/business/v1/customer"
 	"WeddingDressManage/lib/helper/sliceHelper"
 	"WeddingDressManage/lib/helper/urlHelper"
 	"WeddingDressManage/lib/sysError"
@@ -160,6 +161,10 @@ func (d *Dress) ShowUsable(param *dress.ShowUsableParam) (category *Category, us
 		return nil, nil, 0, &sysError.DbError{RealError: err}
 	}
 
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil, 0, &sysError.DressNotExistError{}
+	}
+
 	category = &Category{}
 	category.fill(categoryOrm)
 	usableDresses = make([]*Dress, 0, len(usableDressOrms))
@@ -176,8 +181,12 @@ func (d *Dress) ApplyDiscard(param *dress.ApplyDiscardParam) error {
 	// step1. 查询礼服是否存在
 	orm := &model.Dress{Id: param.Dress.Id}
 	err := orm.FindById()
-	if err != nil {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return &sysError.DbError{RealError: err}
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DressNotExistError{Id: param.Dress.Id}
 	}
 
 	// step2. 确认礼服状态 当礼服状态为已赠与 或 已销库 时 不可提出销库申请
@@ -190,14 +199,55 @@ func (d *Dress) ApplyDiscard(param *dress.ApplyDiscardParam) error {
 		return &sysError.DressHasDiscardedError{}
 	}
 
+	// step3. 写入销库申请
 	discardAskBiz := &DiscardAsk{
 		Dress: d,
 		Note:  param.DiscardAsk.Note,
 	}
 
-	err = discardAskBiz.Apply()
-	if err != nil {
+	return discardAskBiz.Apply()
+}
+
+func (d *Dress) ApplyGift(param *dress.ApplyGiftParam) error {
+	// step1. 查询礼服是否存在
+	dressOrm := &model.Dress{Id: param.Dress.Id}
+	err := dressOrm.FindById()
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return &sysError.DbError{RealError: err}
 	}
-	return nil
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DressNotExistError{Id: param.Dress.Id}
+	}
+
+	// step2. 确认礼服状态 当礼服状态为已赠与 或 已销库 时 不可提出销库申请
+	d.fill(dressOrm)
+	if d.Status == model.DressStatus["gift"] {
+		return &sysError.DressHasGiftedError{}
+	}
+
+	if d.Status == model.DressStatus["discard"] {
+		return &sysError.DressHasDiscardedError{}
+	}
+
+	// step3. 查询客户是否存在
+	customerBiz := &customer.Customer{
+		Name:   param.Customer.Name,
+		Mobile: param.Customer.Mobile,
+	}
+
+	err = customerBiz.FindNormalByNameAndMobile()
+
+	if err != nil {
+		return err
+	}
+
+	// step4. 写入赠与申请
+	giftAskBiz := GiftAsk{
+		Dress:    d,
+		Customer: customerBiz,
+		Note:     param.GiftAsk.Note,
+	}
+
+	return giftAskBiz.Apply()
 }
