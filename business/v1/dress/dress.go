@@ -6,11 +6,12 @@ import (
 	"WeddingDressManage/lib/helper/urlHelper"
 	"WeddingDressManage/lib/sysError"
 	"WeddingDressManage/model"
-	"WeddingDressManage/param/request/v1/dress"
+	requestParam "WeddingDressManage/param/request/v1/dress"
 	"WeddingDressManage/param/resps/v1/pagination"
 	"errors"
 	"gorm.io/gorm"
 	"strings"
+	"time"
 )
 
 // Dress 礼服类 即具体的每一件礼服
@@ -28,7 +29,7 @@ type Dress struct {
 	Status          string
 }
 
-func (d *Dress) Add(param *dress.AddParam) ([]*Dress, error) {
+func (d *Dress) Add(param *requestParam.AddParam) ([]*Dress, error) {
 	// step1. 查询品类是否存在
 	categoryORM := &model.DressCategory{
 		Id: param.Category.Id,
@@ -73,7 +74,7 @@ func (d *Dress) Add(param *dress.AddParam) ([]*Dress, error) {
 	return dresses, nil
 }
 
-func (d *Dress) createDressORMForAdd(param *dress.AddParam, maxSerialNumber int) []*model.Dress {
+func (d *Dress) createDressORMForAdd(param *requestParam.AddParam, maxSerialNumber int) []*model.Dress {
 	dressORMs := make([]*model.Dress, 0, param.Dress.Number)
 	for i := 1; i <= param.Dress.Number; i++ {
 		dressORM := &model.Dress{
@@ -133,7 +134,7 @@ func (d *Dress) fill(orm *model.Dress) {
 	d.Status = orm.Status
 }
 
-func (d *Dress) ShowUsable(param *dress.ShowUsableParam) (category *Category, usableDresses []*Dress, totalPage int, err error) {
+func (d *Dress) ShowUsable(param *requestParam.ShowUsableParam) (category *Category, usableDresses []*Dress, totalPage int, err error) {
 	// step1. 查品类信息是否存在
 	categoryOrm := &model.DressCategory{Id: param.Category.Id}
 	err = categoryOrm.FindById()
@@ -177,7 +178,7 @@ func (d *Dress) ShowUsable(param *dress.ShowUsableParam) (category *Category, us
 	return category, usableDresses, totalPage, nil
 }
 
-func (d *Dress) ApplyDiscard(param *dress.ApplyDiscardParam) error {
+func (d *Dress) ApplyDiscard(param *requestParam.ApplyDiscardParam) error {
 	// step1. 查询礼服是否存在
 	orm := &model.Dress{Id: param.Dress.Id}
 	err := orm.FindById()
@@ -208,7 +209,7 @@ func (d *Dress) ApplyDiscard(param *dress.ApplyDiscardParam) error {
 	return discardAskBiz.Apply()
 }
 
-func (d *Dress) ApplyGift(param *dress.ApplyGiftParam) error {
+func (d *Dress) ApplyGift(param *requestParam.ApplyGiftParam) error {
 	// step1. 查询礼服是否存在
 	dressOrm := &model.Dress{Id: param.Dress.Id}
 	err := dressOrm.FindById()
@@ -243,11 +244,69 @@ func (d *Dress) ApplyGift(param *dress.ApplyGiftParam) error {
 	}
 
 	// step4. 写入赠与申请
-	giftAskBiz := GiftAsk{
+	giftAskBiz := &GiftAsk{
 		Dress:    d,
 		Customer: customerBiz,
 		Note:     param.GiftAsk.Note,
 	}
 
 	return giftAskBiz.Apply()
+}
+
+func (d *Dress) Laundry(param *requestParam.LaundryParam) error {
+	// step1. 查询礼服是否存在
+	dressOrm := &model.Dress{Id: param.Dress.Id}
+	err := dressOrm.FindById()
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DbError{RealError: err}
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DressNotExistError{Id: param.Dress.Id}
+	}
+
+	// step2. 确认礼服状态 当礼服状态不为 在售/预租赁/预上架 时 不允许送洗
+	d.fill(dressOrm)
+	if !d.canBeLaundry() {
+		return &sysError.LaundryStatusError{DressNowStatus: d.Status}
+	}
+
+	// step3. 修改礼服状态为送洗中
+	dressOrm.Status = model.DressStatus["laundry"]
+
+	// step4. 创建送洗记录
+	laundryRecordBiz := &LaundryRecord{
+		Dress:             d,
+		DirtyPositionImg:  param.LaundryDetail.DirtyPositionImg,
+		Note:              param.LaundryDetail.Note,
+		StartLaundryDate:  time.Now(),
+		DueEndLaundryDate: time.Now().Add(LaundryPlanDurationDays * 24 * time.Hour),
+		Status:            model.LaundryStatus["underway"],
+	}
+
+	// step5. 使用事务修改礼服状态同时落盘送洗记录
+	laundryRecordOrm := laundryRecordBiz.CreateORMForLaundry()
+	err = dressOrm.UpdateDressStatusAndCreateLaundryRecord(laundryRecordOrm)
+	if err != nil {
+		return &sysError.DbError{RealError: err}
+	}
+
+	d.Status = model.DressStatus["laundry"]
+	return nil
+}
+
+func (d *Dress) canBeLaundry() bool {
+	canBeLaundryStatuses := []string{
+		model.DressStatus["onSale"],
+		model.DressStatus["preRent"],
+		model.DressStatus["preOnSale"],
+	}
+
+	for _, canBeLaundryStatus := range canBeLaundryStatuses {
+		if d.Status == canBeLaundryStatus {
+			return true
+		}
+	}
+
+	return false
 }

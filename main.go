@@ -46,6 +46,9 @@ func main() {
 
 		// 礼服赠与申请
 		v1.POST("/dress/applyGift", dress.ApplyGift)
+
+		// 礼服送洗
+		v1.POST("/dress/laundry", dress.Laundry)
 	}
 
 	// 上传文件

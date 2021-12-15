@@ -8,8 +8,8 @@ import (
 )
 
 type AddParam struct {
-	Category *addCategoryParam `form:"category" errField:"category"`
-	Dress *addDressPram        `form:"dress" errField:"dress"`
+	Category *addCategoryParam `form:"category" binding:"required" errField:"category"`
+	Dress    *addDressPram     `form:"dress" binding:"required" errField:"dress"`
 }
 
 // AddCategoryParam 品类信息参数

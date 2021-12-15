@@ -210,3 +210,44 @@ func ApplyGift(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 	return
 }
+
+func Laundry(c *gin.Context) {
+	var param *dressRequest.LaundryParam = &dressRequest.LaundryParam{}
+	var laundryLog *syslog.Laundry = &syslog.Laundry{}
+	resp := controller.CheckParam(param, c, laundryLog)
+	if resp != nil {
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	resp = &response.RespBody{}
+	dressBiz := &dress.Dress{}
+	err := dressBiz.Laundry(param)
+	if err != nil {
+		if dbErr, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+			resp.DressNotExistError(dressNotExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if laundryStatusErr, ok := err.(*sysError.LaundryStatusError); ok {
+			resp.LaundryStatusError(laundryStatusErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+	}
+
+	laundryLog.TargetId = dressBiz.Id
+	laundryLog.Logger()
+
+	data := map[string]interface{}{}
+	resp.Success(data)
+	c.JSON(http.StatusOK, resp)
+	return
+}

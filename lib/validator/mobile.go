@@ -10,8 +10,8 @@ import (
 // 2. 字符串长度为11
 // 3. 字符串中的每一个字符的字面量均为数字
 func Mobile(fl validator.FieldLevel) bool {
-	if mobileStr, ok := fl.Field().Interface().(string); ok {
-		result, _ := regexp.MatchString(`^(1[3|4|5|7|8][0-9]\d{4,8})$`, mobileStr)
+	if mobile, ok := fl.Field().Interface().(string); ok {
+		result, _ := regexp.MatchString(`^(1[3|4|5|7|8][0-9]\d{4,8})$`, mobile)
 		if result {
 			return true
 		}

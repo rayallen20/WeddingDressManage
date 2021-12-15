@@ -55,6 +55,9 @@ const (
 
 	// CustomerNotExist 客户不存在
 	CustomerNotExist = 10307
+
+	// LaundryStatusError 礼服状态不符合送洗条件错误
+	LaundryStatusError = 10308
 )
 
 var message = map[int]string{
@@ -149,6 +152,12 @@ func (r *RespBody) DressNotExistError(err *sysError.DressNotExistError) {
 
 func (r *RespBody) CustomerNotExistError(err *sysError.CustomerNotExistError) {
 	r.Code = CustomerNotExist
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) LaundryStatusError(err *sysError.LaundryStatusError) {
+	r.Code = LaundryStatusError
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }
