@@ -49,6 +49,9 @@ func main() {
 
 		// 礼服送洗
 		v1.POST("/dress/laundry", dress.Laundry)
+
+		// 礼服维护
+		v1.POST("/dress/maintain", dress.Maintain)
 	}
 
 	// 上传文件

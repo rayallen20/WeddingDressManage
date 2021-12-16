@@ -22,33 +22,33 @@ import (
 // applyDiscardDress:礼服申请销库
 // applyGiftDress:礼服申请赠与
 var OperationType map[string]string = map[string]string{
-	"createCategoryAndDress":"createCategoryAndDress",
-	"updateCategory":"updateCategory",
-	"addDress":"addDress",
-	"updateDress":"updateDress",
-	"laundry":"laundry",
-	"dailyMaintain":"dailyMaintain",
-	"preCreateOrder":"preCreateOrder",
-	"createOrder":"createOrder",
-	"updateOrder":"updateOrder",
-	"batchDelivery":"batchDelivery",
-	"allDelivery":"allDelivery",
-	"putInStorage":"putInStorage",
-	"itemMaintain":"itemMaintain",
-	"applyDiscardDress":"applyDiscardDress",
-	"applyGiftDress":"applyGiftDress",
+	"createCategoryAndDress": "createCategoryAndDress",
+	"updateCategory":         "updateCategory",
+	"addDress":               "addDress",
+	"updateDress":            "updateDress",
+	"laundry":                "laundry",
+	"dailyMaintain":          "dailyMaintain",
+	"preCreateOrder":         "preCreateOrder",
+	"createOrder":            "createOrder",
+	"updateOrder":            "updateOrder",
+	"batchDelivery":          "batchDelivery",
+	"allDelivery":            "allDelivery",
+	"putInStorage":           "putInStorage",
+	"itemMaintain":           "itemMaintain",
+	"applyDiscardDress":      "applyDiscardDress",
+	"applyGiftDress":         "applyGiftDress",
 }
 
 type OperationLog struct {
-	Id int
-	Kind string `gorm:"column:type"`
-	TargetId int
-	Data string `gorm:"text"`
+	Id          int
+	Kind        string `gorm:"column:type"`
+	TargetId    int
+	Data        string    `gorm:"text"`
 	CreatedTime time.Time `gorm:"autoCreateTime"`
 	UpdatedTime time.Time `gorm:"autoUpdateTime"`
 }
 
-func (o *OperationLog) Save()  {
+func (o *OperationLog) Save() {
 	db.Db.Create(o)
 }
 

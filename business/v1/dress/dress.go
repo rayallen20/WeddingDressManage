@@ -271,7 +271,7 @@ func (d *Dress) Laundry(param *requestParam.LaundryParam) error {
 		return &sysError.LaundryStatusError{DressNowStatus: d.Status}
 	}
 
-	// step3. 修改礼服状态为送洗中
+	// step3. 设置礼服状态为送洗中
 	dressOrm.Status = model.DressStatus["laundry"]
 
 	// step4. 创建送洗记录
@@ -304,6 +304,65 @@ func (d *Dress) canBeLaundry() bool {
 
 	for _, canBeLaundryStatus := range canBeLaundryStatuses {
 		if d.Status == canBeLaundryStatus {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (d *Dress) Maintain(param *requestParam.MaintainParam) error {
+	// step1. 查询礼服是否存在
+	dressOrm := &model.Dress{Id: param.Dress.Id}
+	err := dressOrm.FindById()
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DbError{RealError: err}
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DressNotExistError{Id: param.Dress.Id}
+	}
+
+	// step2. 确认礼服状态 当礼服状态不为 在售/预租赁/预上架 时 不允许维护
+	d.fill(dressOrm)
+	if !d.canBeMaintain() {
+		return &sysError.MaintainStatusError{DressNowStatus: d.Status}
+	}
+
+	// step3. 修改礼服状态为维护中
+	dressOrm.Status = model.DressStatus["maintain"]
+
+	// step4. 创建维护记录
+	dailyMaintainBiz := &DailyMaintainRecord{
+		Source:              model.MaintainSource["daily"],
+		Dress:               d,
+		MaintainPositionImg: param.MaintainDetail.MaintainPositionImg,
+		Note:                param.MaintainDetail.Note,
+		StartMaintainDate:   time.Now(),
+		PlanEndMaintainDate: time.Now().Add(MaintainPlanDurationDays * 24 * time.Hour),
+		Status:              model.MaintainStatus["underway"],
+	}
+	maintainOrm := dailyMaintainBiz.CreateORMForDailyMaintain()
+
+	// step5. 使用事务修改礼服状态同时落盘维护记录
+	err = dressOrm.UpdateDressStatusAndCreateMaintainRecord(maintainOrm)
+	if err != nil {
+		return &sysError.DbError{RealError: err}
+	}
+
+	d.Status = model.DressStatus["maintain"]
+	return nil
+}
+
+func (d *Dress) canBeMaintain() bool {
+	canBeMaintainStatuses := []string{
+		model.DressStatus["onSale"],
+		model.DressStatus["preRent"],
+		model.DressStatus["preOnSale"],
+	}
+
+	for _, canBeMaintainStatus := range canBeMaintainStatuses {
+		if d.Status == canBeMaintainStatus {
 			return true
 		}
 	}

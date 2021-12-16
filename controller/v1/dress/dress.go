@@ -213,8 +213,9 @@ func ApplyGift(c *gin.Context) {
 
 func Laundry(c *gin.Context) {
 	var param *dressRequest.LaundryParam = &dressRequest.LaundryParam{}
-	var laundryLog *syslog.Laundry = &syslog.Laundry{}
-	resp := controller.CheckParam(param, c, laundryLog)
+	var logger *syslog.Laundry = &syslog.Laundry{}
+
+	resp := controller.CheckParam(param, c, logger)
 	if resp != nil {
 		c.JSON(http.StatusOK, resp)
 		return
@@ -243,8 +244,50 @@ func Laundry(c *gin.Context) {
 		}
 	}
 
-	laundryLog.TargetId = dressBiz.Id
-	laundryLog.Logger()
+	logger.TargetId = dressBiz.Id
+	logger.Logger()
+
+	data := map[string]interface{}{}
+	resp.Success(data)
+	c.JSON(http.StatusOK, resp)
+	return
+}
+
+func Maintain(c *gin.Context) {
+	var param *dressRequest.MaintainParam = &dressRequest.MaintainParam{}
+	var logger *syslog.Maintain = &syslog.Maintain{}
+
+	resp := controller.CheckParam(param, c, logger)
+	if resp != nil {
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	dressBiz := &dress.Dress{}
+	err := dressBiz.Maintain(param)
+	resp = &response.RespBody{}
+	if err != nil {
+		if dbErr, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+			resp.DressNotExistError(dressNotExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if maintainStatusErr, ok := err.(*sysError.MaintainStatusError); ok {
+			resp.MaintainStatusError(maintainStatusErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+	}
+
+	logger.TargetId = dressBiz.Id
+	logger.Logger()
 
 	data := map[string]interface{}{}
 	resp.Success(data)

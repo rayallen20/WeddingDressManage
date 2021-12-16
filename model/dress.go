@@ -132,3 +132,31 @@ func (d *Dress) UpdateDressStatusAndCreateLaundryRecord(laundryRecordOrm *Laundr
 
 	return tx.Commit().Error
 }
+
+// UpdateDressStatusAndCreateMaintainRecord 使用事务修改礼服状态同时创建礼服维护记录信息
+func (d *Dress) UpdateDressStatusAndCreateMaintainRecord(maintainRecordOrm *MaintainRecord) error {
+	tx := db.Db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if err := tx.Save(d).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Select("source", "dress_id", "maintain_position_img", "note",
+		"start_maintain_date", "plan_end_maintain_date", "status", "created_time",
+		"updated_time").Create(maintainRecordOrm).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
+}
