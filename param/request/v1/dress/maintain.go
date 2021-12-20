@@ -7,21 +7,21 @@ import (
 )
 
 type MaintainParam struct {
-	Dress          *dressMaintainParam          `form:"dress" binding:"required" errField:"dress"`
-	MaintainDetail *maintainDetailMaintainParam `form:"maintainDetail" binding:"required" errField:"maintainDetail"`
+	Dress          *MaintainDressParam          `form:"dress" binding:"required" errField:"dress"`
+	MaintainDetail *MaintainDetailMaintainParam `form:"maintainDetail" binding:"required" errField:"maintainDetail"`
 }
 
-type dressMaintainParam struct {
+type MaintainDressParam struct {
 	Id int `form:"id" binding:"gt=0,required" errField:"id"`
 }
 
-type maintainDetailMaintainParam struct {
+type MaintainDetailMaintainParam struct {
 	MaintainPositionImg []string `form:"maintainPositionImg" binding:"gt=0,lte=2,required,imgUrls" errField:"maintainPositionImg"`
 	Note                string   `form:"note" binding:"gt=0,required" errField:"note"`
 }
 
 func (m *MaintainParam) Bind(c *gin.Context) error {
-	return c.ShouldBindJSON(m)
+	return validator.Bind(m, []interface{}{m, &MaintainDressParam{}, &MaintainDetailMaintainParam{}}, c)
 }
 
 func (m *MaintainParam) Validate(err error) []*sysError.ValidateError {

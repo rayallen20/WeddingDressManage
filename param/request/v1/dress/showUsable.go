@@ -8,16 +8,16 @@ import (
 )
 
 type ShowUsableParam struct {
-	Pagination pagination.Pagination `form:"pagination" binding:"required" errField:"pagination"`
-	Category *showUsableCategoryParam `form:"category" binding:"required" errField:"category"`
+	Pagination pagination.Pagination    `form:"pagination" binding:"required" errField:"pagination"`
+	Category   *ShowUsableCategoryParam `form:"category" binding:"required" errField:"category"`
 }
 
-type showUsableCategoryParam struct {
+type ShowUsableCategoryParam struct {
 	Id int `form:"id" binding:"gt=0,required" errField:"id"`
 }
 
 func (s *ShowUsableParam) Bind(c *gin.Context) error {
-	return c.ShouldBindJSON(s)
+	return validator.Bind(s, []interface{}{s, &ShowUsableCategoryParam{}}, c)
 }
 
 func (s *ShowUsableParam) Validate(err error) []*sysError.ValidateError {

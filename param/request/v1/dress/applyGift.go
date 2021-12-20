@@ -7,26 +7,26 @@ import (
 )
 
 type ApplyGiftParam struct {
-	Dress    *applyGiftDressParam    `form:"dress" binding:"required" errField:"dress"`
-	Customer *applyGiftCustomerParam `form:"customer" binding:"required" errField:"customer"`
-	GiftAsk  *applyGiftGiftAskParam  `form:"giftAsk" binding:"required" errField:"giftAsk"`
+	Dress    *ApplyGiftDressParam    `form:"dress" binding:"required" errField:"dress"`
+	Customer *ApplyGiftCustomerParam `form:"customer" binding:"required" errField:"customer"`
+	GiftAsk  *ApplyGiftGiftAskParam  `form:"giftAsk" binding:"required" errField:"giftAsk"`
 }
 
-type applyGiftDressParam struct {
+type ApplyGiftDressParam struct {
 	Id int `form:"id" binding:"gt=0,required" errField:"id"`
 }
 
-type applyGiftCustomerParam struct {
+type ApplyGiftCustomerParam struct {
 	Name   string `from:"name" binding:"gt=0,required" errField:"name"`
 	Mobile string `from:"mobile" binding:"gt=0,mobile,required" errField:"mobile"`
 }
 
-type applyGiftGiftAskParam struct {
+type ApplyGiftGiftAskParam struct {
 	Note string `form:"note" binding:"gt=0,required" errField:"note"`
 }
 
 func (a *ApplyGiftParam) Bind(c *gin.Context) error {
-	return c.ShouldBindJSON(a)
+	return validator.Bind(a, []interface{}{a, &ApplyGiftDressParam{}, &ApplyGiftCustomerParam{}, &ApplyGiftGiftAskParam{}}, c)
 }
 
 func (a ApplyGiftParam) Validate(err error) []*sysError.ValidateError {

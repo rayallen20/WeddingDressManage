@@ -7,20 +7,20 @@ import (
 )
 
 type ApplyDiscardParam struct {
-	Dress      *applyDiscardDressParam      `form:"dress" binding:"required" errField:"dress"`
-	DiscardAsk *applyDiscardDiscardAskParam `form:"discardAsk" binding:"required" errField:"discardAsk"`
+	Dress      *ApplyDiscardDressParam      `form:"dress" binding:"required" errField:"dress"`
+	DiscardAsk *ApplyDiscardDiscardAskParam `form:"discardAsk" binding:"required" errField:"discardAsk"`
 }
 
-type applyDiscardDressParam struct {
+type ApplyDiscardDressParam struct {
 	Id int `form:"id" binding:"gt=0,required" errField:"id"`
 }
 
-type applyDiscardDiscardAskParam struct {
+type ApplyDiscardDiscardAskParam struct {
 	Note string `form:"note" binding:"gt=0,required" errField:"note"`
 }
 
 func (a *ApplyDiscardParam) Bind(c *gin.Context) error {
-	return c.ShouldBindJSON(a)
+	return validator.Bind(a, []interface{}{a, &ApplyDiscardDressParam{}, &ApplyDiscardDiscardAskParam{}}, c)
 }
 
 func (a ApplyDiscardParam) Validate(err error) []*sysError.ValidateError {

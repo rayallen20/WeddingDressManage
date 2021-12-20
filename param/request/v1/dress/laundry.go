@@ -7,21 +7,21 @@ import (
 )
 
 type LaundryParam struct {
-	Dress         *dressLaundryParam         `form:"dress" binding:"required" errField:"dress"`
-	LaundryDetail *laundryDetailLaundryParam `form:"laundryDetail" binding:"required" errField:"laundryDetail"`
+	Dress         *LaundryDressParam         `form:"dress" binding:"required" errField:"dress"`
+	LaundryDetail *LaundryLaundryDetailParam `form:"laundryDetail" binding:"required" errField:"laundryDetail"`
 }
 
-type dressLaundryParam struct {
+type LaundryDressParam struct {
 	Id int `form:"id" binding:"gt=0,required" errField:"id"`
 }
 
-type laundryDetailLaundryParam struct {
+type LaundryLaundryDetailParam struct {
 	DirtyPositionImg []string `form:"dirtyPositionImg" binding:"gt=0,lte=2,required,imgUrls" errField:"dirtyPositionImg"`
 	Note             string   `form:"note" binding:"gt=0,required" errField:"note"`
 }
 
 func (l *LaundryParam) Bind(c *gin.Context) error {
-	return c.ShouldBindJSON(l)
+	return validator.Bind(l, []interface{}{l, &LaundryDressParam{}, &LaundryLaundryDetailParam{}}, c)
 }
 
 func (l *LaundryParam) Validate(err error) []*sysError.ValidateError {

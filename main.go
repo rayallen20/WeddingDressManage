@@ -52,6 +52,9 @@ func main() {
 
 		// 礼服维护
 		v1.POST("/dress/maintain", dress.Maintain)
+
+		// 单条礼服信息展示
+		v1.POST("/dress/showOne", dress.ShowOne)
 	}
 
 	// 上传文件

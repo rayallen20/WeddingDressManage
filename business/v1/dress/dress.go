@@ -9,6 +9,7 @@ import (
 	requestParam "WeddingDressManage/param/request/v1/dress"
 	"WeddingDressManage/param/resps/v1/pagination"
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"strings"
 	"time"
@@ -271,10 +272,17 @@ func (d *Dress) Laundry(param *requestParam.LaundryParam) error {
 		return &sysError.LaundryStatusError{DressNowStatus: d.Status}
 	}
 
-	// step3. 设置礼服状态为送洗中
+	// step3. 修改礼服ORM 设置礼服状态为送洗中 送洗次数+1
 	dressOrm.Status = model.DressStatus["laundry"]
+	dressOrm.LaundryCounter += 1
 
-	// step4. 创建送洗记录
+	// step4. 对品类ORM 送洗次数+1
+	categoryOrm := &model.DressCategory{
+		Id:             d.Category.Id,
+		LaundryCounter: d.Category.LaundryCounter + 1,
+	}
+
+	// step5. 创建送洗记录
 	laundryRecordBiz := &LaundryRecord{
 		Dress:             d,
 		DirtyPositionImg:  param.LaundryDetail.DirtyPositionImg,
@@ -284,9 +292,12 @@ func (d *Dress) Laundry(param *requestParam.LaundryParam) error {
 		Status:            model.LaundryStatus["underway"],
 	}
 
-	// step5. 使用事务修改礼服状态同时落盘送洗记录
+	// step6. 使用事务
+	// 1. 修改礼服状态 礼服送洗次数+1
+	// 2. 礼服所属品类送洗次数+1
+	// 3. 创建送洗记录
 	laundryRecordOrm := laundryRecordBiz.CreateORMForLaundry()
-	err = dressOrm.UpdateDressStatusAndCreateLaundryRecord(laundryRecordOrm)
+	err = dressOrm.UpdateDressStatusAndCreateLaundryRecord(categoryOrm, laundryRecordOrm)
 	if err != nil {
 		return &sysError.DbError{RealError: err}
 	}
@@ -329,10 +340,17 @@ func (d *Dress) Maintain(param *requestParam.MaintainParam) error {
 		return &sysError.MaintainStatusError{DressNowStatus: d.Status}
 	}
 
-	// step3. 修改礼服状态为维护中
+	// step3. 修改礼服ORM 设置礼服状态为维护中 维护次数+1
 	dressOrm.Status = model.DressStatus["maintain"]
+	dressOrm.MaintainCounter += 1
 
-	// step4. 创建维护记录
+	// step4. 对品类ORM 维护次数+1
+	categoryOrm := &model.DressCategory{
+		Id:              d.Category.Id,
+		MaintainCounter: d.Category.MaintainCounter + 1,
+	}
+
+	// step5. 创建维护记录
 	dailyMaintainBiz := &DailyMaintainRecord{
 		Source:              model.MaintainSource["daily"],
 		Dress:               d,
@@ -344,8 +362,11 @@ func (d *Dress) Maintain(param *requestParam.MaintainParam) error {
 	}
 	maintainOrm := dailyMaintainBiz.CreateORMForDailyMaintain()
 
-	// step5. 使用事务修改礼服状态同时落盘维护记录
-	err = dressOrm.UpdateDressStatusAndCreateMaintainRecord(maintainOrm)
+	// step6. 使用事务
+	// 1. 修改礼服状态 礼服维护次数+1
+	// 2. 礼服所属品类维护次数+1
+	// 3. 创建维护记录
+	err = dressOrm.UpdateDressStatusAndCreateMaintainRecord(categoryOrm, maintainOrm)
 	if err != nil {
 		return &sysError.DbError{RealError: err}
 	}
@@ -368,4 +389,20 @@ func (d *Dress) canBeMaintain() bool {
 	}
 
 	return false
+}
+
+func (d *Dress) ShowOne(param *requestParam.ShowOneParam) error {
+	orm := &model.Dress{Id: param.Dress.Id}
+	err := orm.FindById()
+	fmt.Printf("%#v\n", orm.Category.Kind)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DbError{RealError: err}
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DressNotExistError{Id: param.Dress.Id}
+	}
+
+	d.fill(orm)
+	return nil
 }

@@ -294,3 +294,38 @@ func Maintain(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 	return
 }
+
+func ShowOne(c *gin.Context) {
+	var param *dressRequest.ShowOneParam = &dressRequest.ShowOneParam{}
+	resp := controller.CheckParam(param, c, nil)
+	if resp != nil {
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	resp = &response.RespBody{}
+	dressBiz := &dress.Dress{}
+	err := dressBiz.ShowOne(param)
+	if err != nil {
+		if dbErr, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+			resp.DressNotExistError(dressNotExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+	}
+
+	respParam := &dressResponse.ShowOneResponse{}
+	respParam.Fill(dressBiz)
+	data := map[string]interface{}{
+		"data": respParam,
+	}
+	resp.Success(data)
+	c.JSON(http.StatusOK, resp)
+	return
+}

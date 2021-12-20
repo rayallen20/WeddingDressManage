@@ -70,7 +70,7 @@ func (d *Dress) AddDressesAndUpdateCategory(categoryORM *DressCategory, dressORM
 		return tx.Error
 	}
 
-	if err := tx.Save(categoryORM).Error; err != nil {
+	if err := tx.Updates(categoryORM).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -102,12 +102,8 @@ func (d *Dress) FindById() error {
 	return db.Db.Where(d).Preload("Category").Preload("Category.Kind").First(d).Error
 }
 
-func (d *Dress) Save() error {
-	return db.Db.Save(d).Error
-}
-
 // UpdateDressStatusAndCreateLaundryRecord 使用事务修改礼服状态同时创建礼服送洗记录信息
-func (d *Dress) UpdateDressStatusAndCreateLaundryRecord(laundryRecordOrm *LaundryRecord) error {
+func (d *Dress) UpdateDressStatusAndCreateLaundryRecord(categoryOrm *DressCategory, laundryRecordOrm *LaundryRecord) error {
 	tx := db.Db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -119,13 +115,17 @@ func (d *Dress) UpdateDressStatusAndCreateLaundryRecord(laundryRecordOrm *Laundr
 		return tx.Error
 	}
 
-	if err := tx.Save(d).Error; err != nil {
+	if err := tx.Updates(d).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	if err := tx.Select("dress_id", "dirty_position_img", "note", "start_laundry_date",
-		"due_end_laundry_date", "status", "created_time", "updated_time").Create(laundryRecordOrm).Error; err != nil {
+	if err := tx.Updates(categoryOrm).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Omit("end_laundry_date").Create(laundryRecordOrm).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -134,7 +134,7 @@ func (d *Dress) UpdateDressStatusAndCreateLaundryRecord(laundryRecordOrm *Laundr
 }
 
 // UpdateDressStatusAndCreateMaintainRecord 使用事务修改礼服状态同时创建礼服维护记录信息
-func (d *Dress) UpdateDressStatusAndCreateMaintainRecord(maintainRecordOrm *MaintainRecord) error {
+func (d *Dress) UpdateDressStatusAndCreateMaintainRecord(categoryOrm *DressCategory, maintainRecordOrm *MaintainRecord) error {
 	tx := db.Db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -146,7 +146,12 @@ func (d *Dress) UpdateDressStatusAndCreateMaintainRecord(maintainRecordOrm *Main
 		return tx.Error
 	}
 
-	if err := tx.Save(d).Error; err != nil {
+	if err := tx.Updates(d).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Updates(categoryOrm).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
