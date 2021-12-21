@@ -18,7 +18,7 @@ func Add(c *gin.Context) {
 	var param *dressRequest.AddParam = &dressRequest.AddParam{}
 	var logger *syslog.AddDress = &syslog.AddDress{}
 
-	resp := controller.CheckParam(param, c, nil)
+	resp := controller.CheckParam(param, c, logger)
 	if resp != nil {
 		c.JSON(http.StatusOK, resp)
 		return
@@ -326,6 +326,41 @@ func ShowOne(c *gin.Context) {
 		"data": respParam,
 	}
 	resp.Success(data)
+	c.JSON(http.StatusOK, resp)
+	return
+}
+
+func Update(c *gin.Context) {
+	var param *dressRequest.UpdateParam = &dressRequest.UpdateParam{}
+	var logger *syslog.UpdateDress = &syslog.UpdateDress{}
+	resp := controller.CheckParam(param, c, logger)
+	if resp != nil {
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	resp = &response.RespBody{}
+	param.ExtractUri()
+	dressBiz := &dress.Dress{}
+	err := dressBiz.Update(param)
+	if err != nil {
+		if dbErr, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+			resp.DressNotExistError(dressNotExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+	}
+
+	logger.TargetId = param.Dress.Id
+	logger.Logger()
+
+	resp.Success(map[string]interface{}{})
 	c.JSON(http.StatusOK, resp)
 	return
 }

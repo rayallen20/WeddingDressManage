@@ -165,3 +165,7 @@ func (d *Dress) UpdateDressStatusAndCreateMaintainRecord(categoryOrm *DressCateg
 
 	return tx.Commit().Error
 }
+
+func (d *Dress) Updates() error {
+	return db.Db.Updates(d).Error
+}

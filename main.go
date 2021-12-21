@@ -55,6 +55,9 @@ func main() {
 
 		// 单条礼服信息展示
 		v1.POST("/dress/showOne", dress.ShowOne)
+
+		// 礼服信息修改
+		v1.POST("/dress/update", dress.Update)
 	}
 
 	// 上传文件

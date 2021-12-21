@@ -406,3 +406,26 @@ func (d *Dress) ShowOne(param *requestParam.ShowOneParam) error {
 	d.fill(orm)
 	return nil
 }
+
+func (d *Dress) Update(param *requestParam.UpdateParam) error {
+	orm := &model.Dress{Id: param.Dress.Id}
+	err := orm.FindById()
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DbError{RealError: err}
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DressNotExistError{Id: param.Dress.Id}
+	}
+
+	orm.Size = param.Dress.Size
+	orm.CoverImg = param.Dress.CoverImg
+	orm.SecondaryImg = sliceHelper.ImpactSliceToStr(param.Dress.SecondaryImg, "|")
+	err = orm.Updates()
+	if err != nil {
+		return &sysError.DbError{RealError: err}
+	}
+
+	d.fill(orm)
+	return nil
+}
