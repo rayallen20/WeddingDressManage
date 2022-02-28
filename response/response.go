@@ -35,6 +35,9 @@ const (
 	// ValidateError 参数校验错误
 	ValidateError = 10202
 
+	// NilJsonError 请求参数中的JSON为空错误
+	NilJsonError = 10203
+
 	// KindNotExist 大类信息不存在
 	KindNotExist = 10301
 
@@ -72,6 +75,12 @@ func (r *RespBody) Success(data map[string]interface{}) {
 	r.Code = Success
 	r.Message = message[Success]
 	r.Data = data
+}
+
+func (r *RespBody) RequestNilJsonError(err *sysError.RequestNilJsonError) {
+	r.Code = NilJsonError
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
 }
 
 func (r *RespBody) InvalidUnmarshalError(err *sysError.InvalidUnmarshalError) {

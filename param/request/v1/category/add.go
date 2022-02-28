@@ -9,9 +9,9 @@ import (
 
 // AddParam 添加新品类礼服接口请求参数
 type AddParam struct {
-	Kind *addKindParam         `form:"kind" binding:"required" errField:"category"`
+	Kind     *addKindParam     `form:"kind" binding:"required" errField:"kind"`
 	Category *addCategoryParam `form:"category" binding:"required" errField:"category"`
-	Dress    *addDressParam    `form:"dress" binding:"required" errField:"category"`
+	Dress    *addDressParam    `form:"dress" binding:"required" errField:"dress"`
 }
 
 // addKindParam 添加新品类礼服接口请求参数中 礼服大类信息部分
@@ -36,12 +36,12 @@ type addCategoryParam struct {
 
 // addDressParam 添加新品类礼服接口请求参数中 礼服信息部分
 type addDressParam struct {
-	Number int `form:"number" binding:"gt=0,required" errField:"number"`
-	Size string `form:"size" binding:"required,oneof=S M F L XL XXL D" errField:"size"`
+	Number int    `form:"number" binding:"gt=0,required" errField:"number"`
+	Size   string `form:"size" binding:"required,oneof=S M F L XL XXL D" errField:"size"`
 }
 
 func (a *AddParam) Bind(c *gin.Context) error {
-	return validator.Bind(a, []interface{}{&AddParam{}, &addCategoryParam{}, &addDressParam{}}, c)
+	return validator.Bind(a, []interface{}{a, &addKindParam{}, &addCategoryParam{}, &addDressParam{}}, c)
 }
 
 func (a *AddParam) Validate(err error) []*sysError.ValidateError {

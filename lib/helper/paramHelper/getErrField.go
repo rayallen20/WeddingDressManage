@@ -18,7 +18,7 @@ func GetErrFieldValue(objs []interface{}, exceptionFieldName string) string {
 			for k1, v1 := range v {
 				if k1 == exceptionFieldNameSegment {
 					found = true
-					if index == len(exceptionFieldNames) - 1 {
+					if index == len(exceptionFieldNames)-1 {
 						res += v1
 					} else {
 						res += v1 + "."
@@ -44,9 +44,9 @@ func extractFieldNameAndErrField(params []interface{}) map[string]map[string]str
 		structName := strings.Split(structReflectInfo.String(), ".")[1]
 
 		tmpRes := map[string]string{}
-		for j := 0; j < structReflectInfo.NumField(); j++ {
-			fieldName := structReflectInfo.Field(j).Name
-			errFieldName := structReflectInfo.Field(j).Tag.Get("errField")
+		for j := 0; j < structReflectInfo.Elem().NumField(); j++ {
+			fieldName := structReflectInfo.Elem().Field(j).Name
+			errFieldName := structReflectInfo.Elem().Field(j).Tag.Get("errField")
 			tmpRes[fieldName] = errFieldName
 		}
 		res[structName] = tmpRes

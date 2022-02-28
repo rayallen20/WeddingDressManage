@@ -20,6 +20,11 @@ func CheckParam(param requestiface.RequestParam, c *gin.Context, logger logInter
 
 	var resp *response.RespBody = &response.RespBody{}
 
+	if requestNilJsonErr, ok := err.(*sysError.RequestNilJsonError); ok {
+		resp.RequestNilJsonError(requestNilJsonErr)
+		return resp
+	}
+
 	if invalidUnmarshalError, ok := err.(*sysError.InvalidUnmarshalError); ok {
 		resp.InvalidUnmarshalError(invalidUnmarshalError)
 		return resp
