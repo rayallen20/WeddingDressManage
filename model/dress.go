@@ -92,9 +92,21 @@ func (d *Dress) FindUsableByCategoryId(currentPage, itemPerPage int) (dresses []
 	return dresses, err
 }
 
+func (d *Dress) FindUnusableByCategoryId(currentPage, itemPerPage int) (dresses []*Dress, err error) {
+	dresses = make([]*Dress, 0, itemPerPage)
+	err = db.Db.Scopes(db.Paginate(currentPage, itemPerPage)).Where("status", []string{DressStatus["discard"], DressStatus["gift"]}).
+		Where(d).Preload("Category").Preload("Category.Kind").Find(&dresses).Error
+	return dresses, err
+}
+
 // CountUsableByCategoryId 统计指定品类下可用礼服的数量
 func (d *Dress) CountUsableByCategoryId() (count int64, err error) {
 	err = db.Db.Not("status", []string{DressStatus["discard"], DressStatus["gift"]}).Where(d).Find(d).Count(&count).Error
+	return count, err
+}
+
+func (d *Dress) CountUnusableByCategoryId() (count int64, err error) {
+	err = db.Db.Where("status", []string{DressStatus["discard"], DressStatus["gift"]}).Where(d).Find(d).Count(&count).Error
 	return count, err
 }
 

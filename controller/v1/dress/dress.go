@@ -62,6 +62,7 @@ func Add(c *gin.Context) {
 }
 
 // ShowUsable 展示指定品类下的可用礼服信息
+// TODO: 该方法是否放在品类下比较合适?
 func ShowUsable(c *gin.Context) {
 	var param *dressRequest.ShowUsableParam = &dressRequest.ShowUsableParam{}
 	resp := controller.CheckParam(param, c, nil)
@@ -361,6 +362,54 @@ func Update(c *gin.Context) {
 	logger.Logger()
 
 	resp.Success(map[string]interface{}{})
+	c.JSON(http.StatusOK, resp)
+	return
+}
+
+// ShowUnusable 展示指定品类下的不可用礼服信息
+func ShowUnusable(c *gin.Context) {
+	var param *dressRequest.ShowUnusableParam = &dressRequest.ShowUnusableParam{}
+	resp := controller.CheckParam(param, c, nil)
+	if resp != nil {
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	resp = &response.RespBody{}
+	dressBiz := &dress.Dress{}
+	categoryBiz, dressBizs, totalPage, err := dressBiz.ShowUnusable(param)
+	if err != nil {
+		if dbErr, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if categoryNotExistErr, ok := err.(*sysError.CategoryNotExistError); ok {
+			resp.CategoryNotExistError(categoryNotExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+			resp.DressNotExistError(dressNotExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+	}
+
+	paginationResp := &pagination.Response{
+		CurrentPage: param.Pagination.CurrentPage,
+		ItemPerPage: param.Pagination.ItemPerPage,
+		TotalPage:   totalPage,
+	}
+
+	respParam := &dressResponse.ShowUnusableResponse{}
+	respParam.Fill(categoryBiz, dressBizs, paginationResp)
+	data := map[string]interface{}{
+		"data": respParam,
+	}
+	resp.Success(data)
 	c.JSON(http.StatusOK, resp)
 	return
 }

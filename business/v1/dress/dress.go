@@ -429,3 +429,49 @@ func (d *Dress) Update(param *requestParam.UpdateParam) error {
 	d.fill(orm)
 	return nil
 }
+
+// (category *Category, unusableDresses []*Dress, totalPage int, err error)
+
+func (d *Dress) ShowUnusable(param *requestParam.ShowUnusableParam) (category *Category, unusableDresses []*Dress, totalPage int, err error) {
+	// step1. 查品类信息是否存在
+	categoryOrm := &model.DressCategory{Id: param.Category.Id}
+	err = categoryOrm.FindById()
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil, 0, &sysError.DbError{RealError: err}
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil, 0, &sysError.CategoryNotExistError{Id: param.Category.Id}
+	}
+
+	// step2. 查询总页数
+	dressOrm := &model.Dress{CategoryId: param.Category.Id}
+	count, err := dressOrm.CountUnusableByCategoryId()
+	if err != nil {
+		return nil, nil, 0, &sysError.DbError{RealError: err}
+	}
+	totalPage = pagination.CalcTotalPage(count, param.Pagination.ItemPerPage)
+
+	// step3. 根据品类信息分页查询礼服
+	// Tips: 查询总页数时使用的orm由于已经被用作查询过 所以导致其内部有Id字段等信息 故此处需重新创建一个orm
+	dressOrm = &model.Dress{CategoryId: param.Category.Id}
+	unusableDressOrms, err := dressOrm.FindUnusableByCategoryId(param.Pagination.CurrentPage, param.Pagination.ItemPerPage)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil, 0, &sysError.DbError{RealError: err}
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil, 0, &sysError.DressNotExistError{}
+	}
+
+	category = &Category{}
+	category.fill(categoryOrm)
+	unusableDresses = make([]*Dress, 0, len(unusableDressOrms))
+	for _, unusableDressOrm := range unusableDressOrms {
+		unusableDress := &Dress{}
+		unusableDress.fill(unusableDressOrm)
+		unusableDresses = append(unusableDresses, unusableDress)
+	}
+
+	return category, unusableDresses, totalPage, nil
+}

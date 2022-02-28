@@ -58,6 +58,8 @@ func main() {
 
 		// 礼服信息修改
 		v1.POST("/dress/update", dress.Update)
+
+		v1.POST("/dress/showUnusable", dress.ShowUnusable)
 	}
 
 	// 上传文件
