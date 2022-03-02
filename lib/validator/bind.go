@@ -42,14 +42,6 @@ func Bind(param requestiface.RequestParam, allParams []interface{}, c *gin.Conte
 			sysUnmarshalTypeError.SetMsg(allParams)
 			return sysUnmarshalTypeError
 		}
-
-		// 1. nil结构体 *json.InvalidUnmarshalError
-		if invalidUnmarshalErr, ok := err.(*json.InvalidUnmarshalError); ok {
-			sysInvalidUnmarshalErr := &sysError.InvalidUnmarshalError{
-				Type: invalidUnmarshalErr.Type,
-			}
-			return sysInvalidUnmarshalErr
-		}
 	}
 	return err
 }

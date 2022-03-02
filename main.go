@@ -59,7 +59,11 @@ func main() {
 		// 礼服信息修改
 		v1.POST("/dress/update", dress.Update)
 
+		// 指定品类下不可用礼服展示
 		v1.POST("/dress/showUnusable", dress.ShowUnusable)
+
+		// 送洗礼服展示
+		v1.POST("/laundry/show", dress.ShowLaundry)
 	}
 
 	// 上传文件

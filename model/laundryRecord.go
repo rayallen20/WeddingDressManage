@@ -1,6 +1,7 @@
 package model
 
 import (
+	"WeddingDressManage/lib/db"
 	"time"
 )
 
@@ -25,4 +26,18 @@ type LaundryRecord struct {
 	Status         string
 	CreatedTime    time.Time `gorm:"autoCreateTime"`
 	UpdatedTime    time.Time `gorm:"autoUpdateTime"`
+}
+
+// FindUnderway 查询状态为underway的送洗信息
+func (l *LaundryRecord) FindUnderway(currentPage, itemPerPage int) (laundryRecords []*LaundryRecord, err error) {
+	laundryRecords = make([]*LaundryRecord, 0, itemPerPage)
+	err = db.Db.Scopes(db.Paginate(currentPage, itemPerPage)).Where("status", LaundryStatus["underway"]).Preload("Dress").Preload("Dress.Category").Preload("Dress.Category.Kind").
+		Find(&laundryRecords).Error
+	return laundryRecords, err
+}
+
+// CountUnderway 统计状态为underway的送洗信息条目
+func (l *LaundryRecord) CountUnderway() (count int64, err error) {
+	err = db.Db.Where("status", LaundryStatus["underway"]).Find(&LaundryRecord{}).Count(&count).Error
+	return count, err
 }

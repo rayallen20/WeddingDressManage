@@ -1,6 +1,7 @@
 package dress
 
 import (
+	"WeddingDressManage/lib/helper/urlHelper"
 	"WeddingDressManage/lib/sysError"
 	"WeddingDressManage/lib/validator"
 	"github.com/gin-gonic/gin"
@@ -26,4 +27,13 @@ func (m *MaintainParam) Bind(c *gin.Context) error {
 
 func (m *MaintainParam) Validate(err error) []*sysError.ValidateError {
 	return validator.Validate(err)
+}
+
+func (m *MaintainParam) ExtractUri() {
+	maintainPositionUris := make([]string, 0, len(m.MaintainDetail.MaintainPositionImg))
+	for _, maintainPositionUri := range m.MaintainDetail.MaintainPositionImg {
+		maintainPositionUri = urlHelper.GetUriFromWebsite(maintainPositionUri)
+		maintainPositionUris = append(maintainPositionUris, maintainPositionUri)
+	}
+	m.MaintainDetail.MaintainPositionImg = urlHelper.GetUniqueUriFromImgUris(maintainPositionUris)
 }

@@ -223,6 +223,7 @@ func Laundry(c *gin.Context) {
 	}
 
 	resp = &response.RespBody{}
+	param.ExtractUri()
 	dressBiz := &dress.Dress{}
 	err := dressBiz.Laundry(param)
 	if err != nil {
@@ -264,9 +265,11 @@ func Maintain(c *gin.Context) {
 		return
 	}
 
+	resp = &response.RespBody{}
+	param.ExtractUri()
+
 	dressBiz := &dress.Dress{}
 	err := dressBiz.Maintain(param)
-	resp = &response.RespBody{}
 	if err != nil {
 		if dbErr, ok := err.(*sysError.DbError); ok {
 			resp.DbError(dbErr)

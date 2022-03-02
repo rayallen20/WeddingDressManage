@@ -1,6 +1,7 @@
 package dress
 
 import (
+	"WeddingDressManage/lib/helper/urlHelper"
 	"WeddingDressManage/lib/sysError"
 	"WeddingDressManage/lib/validator"
 	"github.com/gin-gonic/gin"
@@ -26,4 +27,13 @@ func (l *LaundryParam) Bind(c *gin.Context) error {
 
 func (l *LaundryParam) Validate(err error) []*sysError.ValidateError {
 	return validator.Validate(err)
+}
+
+func (l *LaundryParam) ExtractUri() {
+	dirtyPositionUris := make([]string, 0, len(l.LaundryDetail.DirtyPositionImg))
+	for _, dirtyPositionImg := range l.LaundryDetail.DirtyPositionImg {
+		dirtyPositionImgUri := urlHelper.GetUriFromWebsite(dirtyPositionImg)
+		dirtyPositionUris = append(dirtyPositionUris, dirtyPositionImgUri)
+	}
+	l.LaundryDetail.DirtyPositionImg = urlHelper.GetUniqueUriFromImgUris(dirtyPositionUris)
 }
