@@ -134,12 +134,12 @@ func (c *Category) fill(orm *model.DressCategory) {
 }
 
 // Show 礼服品类展示
-func (c *Category) Show(param *categoryRequest.ShowParam) (categories []*Category, totalPage int, err error) {
+func (c *Category) Show(param *categoryRequest.ShowParam) (categories []*Category, totalPage int, totalItem int64, err error) {
 	categoryOrm := &model.DressCategory{}
 	orms, err := categoryOrm.FindNormal(param.Pagination.CurrentPage, param.Pagination.ItemPerPage)
 	// TODO:此处要对没查到做handle?
 	if err != nil {
-		return nil, totalPage, &sysError.DbError{RealError: err}
+		return nil, 0, 0, &sysError.DbError{RealError: err}
 	}
 
 	categories = make([]*Category, 0, len(orms))
@@ -153,11 +153,11 @@ func (c *Category) Show(param *categoryRequest.ShowParam) (categories []*Categor
 	// 计算总页数
 	count, err := categoryOrm.CountNormal()
 	if err != nil {
-		return nil, totalPage, &sysError.DbError{RealError: err}
+		return nil, 0, 0, &sysError.DbError{RealError: err}
 	}
 
 	totalPage = pagination.CalcTotalPage(count, param.Pagination.ItemPerPage)
-	return categories, totalPage, nil
+	return categories, totalPage, count, nil
 }
 
 // ShowOne 根据id展示1条品类信息

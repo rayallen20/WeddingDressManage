@@ -73,7 +73,7 @@ func Show(c *gin.Context) {
 
 	resp = &response.RespBody{}
 	category := &dress.Category{}
-	categories, totalPage, err := category.Show(param)
+	categories, totalPage, count, err := category.Show(param)
 	if err != nil {
 		if dbError, ok := err.(*sysError.DbError); ok {
 			resp.DbError(dbError)
@@ -88,6 +88,7 @@ func Show(c *gin.Context) {
 		CurrentPage: param.Pagination.CurrentPage,
 		ItemPerPage: param.Pagination.ItemPerPage,
 		TotalPage:   totalPage,
+		TotalItem:   count,
 	}
 	resp.Success(map[string]interface{}{
 		"categories": categoryParams,
