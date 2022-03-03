@@ -38,12 +38,12 @@ func (l *LaundryRecord) CreateORMForLaundry() *model.LaundryRecord {
 	}
 }
 
-func (l *LaundryRecord) Show(param *dress.ShowLaundryParam) (laundryRecords []*LaundryRecord, totalPage int, err error) {
+func (l *LaundryRecord) Show(param *dress.ShowLaundryParam) (laundryRecords []*LaundryRecord, totalPage int, count int64, err error) {
 	laundryRecordOrm := &model.LaundryRecord{}
 	orms, err := laundryRecordOrm.FindUnderway(param.Pagination.CurrentPage, param.Pagination.ItemPerPage)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		dbErr := &sysError.DbError{RealError: err}
-		return nil, 0, dbErr
+		return nil, 0, 0, dbErr
 	}
 
 	laundryRecords = make([]*LaundryRecord, 0, len(orms))
@@ -53,12 +53,12 @@ func (l *LaundryRecord) Show(param *dress.ShowLaundryParam) (laundryRecords []*L
 		laundryRecords = append(laundryRecords, laundryRecord)
 	}
 
-	count, err := laundryRecordOrm.CountUnderway()
+	count, err = laundryRecordOrm.CountUnderway()
 	if err != nil {
-		return nil, 0, &sysError.DbError{RealError: err}
+		return nil, 0, 0, &sysError.DbError{RealError: err}
 	}
 	totalPage = pagination.CalcTotalPage(count, param.Pagination.ItemPerPage)
-	return laundryRecords, totalPage, nil
+	return laundryRecords, totalPage, count, nil
 }
 
 func (l *LaundryRecord) fill(orm *model.LaundryRecord) {

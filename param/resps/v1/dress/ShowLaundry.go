@@ -60,7 +60,7 @@ type kindResponse struct {
 	Status string `json:"status"`
 }
 
-func (s *ShowLaundryResponse) Fill(laundries []*dress.LaundryRecord, currentPage, totalPage, itemPerPage int) {
+func (s *ShowLaundryResponse) Fill(laundries []*dress.LaundryRecord, currentPage, totalPage int, count int64, itemPerPage int) {
 	s.Laundries = make([]*laundryRecordResponse, 0, len(laundries))
 	for _, laundryBiz := range laundries {
 		laundryResp := &laundryRecordResponse{
@@ -111,5 +111,6 @@ func (s *ShowLaundryResponse) Fill(laundries []*dress.LaundryRecord, currentPage
 		CurrentPage: currentPage,
 		ItemPerPage: itemPerPage,
 		TotalPage:   totalPage,
+		TotalItem:   count,
 	}
 }

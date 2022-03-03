@@ -21,7 +21,7 @@ func ShowLaundry(c *gin.Context) {
 
 	resp = &response.RespBody{}
 	laundryRecordBiz := &dress.LaundryRecord{}
-	laundryRecords, totalPage, err := laundryRecordBiz.Show(param)
+	laundryRecords, totalPage, count, err := laundryRecordBiz.Show(param)
 	if err != nil {
 		if dbError, ok := err.(*sysError.DbError); ok {
 			resp.DbError(dbError)
@@ -31,7 +31,7 @@ func ShowLaundry(c *gin.Context) {
 	}
 
 	showLaundryResp := &laundryResponse.ShowLaundryResponse{}
-	showLaundryResp.Fill(laundryRecords, param.Pagination.CurrentPage, totalPage, param.Pagination.ItemPerPage)
+	showLaundryResp.Fill(laundryRecords, param.Pagination.CurrentPage, totalPage, count, param.Pagination.ItemPerPage)
 	resp.Success(map[string]interface{}{"data": showLaundryResp})
 	c.JSON(http.StatusOK, resp)
 	return
