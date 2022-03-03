@@ -381,7 +381,7 @@ func ShowUnusable(c *gin.Context) {
 
 	resp = &response.RespBody{}
 	dressBiz := &dress.Dress{}
-	categoryBiz, dressBizs, totalPage, err := dressBiz.ShowUnusable(param)
+	categoryBiz, dressBizs, totalPage, count, err := dressBiz.ShowUnusable(param)
 	if err != nil {
 		if dbErr, ok := err.(*sysError.DbError); ok {
 			resp.DbError(dbErr)
@@ -406,6 +406,7 @@ func ShowUnusable(c *gin.Context) {
 		CurrentPage: param.Pagination.CurrentPage,
 		ItemPerPage: param.Pagination.ItemPerPage,
 		TotalPage:   totalPage,
+		TotalItem:   count,
 	}
 
 	respParam := &dressResponse.ShowUnusableResponse{}

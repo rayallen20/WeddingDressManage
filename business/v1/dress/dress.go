@@ -430,25 +430,23 @@ func (d *Dress) Update(param *requestParam.UpdateParam) error {
 	return nil
 }
 
-// (category *Category, unusableDresses []*Dress, totalPage int, err error)
-
-func (d *Dress) ShowUnusable(param *requestParam.ShowUnusableParam) (category *Category, unusableDresses []*Dress, totalPage int, err error) {
+func (d *Dress) ShowUnusable(param *requestParam.ShowUnusableParam) (category *Category, unusableDresses []*Dress, totalPage int, count int64, err error) {
 	// step1. 查品类信息是否存在
 	categoryOrm := &model.DressCategory{Id: param.Category.Id}
 	err = categoryOrm.FindById()
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil, 0, &sysError.DbError{RealError: err}
+		return nil, nil, 0, 0, &sysError.DbError{RealError: err}
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil, 0, &sysError.CategoryNotExistError{Id: param.Category.Id}
+		return nil, nil, 0, 0, &sysError.CategoryNotExistError{Id: param.Category.Id}
 	}
 
 	// step2. 查询总页数
 	dressOrm := &model.Dress{CategoryId: param.Category.Id}
-	count, err := dressOrm.CountUnusableByCategoryId()
+	count, err = dressOrm.CountUnusableByCategoryId()
 	if err != nil {
-		return nil, nil, 0, &sysError.DbError{RealError: err}
+		return nil, nil, 0, 0, &sysError.DbError{RealError: err}
 	}
 	totalPage = pagination.CalcTotalPage(count, param.Pagination.ItemPerPage)
 
@@ -457,11 +455,11 @@ func (d *Dress) ShowUnusable(param *requestParam.ShowUnusableParam) (category *C
 	dressOrm = &model.Dress{CategoryId: param.Category.Id}
 	unusableDressOrms, err := dressOrm.FindUnusableByCategoryId(param.Pagination.CurrentPage, param.Pagination.ItemPerPage)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil, 0, &sysError.DbError{RealError: err}
+		return nil, nil, 0, 0, &sysError.DbError{RealError: err}
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil, 0, &sysError.DressNotExistError{}
+		return nil, nil, 0, 0, &sysError.DressNotExistError{}
 	}
 
 	category = &Category{}
@@ -473,5 +471,5 @@ func (d *Dress) ShowUnusable(param *requestParam.ShowUnusableParam) (category *C
 		unusableDresses = append(unusableDresses, unusableDress)
 	}
 
-	return category, unusableDresses, totalPage, nil
+	return category, unusableDresses, totalPage, count, nil
 }
