@@ -135,23 +135,23 @@ func (d *Dress) fill(orm *model.Dress) {
 	d.Status = orm.Status
 }
 
-func (d *Dress) ShowUsable(param *requestParam.ShowUsableParam) (category *Category, usableDresses []*Dress, totalPage int, err error) {
+func (d *Dress) ShowUsable(param *requestParam.ShowUsableParam) (category *Category, usableDresses []*Dress, totalPage int, count int64, err error) {
 	// step1. 查品类信息是否存在
 	categoryOrm := &model.DressCategory{Id: param.Category.Id}
 	err = categoryOrm.FindById()
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil, 0, &sysError.DbError{RealError: err}
+		return nil, nil, 0, 0, &sysError.DbError{RealError: err}
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil, 0, &sysError.CategoryNotExistError{Id: param.Category.Id}
+		return nil, nil, 0, 0, &sysError.CategoryNotExistError{Id: param.Category.Id}
 	}
 
 	// step2. 查询总页数
 	dressOrm := &model.Dress{CategoryId: param.Category.Id}
-	count, err := dressOrm.CountUsableByCategoryId()
+	count, err = dressOrm.CountUsableByCategoryId()
 	if err != nil {
-		return nil, nil, 0, &sysError.DbError{RealError: err}
+		return nil, nil, 0, 0, &sysError.DbError{RealError: err}
 	}
 	totalPage = pagination.CalcTotalPage(count, param.Pagination.ItemPerPage)
 
@@ -160,11 +160,11 @@ func (d *Dress) ShowUsable(param *requestParam.ShowUsableParam) (category *Categ
 	dressOrm = &model.Dress{CategoryId: param.Category.Id}
 	usableDressOrms, err := dressOrm.FindUsableByCategoryId(param.Pagination.CurrentPage, param.Pagination.ItemPerPage)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil, 0, &sysError.DbError{RealError: err}
+		return nil, nil, 0, 0, &sysError.DbError{RealError: err}
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil, 0, &sysError.DressNotExistError{}
+		return nil, nil, 0, 0, &sysError.DressNotExistError{}
 	}
 
 	category = &Category{}
@@ -176,7 +176,7 @@ func (d *Dress) ShowUsable(param *requestParam.ShowUsableParam) (category *Categ
 		usableDresses = append(usableDresses, usableDress)
 	}
 
-	return category, usableDresses, totalPage, nil
+	return category, usableDresses, totalPage, count, nil
 }
 
 func (d *Dress) ApplyDiscard(param *requestParam.ApplyDiscardParam) error {
