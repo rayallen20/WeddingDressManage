@@ -80,7 +80,12 @@ func (d *Dress) AddDressesAndUpdateCategory(categoryORM *DressCategory, dressORM
 		return err
 	}
 
-	return tx.Commit().Error
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
 }
 
 // FindUsableByCategoryId 查找指定品类下的可用礼服信息

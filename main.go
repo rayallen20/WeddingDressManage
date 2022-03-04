@@ -5,6 +5,7 @@ import (
 	"WeddingDressManage/controller/v1/category"
 	"WeddingDressManage/controller/v1/dress"
 	"WeddingDressManage/controller/v1/kind"
+	wdmUser "WeddingDressManage/controller/v1/user"
 	"WeddingDressManage/middleware"
 	"github.com/gin-gonic/gin"
 )
@@ -62,8 +63,14 @@ func main() {
 		// 指定品类下不可用礼服展示
 		v1.POST("/dress/showUnusable", dress.ShowUnusable)
 
-		// 送洗礼服展示
+		// 送洗礼服展示 注:此接口目前未和订单关联 是否关联有待和需求沟通
 		v1.POST("/laundry/show", dress.ShowLaundry)
+
+		// 送洗归还
+		v1.POST("/laundry/giveBack", dress.GiveBack)
+
+		// 登录 注:该接口目前为fake
+		v1.POST("/user/login", wdmUser.Login)
 	}
 
 	// 上传文件

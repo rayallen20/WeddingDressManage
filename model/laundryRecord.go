@@ -41,3 +41,38 @@ func (l *LaundryRecord) CountUnderway() (count int64, err error) {
 	err = db.Db.Where("status", LaundryStatus["underway"]).Find(&LaundryRecord{}).Count(&count).Error
 	return count, err
 }
+
+func (l *LaundryRecord) FindById() (err error) {
+	return db.Db.Where("status", LaundryStatus["underway"]).Preload("Dress").First(l).Error
+}
+
+// Finish 送洗结束 送洗记录状态由underway修改为finish 送洗礼服状态由laundry修改为onSale
+func (l *LaundryRecord) Finish(dress *Dress) error {
+	tx := db.Db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if err := tx.Updates(l).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Updates(dress).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
+}

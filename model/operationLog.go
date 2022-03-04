@@ -11,7 +11,9 @@ import (
 // addDress:添加礼服
 // updateDress:修改礼服信息
 // laundry:送洗
+// laundryGiveBack:送洗归还
 // dailyMaintain:商家日常维护
+// dailyMaintainGiveBack:商家日常维护归还
 // preCreateOrder:预创建订单
 // createOrder:创建订单
 // updateOrder:修改订单
@@ -19,6 +21,7 @@ import (
 // allDelivery:全部出件
 // putInStorage:礼服归还入库
 // itemMaintain:客户破损导致的礼服维护
+// itemMaintainGiveBack:客户破损导致的礼服维护归还
 // applyDiscardDress:礼服申请销库
 // applyGiftDress:礼服申请赠与
 var OperationType map[string]string = map[string]string{
@@ -27,7 +30,9 @@ var OperationType map[string]string = map[string]string{
 	"addDress":               "addDress",
 	"updateDress":            "updateDress",
 	"laundry":                "laundry",
+	"laundryGiveBack":        "LaundryGiveBack",
 	"dailyMaintain":          "dailyMaintain",
+	"dailyMaintainGiveBack":  "dailyMaintainGiveBack",
 	"preCreateOrder":         "preCreateOrder",
 	"createOrder":            "createOrder",
 	"updateOrder":            "updateOrder",
@@ -35,6 +40,7 @@ var OperationType map[string]string = map[string]string{
 	"allDelivery":            "allDelivery",
 	"putInStorage":           "putInStorage",
 	"itemMaintain":           "itemMaintain",
+	"itemMaintainGiveBack":   "itemMaintainGiveBack",
 	"applyDiscardDress":      "applyDiscardDress",
 	"applyGiftDress":         "applyGiftDress",
 }

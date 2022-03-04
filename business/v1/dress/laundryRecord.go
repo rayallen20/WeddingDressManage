@@ -61,19 +61,60 @@ func (l *LaundryRecord) Show(param *dress.ShowLaundryParam) (laundryRecords []*L
 	return laundryRecords, totalPage, count, nil
 }
 
+func (l *LaundryRecord) GiveBack(param *dress.GiveBackParam) error {
+	laundryOrm := &model.LaundryRecord{Id: param.Laundry.Id}
+	err := laundryOrm.FindById()
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DbError{RealError: err}
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.LaundryRecordNotExistError{NotExistId: param.Laundry.Id}
+	}
+
+	if laundryOrm.Dress == nil {
+		return &sysError.DressNotExistError{Id: laundryOrm.DressId}
+	}
+
+	if laundryOrm.Dress.Status != model.DressStatus["laundry"] {
+		return &sysError.DressIsNotLaunderingError{NotLaunderingId: laundryOrm.Dress.Id}
+	}
+
+	laundryOrm.Status = model.LaundryStatus["finish"]
+	laundryOrm.Dress.Status = model.DressStatus["onSale"]
+	err = laundryOrm.Finish(laundryOrm.Dress)
+	if err != nil {
+		return &sysError.DbError{RealError: err}
+	}
+
+	// 此处为防止日后变更导致控制器层面需要使用biz 故填充 此时暂无实际用途
+	l.fill(laundryOrm)
+	dressBiz := Dress{}
+	dressBiz.fill(laundryOrm.Dress)
+
+	return nil
+}
+
 func (l *LaundryRecord) fill(orm *model.LaundryRecord) {
 	l.Id = orm.Id
-	l.Dress = &Dress{
-		Id:         orm.Dress.Id,
-		CategoryId: orm.Dress.CategoryId,
-		Category: &Category{
-			Id: orm.Dress.Category.Id,
-			Kind: &Kind{
-				Id:     orm.Dress.Category.Kind.Id,
-				Name:   orm.Dress.Category.Kind.Name,
-				Code:   orm.Dress.Category.Kind.Code,
-				Status: orm.Dress.Category.Kind.Status,
-			},
+	if orm.Dress != nil {
+		l.Dress = &Dress{
+			Id:              orm.Dress.Id,
+			CategoryId:      orm.Dress.CategoryId,
+			SerialNumber:    orm.Dress.SerialNumber,
+			Size:            orm.Dress.Size,
+			RentCounter:     orm.Dress.RentCounter,
+			LaundryCounter:  orm.Dress.LaundryCounter,
+			MaintainCounter: orm.Dress.MaintainCounter,
+			CoverImg:        urlHelper.GenFullImgWebSite(orm.Dress.CoverImg),
+			SecondaryImg:    urlHelper.GenFullImgWebSites(strings.Split(orm.Dress.SecondaryImg, "|")),
+			Status:          orm.Dress.Status,
+		}
+	}
+
+	if orm.Dress.Category != nil {
+		l.Dress.Category = &Category{
+			Id:               orm.Dress.Category.Id,
 			SerialNumber:     orm.Dress.Category.SerialNumber,
 			Quantity:         orm.Dress.Category.Quantity,
 			RentableQuantity: orm.Dress.Category.RentableQuantity,
@@ -86,16 +127,18 @@ func (l *LaundryRecord) fill(orm *model.LaundryRecord) {
 			CoverImg:         orm.Dress.Category.CoverImg,
 			SecondaryImg:     urlHelper.GenFullImgWebSites(strings.Split(orm.Dress.Category.SecondaryImg, "|")),
 			Status:           orm.Dress.Category.Status,
-		},
-		SerialNumber:    orm.Dress.SerialNumber,
-		Size:            orm.Dress.Size,
-		RentCounter:     orm.Dress.RentCounter,
-		LaundryCounter:  orm.Dress.LaundryCounter,
-		MaintainCounter: orm.Dress.MaintainCounter,
-		CoverImg:        urlHelper.GenFullImgWebSite(orm.Dress.CoverImg),
-		SecondaryImg:    urlHelper.GenFullImgWebSites(strings.Split(orm.Dress.SecondaryImg, "|")),
-		Status:          orm.Dress.Status,
+		}
+
+		if orm.Dress.Category.Kind != nil {
+			l.Dress.Category.Kind = &Kind{
+				Id:     orm.Dress.Category.Kind.Id,
+				Name:   orm.Dress.Category.Kind.Name,
+				Code:   orm.Dress.Category.Kind.Code,
+				Status: orm.Dress.Category.Kind.Status,
+			}
+		}
 	}
+
 	l.DirtyPositionImg = urlHelper.GenFullImgWebSites(strings.Split(orm.DirtyPositionImg, "|"))
 	l.Note = orm.Note
 	l.StartLaundryDate = orm.StartLaundryDate
