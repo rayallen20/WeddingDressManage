@@ -27,7 +27,7 @@ const (
 	SaveFileError = 503
 
 	// DbError 数据库错误
-	DbError = 502
+	DbError = 504
 
 	// FieldTypeError 字段类型错误
 	FieldTypeError = 10201
