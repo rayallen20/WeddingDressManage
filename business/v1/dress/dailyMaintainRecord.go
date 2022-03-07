@@ -8,26 +8,34 @@ import (
 )
 
 type dailyMaintainRecord struct {
-	maintainRecord MaintainRecord
+	MaintainRecord *MaintainRecord
 }
 
 func (d *dailyMaintainRecord) createORMForDailyMaintain() *model.MaintainRecord {
 	return &model.MaintainRecord{
-		Source:              d.maintainRecord.Source,
-		DressId:             d.maintainRecord.Dress.Id,
-		MaintainPositionImg: sliceHelper.ImpactSliceToStr(d.maintainRecord.MaintainPositionImg, "|"),
-		Note:                d.maintainRecord.Note,
-		StartMaintainDate:   d.maintainRecord.StartMaintainDate,
-		PlanEndMaintainDate: d.maintainRecord.PlanEndMaintainDate,
-		Status:              d.maintainRecord.Status,
+		Source:              d.MaintainRecord.Source,
+		DressId:             d.MaintainRecord.Dress.Id,
+		MaintainPositionImg: sliceHelper.ImpactSliceToStr(d.MaintainRecord.MaintainPositionImg, "|"),
+		Note:                d.MaintainRecord.Note,
+		StartMaintainDate:   d.MaintainRecord.StartMaintainDate,
+		PlanEndMaintainDate: d.MaintainRecord.PlanEndMaintainDate,
+		Status:              d.MaintainRecord.Status,
 	}
 }
 
 func (d *dailyMaintainRecord) fill(orm *model.MaintainRecord) {
-	d.maintainRecord.Id = orm.Id
-	d.maintainRecord.Source = orm.Source
+	d.MaintainRecord = &MaintainRecord{
+		Id:                  orm.Id,
+		Source:              orm.Source,
+		MaintainPositionImg: urlHelper.GenFullImgWebSites(strings.Split(orm.MaintainPositionImg, "|")),
+		Note:                orm.Note,
+		StartMaintainDate:   orm.StartMaintainDate,
+		PlanEndMaintainDate: orm.PlanEndMaintainDate,
+		Status:              orm.Status,
+	}
+
 	if orm.Dress != nil {
-		d.maintainRecord.Dress = &Dress{
+		d.MaintainRecord.Dress = &Dress{
 			Id:         orm.Dress.Id,
 			CategoryId: orm.Dress.CategoryId,
 			Category: &Category{
@@ -61,9 +69,4 @@ func (d *dailyMaintainRecord) fill(orm *model.MaintainRecord) {
 			Status:          orm.Dress.Status,
 		}
 	}
-	d.maintainRecord.MaintainPositionImg = urlHelper.GenFullImgWebSites(strings.Split(orm.MaintainPositionImg, "|"))
-	d.maintainRecord.Note = orm.Note
-	d.maintainRecord.StartMaintainDate = orm.StartMaintainDate
-	d.maintainRecord.PlanEndMaintainDate = orm.PlanEndMaintainDate
-	d.maintainRecord.Status = orm.Status
 }

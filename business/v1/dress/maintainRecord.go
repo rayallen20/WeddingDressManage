@@ -24,7 +24,7 @@ type MaintainRecord struct {
 }
 
 func (m *MaintainRecord) CreateORMForDailyMaintain() *model.MaintainRecord {
-	dailyMaintainRecord := &dailyMaintainRecord{}
+	dailyMaintainRecord := &dailyMaintainRecord{MaintainRecord: m}
 	return dailyMaintainRecord.createORMForDailyMaintain()
 }
 
@@ -40,7 +40,7 @@ func (m *MaintainRecord) Show(param *requestParam.ShowMaintainParam) (maintainRe
 		if maintainRecordOrm.Source == model.MaintainSource["daily"] {
 			dailyMaintainRecord := &dailyMaintainRecord{}
 			dailyMaintainRecord.fill(maintainRecordOrm)
-			maintainRecord := &dailyMaintainRecord.maintainRecord
+			maintainRecord := dailyMaintainRecord.MaintainRecord
 			maintainRecords = append(maintainRecords, maintainRecord)
 		} else if maintainRecordOrm.Source == model.MaintainSource["item"] {
 			// TODO:此处需与订单关联 待订单模块完成后实现
