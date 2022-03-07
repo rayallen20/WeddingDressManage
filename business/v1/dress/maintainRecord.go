@@ -5,6 +5,8 @@ import (
 	"WeddingDressManage/model"
 	requestParam "WeddingDressManage/param/request/v1/dress"
 	"WeddingDressManage/param/resps/v1/pagination"
+	"errors"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -54,4 +56,36 @@ func (m *MaintainRecord) Show(param *requestParam.ShowMaintainParam) (maintainRe
 	totalPage = pagination.CalcTotalPage(count, param.Pagination.ItemPerPage)
 
 	return maintainRecords, totalPage, count, nil
+}
+
+func (m *MaintainRecord) GiveBack(param *requestParam.MaintainGiveBackParam) error {
+	maintainOrm := &model.MaintainRecord{Id: param.Maintain.Id}
+	err := maintainOrm.FindById()
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DbError{RealError: err}
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.MaintainRecordNotExistError{NotExistId: param.Maintain.Id}
+	}
+
+	if maintainOrm.Dress == nil {
+		return &sysError.DressNotExistError{Id: maintainOrm.DressId}
+	}
+
+	if maintainOrm.Dress.Status != model.DressStatus["maintain"] {
+		return &sysError.DressIsNotMaintainingError{NotMaintainingId: maintainOrm.Dress.Id}
+	}
+
+	if maintainOrm.Source == model.MaintainSource["daily"] {
+		dailyMaintainRecord := &dailyMaintainRecord{}
+		_, err = dailyMaintainRecord.giveBack(maintainOrm)
+		if err != nil {
+			return err
+		}
+		m = dailyMaintainRecord.MaintainRecord
+	}
+
+	// TODO: 由于尚未实现订单模块 故对订单后的维护记录归还暂时不实现 订单模块实现后不上
+	return nil
 }

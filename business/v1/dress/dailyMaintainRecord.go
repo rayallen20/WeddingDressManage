@@ -3,6 +3,7 @@ package dress
 import (
 	"WeddingDressManage/lib/helper/sliceHelper"
 	"WeddingDressManage/lib/helper/urlHelper"
+	"WeddingDressManage/lib/sysError"
 	"WeddingDressManage/model"
 	"strings"
 )
@@ -36,16 +37,21 @@ func (d *dailyMaintainRecord) fill(orm *model.MaintainRecord) {
 
 	if orm.Dress != nil {
 		d.MaintainRecord.Dress = &Dress{
-			Id:         orm.Dress.Id,
-			CategoryId: orm.Dress.CategoryId,
-			Category: &Category{
-				Id: orm.Dress.Category.Id,
-				Kind: &Kind{
-					Id:     orm.Dress.Category.Kind.Id,
-					Name:   orm.Dress.Category.Kind.Name,
-					Code:   orm.Dress.Category.Kind.Code,
-					Status: orm.Dress.Category.Kind.Status,
-				},
+			Id:              orm.Dress.Id,
+			CategoryId:      orm.Dress.CategoryId,
+			SerialNumber:    orm.Dress.SerialNumber,
+			Size:            orm.Dress.Size,
+			RentCounter:     orm.Dress.RentCounter,
+			LaundryCounter:  orm.Dress.LaundryCounter,
+			MaintainCounter: orm.Dress.MaintainCounter,
+			CoverImg:        urlHelper.GenFullImgWebSite(orm.Dress.CoverImg),
+			SecondaryImg:    urlHelper.GenFullImgWebSites(strings.Split(orm.Dress.SecondaryImg, "|")),
+			Status:          orm.Dress.Status,
+		}
+
+		if orm.Dress.Category != nil {
+			d.MaintainRecord.Dress.Category = &Category{
+				Id:               orm.Dress.Category.Id,
 				SerialNumber:     orm.Dress.Category.SerialNumber,
 				Quantity:         orm.Dress.Category.Quantity,
 				RentableQuantity: orm.Dress.Category.RentableQuantity,
@@ -58,15 +64,33 @@ func (d *dailyMaintainRecord) fill(orm *model.MaintainRecord) {
 				CoverImg:         orm.Dress.Category.CoverImg,
 				SecondaryImg:     urlHelper.GenFullImgWebSites(strings.Split(orm.Dress.Category.SecondaryImg, "|")),
 				Status:           orm.Dress.Category.Status,
-			},
-			SerialNumber:    orm.Dress.SerialNumber,
-			Size:            orm.Dress.Size,
-			RentCounter:     orm.Dress.RentCounter,
-			LaundryCounter:  orm.Dress.LaundryCounter,
-			MaintainCounter: orm.Dress.MaintainCounter,
-			CoverImg:        urlHelper.GenFullImgWebSite(orm.Dress.CoverImg),
-			SecondaryImg:    urlHelper.GenFullImgWebSites(strings.Split(orm.Dress.SecondaryImg, "|")),
-			Status:          orm.Dress.Status,
+			}
+
+			if orm.Dress.Category.Kind != nil {
+				d.MaintainRecord.Dress.Category.Kind = &Kind{
+					Id:     orm.Dress.Category.Kind.Id,
+					Name:   orm.Dress.Category.Kind.Name,
+					Code:   orm.Dress.Category.Kind.Code,
+					Status: orm.Dress.Category.Kind.Status,
+				}
+			}
 		}
 	}
+}
+
+func (d *dailyMaintainRecord) giveBack(orm *model.MaintainRecord) (*dailyMaintainRecord, error) {
+	orm.Status = model.MaintainStatus["finish"]
+	orm.Dress.Status = model.DressStatus["onSale"]
+	categoryOrm := &model.DressCategory{
+		Id:               orm.Dress.Category.Id,
+		RentableQuantity: orm.Dress.Category.RentableQuantity + 1,
+	}
+
+	err := orm.Finish(orm.Dress, categoryOrm)
+	if err != nil {
+		return nil, &sysError.DbError{RealError: err}
+	}
+
+	d.fill(orm)
+	return d, nil
 }

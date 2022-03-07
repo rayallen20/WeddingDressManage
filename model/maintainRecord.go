@@ -54,3 +54,45 @@ func (m *MaintainRecord) CountUnderway() (count int64, err error) {
 	err = db.Db.Where("status", MaintainStatus["underway"]).Find(m).Count(&count).Error
 	return count, err
 }
+
+func (m *MaintainRecord) FindById() (err error) {
+	return db.Db.Where("status", LaundryStatus["underway"]).Preload("Dress").
+		Preload("Dress.Category").First(m).Error
+}
+
+// Finish 维护结束 维护记录状态由underway修改为finish 维护礼服状态由maintain修改为onSale
+// 维护礼服所属品类的可租赁件数 +1
+func (m *MaintainRecord) Finish(dress *Dress, category *DressCategory) error {
+	tx := db.Db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if err := tx.Updates(m).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Updates(dress).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Updates(category).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
+}

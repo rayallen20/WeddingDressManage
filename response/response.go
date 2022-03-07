@@ -68,8 +68,14 @@ const (
 	// LaundryRecordNotExistError 送洗记录不存在错误
 	LaundryRecordNotExistError = 10310
 
-	// DressIsNotLaunderingError 礼服不处于维护状态错误
+	// DressIsNotLaunderingError 礼服不处于送洗状态错误
 	DressIsNotLaunderingError = 10311
+
+	// MaintainRecordNotExistError 维护记录不存在错误
+	MaintainRecordNotExistError = 10312
+
+	// DressIsNotMaintainingError 礼服不处于维护状态错误
+	DressIsNotMaintainingError = 10313
 )
 
 var message = map[int]string{
@@ -194,6 +200,18 @@ func (r *RespBody) LaundryRecordNotExistError(err *sysError.LaundryRecordNotExis
 
 func (r *RespBody) DressIsNotLaunderingError(err *sysError.DressIsNotLaunderingError) {
 	r.Code = DressIsNotLaunderingError
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) MaintainRecordNotExistError(err *sysError.MaintainRecordNotExistError) {
+	r.Code = MaintainRecordNotExistError
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) DressIsNotMaintainingError(err *sysError.DressIsNotMaintainingError) {
+	r.Code = DressIsNotMaintainingError
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }
