@@ -7,14 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ShowLaundryParam struct {
+type ShowMaintainParam struct {
 	Pagination pagination.Pagination `json:"pagination" binding:"required" errField:"pagination"`
 }
 
-func (l *ShowLaundryParam) Bind(c *gin.Context) error {
-	return validator.Bind(l, []interface{}{l, &pagination.Pagination{}}, c)
+func (m *ShowMaintainParam) Bind(c *gin.Context) error {
+	return validator.Bind(m, []interface{}{m, &pagination.Pagination{}}, c)
 }
 
-func (l *ShowLaundryParam) Validate(err error) []*sysError.ValidateError {
+func (m *ShowMaintainParam) Validate(err error) []*sysError.ValidateError {
 	return validator.Validate(err)
 }

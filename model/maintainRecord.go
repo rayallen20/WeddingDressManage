@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"WeddingDressManage/lib/db"
+	"time"
+)
 
 // MaintainSource 维护记录来源
 // item 订单内礼服归还时需要维护(此来源的维护信息需包含订单相关信息 会涉及到钱)
@@ -38,4 +41,16 @@ type MaintainRecord struct {
 	Status      string
 	CreatedTime time.Time `gorm:"autoCreateTime"`
 	UpdatedTime time.Time `gorm:"autoUpdateTime"`
+}
+
+func (m *MaintainRecord) FindUnderway(currentPage, itemPerPage int) (maintainRecords []*MaintainRecord, err error) {
+	maintainRecords = make([]*MaintainRecord, 0, itemPerPage)
+	err = db.Db.Scopes(db.Paginate(currentPage, itemPerPage)).Where("status", MaintainStatus["underway"]).
+		Preload("Dress").Preload("Dress.Category").Preload("Dress.Category.Kind").Find(&maintainRecords).Error
+	return maintainRecords, err
+}
+
+func (m *MaintainRecord) CountUnderway() (count int64, err error) {
+	err = db.Db.Where("status", MaintainStatus["underway"]).Find(m).Count(&count).Error
+	return count, err
 }

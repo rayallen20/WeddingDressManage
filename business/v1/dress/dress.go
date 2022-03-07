@@ -354,7 +354,7 @@ func (d *Dress) Maintain(param *requestParam.MaintainParam) error {
 	}
 
 	// step5. 创建维护记录
-	dailyMaintainBiz := &DailyMaintainRecord{
+	maintainRecordBiz := &MaintainRecord{
 		Source:              model.MaintainSource["daily"],
 		Dress:               d,
 		MaintainPositionImg: param.MaintainDetail.MaintainPositionImg,
@@ -363,11 +363,11 @@ func (d *Dress) Maintain(param *requestParam.MaintainParam) error {
 		PlanEndMaintainDate: time.Now().Add(MaintainPlanDurationDays * 24 * time.Hour),
 		Status:              model.MaintainStatus["underway"],
 	}
-	maintainOrm := dailyMaintainBiz.CreateORMForDailyMaintain()
+	maintainOrm := maintainRecordBiz.CreateORMForDailyMaintain()
 
 	// step6. 使用事务
 	// 1. 修改礼服状态 礼服维护次数+1
-	// 2. 礼服所属品类维护次数+1
+	// 2. 礼服所属品类维护次数+1 可租赁件数-1
 	// 3. 创建维护记录
 	err = dressOrm.UpdateDressStatusAndCreateMaintainRecord(categoryOrm, maintainOrm)
 	if err != nil {

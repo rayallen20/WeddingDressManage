@@ -41,7 +41,7 @@ func (l *LaundryRecord) CreateORMForLaundry() *model.LaundryRecord {
 func (l *LaundryRecord) Show(param *dress.ShowLaundryParam) (laundryRecords []*LaundryRecord, totalPage int, count int64, err error) {
 	laundryRecordOrm := &model.LaundryRecord{}
 	orms, err := laundryRecordOrm.FindUnderway(param.Pagination.CurrentPage, param.Pagination.ItemPerPage)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil {
 		dbErr := &sysError.DbError{RealError: err}
 		return nil, 0, 0, dbErr
 	}
@@ -61,7 +61,7 @@ func (l *LaundryRecord) Show(param *dress.ShowLaundryParam) (laundryRecords []*L
 	return laundryRecords, totalPage, count, nil
 }
 
-func (l *LaundryRecord) GiveBack(param *dress.GiveBackParam) error {
+func (l *LaundryRecord) GiveBack(param *dress.LaundryGiveBackParam) error {
 	laundryOrm := &model.LaundryRecord{Id: param.Laundry.Id}
 	err := laundryOrm.FindById()
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {

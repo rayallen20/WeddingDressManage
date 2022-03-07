@@ -11,8 +11,8 @@ type ShowLaundryResponse struct {
 }
 
 type laundryRecordResponse struct {
-	Laundry *laundryResponse `json:"laundry"`
-	Dress   *dressResponse   `json:"dress"`
+	Laundry *laundryResponse          `json:"laundry"`
+	Dress   *showLaundryDressResponse `json:"dress"`
 }
 
 type laundryResponse struct {
@@ -23,37 +23,37 @@ type laundryResponse struct {
 	Status           string   `json:"status"`
 }
 
-type dressResponse struct {
-	Id              int               `json:"id"`
-	Category        *categoryResponse `json:"category"`
-	SerialNumber    int               `json:"serialNumber"`
-	Size            string            `json:"size"`
-	RentCounter     int               `json:"rentCounter"`
-	LaundryCounter  int               `json:"laundryCounter"`
-	MaintainCounter int               `json:"maintainCounter"`
-	CoverImg        string            `json:"coverImg"`
-	SecondaryImg    []string          `json:"secondaryImg"`
-	Status          string            `json:"status"`
+type showLaundryDressResponse struct {
+	Id              int                          `json:"id"`
+	Category        *showLaundryCategoryResponse `json:"category"`
+	SerialNumber    int                          `json:"serialNumber"`
+	Size            string                       `json:"size"`
+	RentCounter     int                          `json:"rentCounter"`
+	LaundryCounter  int                          `json:"laundryCounter"`
+	MaintainCounter int                          `json:"maintainCounter"`
+	CoverImg        string                       `json:"coverImg"`
+	SecondaryImg    []string                     `json:"secondaryImg"`
+	Status          string                       `json:"status"`
 }
 
-type categoryResponse struct {
-	Id               int           `json:"id"`
-	Kind             *kindResponse `json:"kind"`
-	SerialNumber     string        `json:"serialNumber"`
-	Quantity         int           `json:"quantity"`
-	RentableQuantity int           `json:"rentableQuantity"`
-	CharterMoney     int           `json:"charterMoney"`
-	AvgCharterMoney  int           `json:"avgCharterMoney"`
-	CashPledge       int           `json:"cashPledge"`
-	RentCounter      int           `json:"rentCounter"`
-	LaundryCounter   int           `json:"laundryCounter"`
-	MaintainCounter  int           `json:"maintainCounter"`
-	CoverImg         string        `json:"coverImg"`
-	SecondaryImg     []string      `json:"secondaryImg"`
-	Status           string        `json:"status"`
+type showLaundryCategoryResponse struct {
+	Id               int                      `json:"id"`
+	Kind             *showLaundryKindResponse `json:"kind"`
+	SerialNumber     string                   `json:"serialNumber"`
+	Quantity         int                      `json:"quantity"`
+	RentableQuantity int                      `json:"rentableQuantity"`
+	CharterMoney     int                      `json:"charterMoney"`
+	AvgCharterMoney  int                      `json:"avgCharterMoney"`
+	CashPledge       int                      `json:"cashPledge"`
+	RentCounter      int                      `json:"rentCounter"`
+	LaundryCounter   int                      `json:"laundryCounter"`
+	MaintainCounter  int                      `json:"maintainCounter"`
+	CoverImg         string                   `json:"coverImg"`
+	SecondaryImg     []string                 `json:"secondaryImg"`
+	Status           string                   `json:"status"`
 }
 
-type kindResponse struct {
+type showLaundryKindResponse struct {
 	Id     int    `json:"id"`
 	Name   string `json:"name"`
 	Code   string `json:"code"`
@@ -71,11 +71,11 @@ func (s *ShowLaundryResponse) Fill(laundries []*dress.LaundryRecord, currentPage
 				Note:             laundryBiz.Note,
 				Status:           laundryBiz.Status,
 			},
-			Dress: &dressResponse{
+			Dress: &showLaundryDressResponse{
 				Id: laundryBiz.Dress.Id,
-				Category: &categoryResponse{
+				Category: &showLaundryCategoryResponse{
 					Id: laundryBiz.Dress.Category.Id,
-					Kind: &kindResponse{
+					Kind: &showLaundryKindResponse{
 						Id:     laundryBiz.Dress.Category.Kind.Id,
 						Name:   laundryBiz.Dress.Category.Kind.Name,
 						Code:   laundryBiz.Dress.Category.Kind.Code,

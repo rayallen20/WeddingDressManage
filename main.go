@@ -66,8 +66,14 @@ func main() {
 		// 送洗礼服展示 注:此接口目前未和订单关联 是否关联有待和需求沟通
 		v1.POST("/laundry/show", dress.ShowLaundry)
 
+		// 维护礼服展示 注:此接口目前未和订单关联 订单模块完成后修改
+		v1.POST("/maintain/show", dress.ShowMaintain)
+
 		// 送洗归还
-		v1.POST("/laundry/giveBack", dress.GiveBack)
+		v1.POST("/laundry/giveBack", dress.LaundryGiveBack)
+
+		// 日常维护归还
+		v1.POST("/maintain/giveBack", dress.DailyMaintainGiveBack)
 
 		// 登录 注:该接口目前为fake
 		v1.POST("/user/login", wdmUser.Login)

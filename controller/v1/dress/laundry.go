@@ -38,8 +38,8 @@ func ShowLaundry(c *gin.Context) {
 	return
 }
 
-func GiveBack(c *gin.Context) {
-	var param *laundryRequest.GiveBackParam = &laundryRequest.GiveBackParam{}
+func LaundryGiveBack(c *gin.Context) {
+	var param *laundryRequest.LaundryGiveBackParam = &laundryRequest.LaundryGiveBackParam{}
 	var logger *syslog.LaundryGiveBack = &syslog.LaundryGiveBack{}
 	resp := controller.CheckParam(param, c, logger)
 	if resp != nil {
