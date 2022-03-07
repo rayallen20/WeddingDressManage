@@ -82,7 +82,12 @@ func (l *LaundryRecord) GiveBack(param *dress.GiveBackParam) error {
 
 	laundryOrm.Status = model.LaundryStatus["finish"]
 	laundryOrm.Dress.Status = model.DressStatus["onSale"]
-	err = laundryOrm.Finish(laundryOrm.Dress)
+	categoryOrm := &model.DressCategory{
+		Id:               laundryOrm.Dress.Category.Id,
+		RentableQuantity: laundryOrm.Dress.Category.RentableQuantity + 1,
+	}
+
+	err = laundryOrm.Finish(laundryOrm.Dress, categoryOrm)
 	if err != nil {
 		return &sysError.DbError{RealError: err}
 	}

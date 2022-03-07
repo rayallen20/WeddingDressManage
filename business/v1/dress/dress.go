@@ -276,10 +276,11 @@ func (d *Dress) Laundry(param *requestParam.LaundryParam) error {
 	dressOrm.Status = model.DressStatus["laundry"]
 	dressOrm.LaundryCounter += 1
 
-	// step4. 对品类ORM 送洗次数+1
+	// step4. 对品类ORM 送洗次数+1 可租赁数量-1
 	categoryOrm := &model.DressCategory{
-		Id:             d.Category.Id,
-		LaundryCounter: d.Category.LaundryCounter + 1,
+		Id:               d.Category.Id,
+		LaundryCounter:   d.Category.LaundryCounter + 1,
+		RentableQuantity: d.Category.RentableQuantity - 1,
 	}
 
 	// step5. 创建送洗记录
@@ -295,7 +296,8 @@ func (d *Dress) Laundry(param *requestParam.LaundryParam) error {
 	// step6. 使用事务
 	// 1. 修改礼服状态 礼服送洗次数+1
 	// 2. 礼服所属品类送洗次数+1
-	// 3. 创建送洗记录
+	// 3. 礼服所属品类可租赁数量-1
+	// 4. 创建送洗记录
 	laundryRecordOrm := laundryRecordBiz.CreateORMForLaundry()
 	err = dressOrm.UpdateDressStatusAndCreateLaundryRecord(categoryOrm, laundryRecordOrm)
 	if err != nil {
@@ -344,10 +346,11 @@ func (d *Dress) Maintain(param *requestParam.MaintainParam) error {
 	dressOrm.Status = model.DressStatus["maintain"]
 	dressOrm.MaintainCounter += 1
 
-	// step4. 对品类ORM 维护次数+1
+	// step4. 对品类ORM 维护次数+1 可租赁数量-1
 	categoryOrm := &model.DressCategory{
-		Id:              d.Category.Id,
-		MaintainCounter: d.Category.MaintainCounter + 1,
+		Id:               d.Category.Id,
+		MaintainCounter:  d.Category.MaintainCounter + 1,
+		RentableQuantity: d.Category.RentableQuantity - 1,
 	}
 
 	// step5. 创建维护记录
