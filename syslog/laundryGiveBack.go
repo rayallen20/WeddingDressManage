@@ -20,7 +20,7 @@ func (l *LaundryGiveBack) GetData(c *gin.Context) {
 
 func (l *LaundryGiveBack) Logger() {
 	logModel := &model.OperationLog{
-		Kind:     model.OperationType["itemMaintainGiveBack"],
+		Kind:     model.OperationType["laundryGiveBack"],
 		TargetId: l.TargetId,
 		Data:     l.data,
 	}
