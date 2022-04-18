@@ -12,9 +12,10 @@ import (
 // Bind 将请求参数反序列化为结构体的实例 返回的错误若没有明确为绑定错误 则请求参数已经绑定到结构体的实例上了
 func Bind(param requestiface.RequestParam, allParams []interface{}, c *gin.Context) error {
 	err := c.ShouldBindJSON(param)
+
 	if err != nil {
 		// 请求中的JSON为空
-		if errors.As(err, &io.EOF) {
+		if errors.Is(err, io.EOF) {
 			nilJsonErr := &sysError.RequestNilJsonError{}
 			return nilJsonErr
 		}
