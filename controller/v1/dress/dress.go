@@ -105,7 +105,9 @@ func ShowUsable(c *gin.Context) {
 	respParam := &dressResponse.ShowUsableResponse{}
 	respParam.Fill(categoryBiz, dressBizs, paginationResp)
 	data := map[string]interface{}{
-		"data": respParam,
+		"category":   respParam.Category,
+		"dresses":    respParam.Dresses,
+		"pagination": respParam.Pagination,
 	}
 	resp.Success(data)
 	c.JSON(http.StatusOK, resp)
@@ -328,7 +330,8 @@ func ShowOne(c *gin.Context) {
 	respParam := &dressResponse.ShowOneResponse{}
 	respParam.Fill(dressBiz)
 	data := map[string]interface{}{
-		"data": respParam,
+		"category": respParam.Category,
+		"dress":    respParam.Dress,
 	}
 	resp.Success(data)
 	c.JSON(http.StatusOK, resp)
@@ -412,7 +415,9 @@ func ShowUnusable(c *gin.Context) {
 	respParam := &dressResponse.ShowUnusableResponse{}
 	respParam.Fill(categoryBiz, dressBizs, paginationResp)
 	data := map[string]interface{}{
-		"data": respParam,
+		"category":   respParam.Category,
+		"dresses":    respParam.Dresses,
+		"pagination": respParam.Pagination,
 	}
 	resp.Success(data)
 	c.JSON(http.StatusOK, resp)

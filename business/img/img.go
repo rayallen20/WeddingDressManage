@@ -4,7 +4,9 @@ import (
 	"WeddingDressManage/conf"
 	"WeddingDressManage/lib/helper/randNumberHelper"
 	"WeddingDressManage/lib/sysError"
+	"WeddingDressManage/model"
 	"WeddingDressManage/param/request/img"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"mime/multipart"
 	"path/filepath"
@@ -25,6 +27,8 @@ type Img struct {
 // Upload 上传图片至服务器
 func (i *Img) Upload(param *img.UploadParam) error {
 	i.waitSaveFile = param.File
+	sourceName := i.waitSaveFile.Filename
+
 	i.rename()
 	i.localPath = conf.Conf.File.Path + "/" + i.waitSaveFile.Filename
 
@@ -34,31 +38,32 @@ func (i *Img) Upload(param *img.UploadParam) error {
 		saveFileErr := &sysError.SaveFileError{RealErr: err}
 		return saveFileErr
 	}
-
 	i.Url = conf.Conf.File.Protocol + conf.Conf.File.DomainName + conf.Conf.File.ImgUri + "/" + i.waitSaveFile.Filename
+
+	orm := &model.Img{
+		SourceName:      i.genSafeSourceFileName(sourceName),
+		DestinationName: i.waitSaveFile.Filename,
+		Url:             i.Url,
+	}
+	err = orm.Save()
+	if err != nil {
+		return &sysError.DbError{RealError: err}
+	}
+
 	return nil
 }
 
 // rename 重命名文件
-// 重命名规则:原文件名后添加4位随机数
+// 重命名规则:随机8位数字
 func (i *Img) rename() {
 	fileNameSegment := strings.Split(i.waitSaveFile.Filename, ".")
-	var newName string
-	for j := 0; j < len(fileNameSegment) - 1; j++ {
-		newName += fileNameSegment[j]
-		if j != len(fileNameSegment) - 2 {
-			newName += "."
-		}
-	}
-
-	randStr := strconv.Itoa(randNumberHelper.GenRenameImgRandomInt())
-	newName = newName + randStr + "." + fileNameSegment[len(fileNameSegment) - 1]
-	i.waitSaveFile.Filename = newName
-	i.genSafeFileName()
+	fileSuffix := fileNameSegment[len(fileNameSegment)-1]
+	i.waitSaveFile.Filename = strconv.Itoa(randNumberHelper.GenRenameImgRandomInt()) + "." + fileSuffix
+	fmt.Printf("int to string:%v\n", i.waitSaveFile.Filename)
 }
 
 // GetSafeFileName 将一个文件名修改为安全的文件名
 // 具体原因见 https://github.com/gin-gonic/gin/issues/1693
-func (i *Img) genSafeFileName()  {
-	i.waitSaveFile.Filename = filepath.Base(i.waitSaveFile.Filename)
+func (i *Img) genSafeSourceFileName(sourceName string) (safeSourceName string) {
+	return filepath.Base(sourceName)
 }

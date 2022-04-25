@@ -9,7 +9,6 @@ import (
 	requestParam "WeddingDressManage/param/request/v1/dress"
 	"WeddingDressManage/param/resps/v1/pagination"
 	"errors"
-	"fmt"
 	"gorm.io/gorm"
 	"strings"
 	"time"
@@ -397,7 +396,6 @@ func (d *Dress) canBeMaintain() bool {
 func (d *Dress) ShowOne(param *requestParam.ShowOneParam) error {
 	orm := &model.Dress{Id: param.Dress.Id}
 	err := orm.FindById()
-	fmt.Printf("%#v\n", orm.Category.Kind)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return &sysError.DbError{RealError: err}
 	}

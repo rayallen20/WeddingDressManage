@@ -33,7 +33,10 @@ func ShowLaundry(c *gin.Context) {
 
 	showLaundryResp := &laundryResponse.ShowLaundryResponse{}
 	showLaundryResp.Fill(laundryRecords, param.Pagination.CurrentPage, totalPage, count, param.Pagination.ItemPerPage)
-	resp.Success(map[string]interface{}{"data": showLaundryResp})
+	resp.Success(map[string]interface{}{
+		"pagination": showLaundryResp.Pagination,
+		"laundries":  showLaundryResp.Laundries,
+	})
 	c.JSON(http.StatusOK, resp)
 	return
 }

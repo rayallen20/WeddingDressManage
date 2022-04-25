@@ -80,7 +80,10 @@ func ShowMaintain(c *gin.Context) {
 
 	showMaintainResp := &maintainResponse.ShowMaintainResponse{}
 	showMaintainResp.Fill(maintainBizs, param.Pagination.CurrentPage, totalPage, count, param.Pagination.ItemPerPage)
-	resp.Success(map[string]interface{}{"data": showMaintainResp})
+	resp.Success(map[string]interface{}{
+		"pagination": showMaintainResp.Pagination,
+		"maintains":  showMaintainResp.Maintains,
+	})
 	c.JSON(http.StatusOK, resp)
 	return
 }

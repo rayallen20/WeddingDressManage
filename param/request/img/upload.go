@@ -53,16 +53,15 @@ func (u *UploadParam) Validate(err error) []*sysError.ValidateError {
 
 	if len(errs) != 0 {
 		return errs
-	} else {
-		return nil
 	}
+	return nil
 }
 
 // isImg 判断上传文件是否为图片
 func (u *UploadParam) isImg() bool {
 	fileName := u.File.Filename
 	fileNameSegments := strings.Split(fileName, ".")
-	fileType := fileNameSegments[len(fileNameSegments) - 1]
+	fileType := fileNameSegments[len(fileNameSegments)-1]
 	for _, imgFileType := range imgFileTypes {
 		if fileType == imgFileType {
 			return true
