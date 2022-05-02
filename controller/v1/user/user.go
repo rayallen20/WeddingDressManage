@@ -8,6 +8,7 @@ import (
 
 func Login(c *gin.Context) {
 	res := map[string]interface{}{
+		"username":         "user",
 		"status":           "ok",
 		"type":             "pc",
 		"currentAuthority": "admin",
