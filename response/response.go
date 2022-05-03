@@ -1,6 +1,9 @@
 package response
 
-import "WeddingDressManage/lib/sysError"
+import (
+	"WeddingDressManage/lib/sysError"
+	"time"
+)
 
 type RespBody struct {
 	Code    int                    `json:"code"`
@@ -37,6 +40,9 @@ const (
 
 	// NilJsonError 请求参数中的JSON为空错误
 	NilJsonError = 10203
+
+	// TimeParseError 无法将请求参数中的字符串解析为时间错误
+	TimeParseError = 10204
 
 	// KindNotExist 大类信息不存在
 	KindNotExist = 10301
@@ -76,6 +82,11 @@ const (
 
 	// DressIsNotMaintainingError 礼服不处于维护状态错误
 	DressIsNotMaintainingError = 10313
+
+	// WeddingDateBeforeTodayError 创建订单操作中搜索礼服步骤时 选择的婚期早于当天错误
+	WeddingDateBeforeTodayError = 10314
+
+	// 20XXX 前端需要渲染的
 )
 
 var message = map[int]string{
@@ -91,6 +102,12 @@ func (r *RespBody) Success(data map[string]interface{}) {
 
 func (r *RespBody) RequestNilJsonError(err *sysError.RequestNilJsonError) {
 	r.Code = NilJsonError
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) TimeParseError(err *time.ParseError) {
+	r.Code = TimeParseError
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }
@@ -212,6 +229,12 @@ func (r *RespBody) MaintainRecordNotExistError(err *sysError.MaintainRecordNotEx
 
 func (r *RespBody) DressIsNotMaintainingError(err *sysError.DressIsNotMaintainingError) {
 	r.Code = DressIsNotMaintainingError
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) WeddingDateBeforeTodayError(err *sysError.DateBeforeTodayError) {
+	r.Code = WeddingDateBeforeTodayError
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }

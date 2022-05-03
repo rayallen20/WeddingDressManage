@@ -5,6 +5,7 @@ import (
 	"WeddingDressManage/controller/v1/category"
 	"WeddingDressManage/controller/v1/dress"
 	"WeddingDressManage/controller/v1/kind"
+	"WeddingDressManage/controller/v1/order"
 	wdmUser "WeddingDressManage/controller/v1/user"
 	"WeddingDressManage/middleware"
 	"github.com/gin-gonic/gin"
@@ -77,6 +78,9 @@ func main() {
 
 		// 登录 注:该接口目前为fake
 		v1.POST("/user/login", wdmUser.Login)
+
+		// 搜索可租赁品类礼服
+		v1.POST("/order/search", order.Search)
 	}
 
 	// 上传文件

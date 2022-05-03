@@ -6,6 +6,7 @@ import (
 	"WeddingDressManage/response"
 	"WeddingDressManage/syslog/logInterface"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 // CheckParam 从请求中获取参数信息并绑定至给定参数对象 若logger不为空 则记录请求参数
@@ -32,6 +33,11 @@ func CheckParam(param requestiface.RequestParam, c *gin.Context, logger logInter
 
 	if unmarshalTypeError, ok := err.(*sysError.UnmarshalTypeError); ok {
 		resp.FieldTypeError(unmarshalTypeError)
+		return resp
+	}
+
+	if timeParseError, ok := err.(*time.ParseError); ok {
+		resp.TimeParseError(timeParseError)
 		return resp
 	}
 
