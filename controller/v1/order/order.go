@@ -8,7 +8,6 @@ import (
 	orderResponse "WeddingDressManage/param/resps/v1/order"
 	"WeddingDressManage/param/resps/v1/pagination"
 	"WeddingDressManage/response"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -90,5 +89,12 @@ func PreCreate(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("%#v\n", orderBiz)
+	respParam := &orderResponse.PreCreateResponse{}
+	respParam.Fill(orderBiz)
+
+	resp.Success(map[string]interface{}{
+		"order": respParam.Order,
+	})
+	c.JSON(http.StatusOK, resp)
+	return
 }

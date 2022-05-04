@@ -2,7 +2,10 @@ package order
 
 import (
 	"WeddingDressManage/business/v1/order"
+	"WeddingDressManage/lib/helper/paramHelper"
+	"WeddingDressManage/param"
 	"strconv"
+	"time"
 )
 
 type PreCreateResponse struct {
@@ -13,6 +16,7 @@ type PreCreateOrderResponse struct {
 	Items                []*PreCreateItemResponse `json:"items"`
 	OriginalCharterMoney string                   `json:"originalCharterMoney"`
 	OriginalCashPledge   string                   `json:"originalCashPledge"`
+	WeddingDate          string                   `json:"weddingDate"`
 }
 
 type PreCreateItemResponse struct {
@@ -58,8 +62,10 @@ type PreCreateItemKindResponse struct {
 	Status string `json:"status"`
 }
 
-func (p *PreCreateResponse) Fill(order order.Order) {
+func (p *PreCreateResponse) Fill(order *order.Order) {
+	p.fillPrice(order)
 	p.fillItems(order.Items)
+	p.fillWeddingDate(order.WeddingDate)
 }
 
 func (p *PreCreateResponse) fillItems(items []*order.Item) {
@@ -105,6 +111,12 @@ func (p *PreCreateResponse) fillItems(items []*order.Item) {
 	}
 }
 
-func (p PreCreateResponse) fill() {
+func (p *PreCreateResponse) fillPrice(order *order.Order) {
+	p.Order = &PreCreateOrderResponse{}
+	p.Order.OriginalCharterMoney = paramHelper.ConvertPennyToYuan(strconv.Itoa(order.OriginalCharterMoney))
+	p.Order.OriginalCashPledge = paramHelper.ConvertPennyToYuan(strconv.Itoa(order.OriginalCashPledge))
+}
 
+func (p *PreCreateResponse) fillWeddingDate(weddingDate time.Time) {
+	p.Order.WeddingDate = weddingDate.Format(param.DateFormat)
 }
