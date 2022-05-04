@@ -14,8 +14,7 @@ type SearchParam struct {
 }
 
 type Condition struct {
-	// WeddingDate time.Time `form:"weddingDate" time_format:"2006-01-02" errField:"weddingDate"`
-	WeddingDate param.Date `form:"weddingDate" json:"weddingDate" errField:"weddingDate"`
+	WeddingDate *param.Date `form:"weddingDate" json:"weddingDate" errField:"weddingDate"`
 }
 
 func (s *SearchParam) Bind(c *gin.Context) error {

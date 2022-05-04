@@ -8,6 +8,7 @@ import (
 	orderResponse "WeddingDressManage/param/resps/v1/order"
 	"WeddingDressManage/param/resps/v1/pagination"
 	"WeddingDressManage/response"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -23,17 +24,18 @@ func Search(c *gin.Context) {
 	}
 
 	resp = &response.RespBody{}
-
 	// 判断婚期是否早于当天
-	t := time.Now().AddDate(0, 0, 1)
-	today := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
-	if param.SearchCondition.WeddingDate.IsBefore(today) {
-		err := &sysError.DateBeforeTodayError{
-			Field: "weddingDate",
+	if param.SearchCondition.WeddingDate != nil {
+		t := time.Now().AddDate(0, 0, 1)
+		today := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+		if param.SearchCondition.WeddingDate.IsBefore(today) {
+			err := &sysError.DateBeforeTodayError{
+				Field: "weddingDate",
+			}
+			resp.WeddingDateBeforeTodayError(err)
+			c.JSON(http.StatusOK, resp)
+			return
 		}
-		resp.WeddingDateBeforeTodayError(err)
-		c.JSON(http.StatusOK, resp)
-		return
 	}
 
 	// TODO:此处并未实现筛选逻辑 仅将所有品类信息查询并返回了
@@ -61,4 +63,32 @@ func Search(c *gin.Context) {
 	})
 	c.JSON(http.StatusOK, resp)
 	return
+}
+
+func PreCreate(c *gin.Context) {
+	var param *orderRequest.PreCreateParam = &orderRequest.PreCreateParam{}
+	resp := controller.CheckParam(param, c, nil)
+	if resp != nil {
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	resp = &response.RespBody{}
+
+	orderBiz := &order.Order{}
+	err := orderBiz.PreCreate(param)
+
+	if dbErr, ok := err.(*sysError.DbError); ok {
+		resp.DbError(dbErr)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+		resp.DressNotExistError(dressNotExistErr)
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	fmt.Printf("%#v\n", orderBiz)
 }
