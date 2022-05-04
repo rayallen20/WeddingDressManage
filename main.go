@@ -81,6 +81,9 @@ func main() {
 
 		// 搜索可租赁品类礼服
 		v1.POST("/order/search", order.Search)
+
+		// 预创建订单
+		v1.POST("/order/preCreate", order.PreCreate)
 	}
 
 	// 上传文件

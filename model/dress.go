@@ -186,3 +186,12 @@ func (d *Dress) UpdateDressStatusAndCreateMaintainRecord(categoryOrm *DressCateg
 func (d *Dress) Updates() error {
 	return db.Db.Updates(d).Error
 }
+
+func (d *Dress) FindInIds(dressIds []int) ([]*Dress, error) {
+	dresses := make([]*Dress, 0)
+	err := db.Db.Where("id", dressIds).Preload("Category").Preload("Category.Kind").Find(&dresses).Error
+	if err != nil {
+		return nil, err
+	}
+	return dresses, nil
+}

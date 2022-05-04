@@ -474,3 +474,44 @@ func (d *Dress) ShowUnusable(param *requestParam.ShowUnusableParam) (category *C
 
 	return category, unusableDresses, totalPage, count, nil
 }
+
+// FindByIds 根据id集合查询礼服
+// TODO: 此方法从名字上来看更像一个model层的方法
+func (d *Dress) FindByIds(dressIds []int) ([]*Dress, error) {
+	orm := &model.Dress{}
+	orms, err := orm.FindInIds(dressIds)
+	if err != nil {
+		return nil, &sysError.DbError{RealError: err}
+	}
+
+	if len(orms) != len(dressIds) {
+		notExistId := d.confirmNotExistId(orms, dressIds)
+		err = &sysError.DressNotExistError{
+			Id: notExistId,
+		}
+		return nil, err
+	}
+
+	dresses := make([]*Dress, 0, len(orms))
+	for _, dressOrm := range orms {
+		dress := &Dress{}
+		dress.fill(dressOrm)
+		dresses = append(dresses, dress)
+	}
+	return dresses, nil
+}
+
+func (d *Dress) confirmNotExistId(orms []*model.Dress, dressIds []int) int {
+	ormIds := make([]int, 0, len(orms))
+	for _, dressOrm := range orms {
+		ormIds = append(ormIds, dressOrm.Id)
+	}
+
+	for _, dressId := range dressIds {
+		isContain := sliceHelper.IsContainInt(dressId, ormIds)
+		if !isContain {
+			return dressId
+		}
+	}
+	return 0
+}
