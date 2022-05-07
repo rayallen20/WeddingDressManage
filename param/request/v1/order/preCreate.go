@@ -8,8 +8,8 @@ import (
 )
 
 type PreCreateParam struct {
-	Dresses []*PreCreateDress `form:"dresses" binding:"gt=0,required,unique,dive"`
-	Order   *PreCreateOrder   `form:"order" binding:"required"`
+	Dresses []*PreCreateDress `form:"dresses" binding:"gt=0,required,unique,dive" errField:"dresses"`
+	Order   *PreCreateOrder   `form:"order" binding:"required" errField:"order"`
 }
 
 type PreCreateDress struct {

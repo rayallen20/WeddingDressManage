@@ -84,6 +84,9 @@ func main() {
 
 		// 预创建订单
 		v1.POST("/order/preCreate", order.PreCreate)
+
+		// 创建订单
+		v1.POST("/order/create", order.Create)
 	}
 
 	// 上传文件

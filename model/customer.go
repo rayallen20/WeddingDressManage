@@ -24,3 +24,12 @@ func (c *Customer) FindNormalByNameAndMobile() error {
 	c.Status = CustomerStatus["normal"]
 	return db.Db.Where(c).First(c).Error
 }
+
+func (c *Customer) Find() error {
+	return db.Db.Where(c).First(c).Error
+}
+
+func (c *Customer) Save() error {
+	c.Status = CustomerStatus["normal"]
+	return db.Db.Save(c).Error
+}

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"WeddingDressManage/lib/db"
 	"time"
 )
 
@@ -50,4 +51,80 @@ type Order struct {
 	Status                 string
 	CreatedTime            time.Time `gorm:"autoCreateTime"`
 	UpdatedTime            time.Time `gorm:"autoUpdateTime"`
+}
+
+func (o *Order) FindMaxOrderBySNPrefix(date string) error {
+	return db.Db.Order("created_time desc").Where("serial_number LIKE ?", date+"%").Limit(1).First(o).Error
+}
+
+func (o *Order) Create(rentPlans []*DressRentPlan, items []*OrderItem, billMap map[*Bill][]*BillLog) error {
+	tx := db.Db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if err := tx.Create(o).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	for _, item := range items {
+		item.OrderId = o.Id
+	}
+
+	if err := tx.Create(items).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// 此处收集item的dressId和itemId
+	// 后续写入billLog时需要通过dressId查找该map以确认billLog对应的itemId
+	// 后续写入dressRentPlan时需要通过dressId查找该map以确认dressRentPlan对应的itemId
+	dressIdMapItemId := make(map[int]int, len(items))
+	for _, item := range items {
+		dressIdMapItemId[item.DressId] = item.Id
+	}
+
+	for bill, billLogs := range billMap {
+		bill.OrderId = o.Id
+		if err := tx.Create(bill).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		for _, billLog := range billLogs {
+			billLog.BillId = bill.Id
+			// 此处需要判断billLog中保存的DressId在item集合中是否存在
+			// 因为billLog有可能没有保存DressId 这种billLog也就不需要itemId了
+			if itemId, ok := dressIdMapItemId[billLog.DressId]; ok {
+				billLog.OrderItemId = itemId
+			}
+			if err := tx.Create(billLog).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+
+	for _, rentPlan := range rentPlans {
+		rentPlan.OrderId = o.Id
+		rentPlan.OrderItemId = dressIdMapItemId[rentPlan.DressId]
+		if err := tx.Create(rentPlan).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
 }

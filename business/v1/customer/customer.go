@@ -43,3 +43,24 @@ func (c *Customer) fill(orm *model.Customer) {
 	c.Status = orm.Status
 	c.BannedReason = orm.BannedReason
 }
+
+func (c *Customer) FindOrCreateUser() error {
+	err := c.FindNormalByNameAndMobile()
+	var customerNotExistError *sysError.CustomerNotExistError
+	if err != nil && !errors.As(err, &customerNotExistError) {
+		return err
+	}
+
+	orm := &model.Customer{
+		Name:   c.Name,
+		Mobile: c.Mobile,
+		Status: model.CustomerStatus["normal"],
+	}
+	err = orm.Save()
+	if err != nil {
+		return err
+	}
+
+	c.fill(orm)
+	return nil
+}

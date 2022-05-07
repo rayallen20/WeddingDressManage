@@ -98,3 +98,58 @@ func PreCreate(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 	return
 }
+
+func Create(c *gin.Context) {
+	var param *orderRequest.CreateParam = &orderRequest.CreateParam{}
+	// TODO:此操作会影响DB变化 需要log
+	resp := controller.CheckParam(param, c, nil)
+	if resp != nil {
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	resp = &response.RespBody{}
+
+	orderBiz := &order.Order{}
+	err := orderBiz.Create(param)
+	if err != nil {
+		if dbErr, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if customerBeBannedErr, ok := err.(*sysError.CustomerBeBannedError); ok {
+			resp.CustomerBeBannedError(customerBeBannedErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if dateBeforeTodayErr, ok := err.(*sysError.DateBeforeTodayError); ok {
+			resp.WeddingDateBeforeTodayError(dateBeforeTodayErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if discountInvalidErr, ok := err.(*sysError.DiscountInvalidError); ok {
+			resp.DiscountInvalidError(discountInvalidErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if strategyNotExistErr, ok := err.(*sysError.StrategyNotExistError); ok {
+			resp.StrategyNotExistError(strategyNotExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+	}
+
+	respParam := &orderResponse.CreateResponse{}
+	respParam.Fill(orderBiz, param.Order.PledgeIsSettled)
+	data := map[string]interface{}{
+		"order": respParam,
+	}
+	resp.Success(data)
+	c.JSON(http.StatusOK, resp)
+	return
+}

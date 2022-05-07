@@ -71,20 +71,29 @@ const (
 	// MaintainStatusError 礼服状态不符合维护条件错误
 	MaintainStatusError = 10309
 
-	// LaundryRecordNotExistError 送洗记录不存在错误
-	LaundryRecordNotExistError = 10310
+	// LaundryRecordNotExist 送洗记录不存在错误
+	LaundryRecordNotExist = 10310
 
-	// DressIsNotLaunderingError 礼服不处于送洗状态错误
-	DressIsNotLaunderingError = 10311
+	// DressIsNotLaundering 礼服不处于送洗状态错误
+	DressIsNotLaundering = 10311
 
-	// MaintainRecordNotExistError 维护记录不存在错误
-	MaintainRecordNotExistError = 10312
+	// MaintainRecordNotExist 维护记录不存在错误
+	MaintainRecordNotExist = 10312
 
-	// DressIsNotMaintainingError 礼服不处于维护状态错误
-	DressIsNotMaintainingError = 10313
+	// DressIsNotMaintaining 礼服不处于维护状态错误
+	DressIsNotMaintaining = 10313
 
-	// WeddingDateBeforeTodayError 创建订单操作中搜索礼服步骤时 选择的婚期早于当天错误
-	WeddingDateBeforeTodayError = 10314
+	// WeddingDateBeforeToday 创建订单操作中搜索礼服步骤时 选择的婚期早于当天错误
+	WeddingDateBeforeToday = 10314
+
+	// CustomerBeBanned 客户被封禁错误
+	CustomerBeBanned = 10315
+
+	// DiscountInvalid 折扣无效错误
+	DiscountInvalid = 10316
+
+	// StrategyNotExist 订单优惠策略不存在
+	StrategyNotExist = 10317
 
 	// 20XXX 前端需要渲染的
 )
@@ -210,31 +219,49 @@ func (r *RespBody) MaintainStatusError(err *sysError.MaintainStatusError) {
 }
 
 func (r *RespBody) LaundryRecordNotExistError(err *sysError.LaundryRecordNotExistError) {
-	r.Code = LaundryRecordNotExistError
+	r.Code = LaundryRecordNotExist
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }
 
 func (r *RespBody) DressIsNotLaunderingError(err *sysError.DressIsNotLaunderingError) {
-	r.Code = DressIsNotLaunderingError
+	r.Code = DressIsNotLaundering
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }
 
 func (r *RespBody) MaintainRecordNotExistError(err *sysError.MaintainRecordNotExistError) {
-	r.Code = MaintainRecordNotExistError
+	r.Code = MaintainRecordNotExist
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }
 
 func (r *RespBody) DressIsNotMaintainingError(err *sysError.DressIsNotMaintainingError) {
-	r.Code = DressIsNotMaintainingError
+	r.Code = DressIsNotMaintaining
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }
 
 func (r *RespBody) WeddingDateBeforeTodayError(err *sysError.DateBeforeTodayError) {
-	r.Code = WeddingDateBeforeTodayError
+	r.Code = WeddingDateBeforeToday
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) CustomerBeBannedError(err *sysError.CustomerBeBannedError) {
+	r.Code = CustomerBeBanned
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) DiscountInvalidError(err *sysError.DiscountInvalidError) {
+	r.Code = DiscountInvalid
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) StrategyNotExistError(err *sysError.StrategyNotExistError) {
+	r.Code = StrategyNotExist
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }
