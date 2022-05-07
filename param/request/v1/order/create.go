@@ -16,7 +16,7 @@ type CreateParam struct {
 
 type CreateCustomerParam struct {
 	Name   string `form:"name" binding:"required"`
-	Mobile string `form:"mobile" binding:"mobile,required"`
+	Mobile string `form:"mobile" binding:"required"` // mobile
 }
 
 type CreateOrderParam struct {
