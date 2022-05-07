@@ -23,7 +23,7 @@ type CreateOrderParam struct {
 	WeddingDate     param.Date         `form:"weddingDate" binding:"required" errField:"weddingDate"`
 	Items           []*CreateItemParam `form:"items" binding:"gt=0,required,unique,dive"`
 	SaleStrategy    *SaleStrategy      `form:"saleStrategy" binding:"required"`
-	PledgeIsSettled bool               `form:"pledgeIsSettled" binding:"required"`
+	PledgeIsSettled bool               `form:"pledgeIsSettled"`
 	Comment         string             `form:"comment"`
 }
 
