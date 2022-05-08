@@ -95,6 +95,11 @@ const (
 	// StrategyNotExist 订单优惠策略不存在
 	StrategyNotExist = 10317
 
+	// CustomPriceTooFew 自定义租金过低
+	//CustomPriceTooFew = 10318
+	// TODO: 此处为前端要求 后续再进行讨论
+	CustomPriceTooFew = 9999
+
 	// 20XXX 前端需要渲染的
 )
 
@@ -262,6 +267,12 @@ func (r *RespBody) DiscountInvalidError(err *sysError.DiscountInvalidError) {
 
 func (r *RespBody) StrategyNotExistError(err *sysError.StrategyNotExistError) {
 	r.Code = StrategyNotExist
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) CustomPriceTooFewError(err *sysError.CustomPriceTooFewError) {
+	r.Code = CustomPriceTooFew
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }

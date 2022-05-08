@@ -190,6 +190,12 @@ func Create(c *gin.Context) {
 			c.JSON(http.StatusOK, resp)
 			return
 		}
+
+		if customPriceTooFewErr, ok := err.(*sysError.CustomPriceTooFewError); ok {
+			resp.CustomPriceTooFewError(customPriceTooFewErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
 	}
 
 	respParam := &orderResponse.CreateResponse{}
