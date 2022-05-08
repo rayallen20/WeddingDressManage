@@ -85,6 +85,9 @@ func main() {
 		// 预创建订单
 		v1.POST("/order/preCreate", order.PreCreate)
 
+		// 计算折扣
+		v1.POST("/order/discount", order.Discount)
+
 		// 创建订单
 		v1.POST("/order/create", order.Create)
 	}

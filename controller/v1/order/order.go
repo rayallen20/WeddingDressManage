@@ -8,6 +8,7 @@ import (
 	orderResponse "WeddingDressManage/param/resps/v1/order"
 	"WeddingDressManage/param/resps/v1/pagination"
 	"WeddingDressManage/response"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -99,6 +100,48 @@ func PreCreate(c *gin.Context) {
 	return
 }
 
+func Discount(c *gin.Context) {
+	param := &orderRequest.DiscountParam{}
+	resp := controller.CheckParam(param, c, nil)
+	if resp != nil {
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	resp = &response.RespBody{}
+
+	orderBiz := &order.Order{}
+	err := orderBiz.CalcDiscount(param)
+	fmt.Printf("%#v\n", err)
+	if err != nil {
+		if dbErr, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+			resp.DressNotExistError(dressNotExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if discountInvalidErr, ok := err.(*sysError.DiscountInvalidError); ok {
+			resp.DiscountInvalidError(discountInvalidErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+	}
+	respParam := &orderResponse.DiscountResponse{}
+	respParam.Fill(orderBiz)
+	data := map[string]interface{}{
+		"order": respParam.Order,
+	}
+	resp.Success(data)
+	c.JSON(http.StatusOK, resp)
+	return
+}
+
 func Create(c *gin.Context) {
 	var param *orderRequest.CreateParam = &orderRequest.CreateParam{}
 	// TODO:此操作会影响DB变化 需要log
@@ -121,6 +164,12 @@ func Create(c *gin.Context) {
 
 		if customerBeBannedErr, ok := err.(*sysError.CustomerBeBannedError); ok {
 			resp.CustomerBeBannedError(customerBeBannedErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+			resp.DressNotExistError(dressNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}

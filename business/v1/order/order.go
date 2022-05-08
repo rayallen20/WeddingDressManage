@@ -81,6 +81,55 @@ func (o *Order) PreCreate(param *requestParam.PreCreateParam) error {
 	return nil
 }
 
+func (o *Order) CalcDiscount(param *requestParam.DiscountParam) error {
+	// step1. 校验折扣字段是否符合业务规范
+	discount, _ := strconv.ParseFloat(param.Discount, 64)
+	if discount < MinDiscount || discount > MaxDiscount {
+		return &sysError.DiscountInvalidError{
+			Min: MinDiscount,
+			Max: MaxDiscount,
+		}
+	}
+
+	// step2. 将礼服id集合转换为item集合
+	dressIds := make([]int, 0, len(param.Dresses))
+	for _, dressParam := range param.Dresses {
+		dressIds = append(dressIds, dressParam.Id)
+	}
+	itemBiz := &Item{}
+	items, err := itemBiz.Create(dressIds)
+	if err != nil {
+		return err
+	}
+	o.Items = items
+
+	// step3. 计算原价
+	o.calcOriginalPrice()
+
+	// step4. 计算折扣后价格
+	strategy := &saleStrategy.SaleStrategy{
+		Type:                 saleStrategy.Discount,
+		Discount:             discount,
+		OriginalCharterMoney: o.OriginalCharterMoney,
+		OriginalCashPledge:   o.OriginalCashPledge,
+	}
+	dressBizs := make([]*dress.Dress, 0, len(o.Items))
+	for _, item := range o.Items {
+		dressBiz := item.Dress
+		dressBizs = append(dressBizs, dressBiz)
+	}
+	strategy.Dresses = dressBizs
+	err = strategy.CalcPrice()
+	if err != nil {
+		return err
+	}
+	o.SaleStrategy = strategy.Type
+	o.Discount = strategy.Discount
+	o.DuePayCharterMoney = strategy.DuePayCharterMoney
+	o.DuePayCashPledge = strategy.DuePayCashPledge
+	return nil
+}
+
 func (o *Order) Create(param *requestParam.CreateParam) error {
 	// step1. 确认客户ID
 	customerBiz, err := o.confirmCustomer(param)
