@@ -111,8 +111,14 @@ func (d *Dress) fill(orm *model.Dress) {
 			LaundryCounter:   orm.Category.LaundryCounter,
 			MaintainCounter:  orm.Category.MaintainCounter,
 			CoverImg:         urlHelper.GenFullImgWebSite(orm.Category.CoverImg),
-			SecondaryImg:     urlHelper.GenFullImgWebSites(strings.Split(orm.Category.SecondaryImg, "|")),
 			Status:           orm.Category.Status,
+		}
+
+		categorySecondaryImg := strings.Split(orm.Category.SecondaryImg, "|")
+		if categorySecondaryImg[0] != "" {
+			d.Category.SecondaryImg = urlHelper.GenFullImgWebSites(strings.Split(orm.Category.SecondaryImg, "|"))
+		} else {
+			d.Category.SecondaryImg = []string{}
 		}
 
 		if orm.Category.Kind != nil {
@@ -130,7 +136,12 @@ func (d *Dress) fill(orm *model.Dress) {
 	d.LaundryCounter = orm.LaundryCounter
 	d.MaintainCounter = orm.MaintainCounter
 	d.CoverImg = urlHelper.GenFullImgWebSite(orm.CoverImg)
-	d.SecondaryImg = urlHelper.GenFullImgWebSites(strings.Split(orm.SecondaryImg, "|"))
+	secondaryImg := strings.Split(orm.SecondaryImg, "|")
+	if secondaryImg[0] != "" {
+		d.SecondaryImg = urlHelper.GenFullImgWebSites(strings.Split(orm.SecondaryImg, "|"))
+	} else {
+		d.SecondaryImg = []string{}
+	}
 	d.Status = orm.Status
 }
 
