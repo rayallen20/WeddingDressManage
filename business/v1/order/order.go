@@ -84,7 +84,7 @@ func (o *Order) PreCreate(param *requestParam.PreCreateParam) error {
 func (o *Order) CalcDiscount(param *requestParam.DiscountParam) error {
 	// step1. 校验折扣字段是否符合业务规范
 	discount, _ := strconv.ParseFloat(param.Discount, 64)
-	if discount < MinDiscount || discount > MaxDiscount {
+	if discount != 0.0 && (discount < MinDiscount || discount > MaxDiscount) {
 		return &sysError.DiscountInvalidError{
 			Min: MinDiscount,
 			Max: MaxDiscount,
@@ -103,8 +103,14 @@ func (o *Order) CalcDiscount(param *requestParam.DiscountParam) error {
 	}
 	o.Items = items
 
-	// step3. 计算原价
+	// step3. 计算原价 若折扣字段值为0 则直接将原价作为应付金额返回即可
+	// TODO:此处前后端交互有明显问题 发版后需商议修改
 	o.calcOriginalPrice()
+	if discount == 0.0 {
+		o.DuePayCharterMoney = o.OriginalCharterMoney
+		o.DuePayCashPledge = o.OriginalCashPledge
+		return nil
+	}
 
 	// step4. 计算折扣后价格
 	strategy := &saleStrategy.SaleStrategy{

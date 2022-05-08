@@ -3,13 +3,14 @@ package order
 import (
 	"WeddingDressManage/lib/sysError"
 	"WeddingDressManage/lib/validator"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
 
 type DiscountParam struct {
 	Dresses  []*DiscountDress `form:"dresses" binding:"gt=0,required,unique,dive" errField:"dresses"`
-	Discount string           `form:"discount" binding:"required" errField:"discount"`
+	Discount string           `form:"discount" errField:"discount"`
 }
 
 type DiscountDress struct {
@@ -30,11 +31,14 @@ func (d *DiscountParam) Validate(errs error) []*sysError.ValidateError {
 }
 
 func (d *DiscountParam) validateDiscount() *sysError.ValidateError {
-	_, err := strconv.ParseFloat(d.Discount, 64)
-	if err != nil {
-		return &sysError.ValidateError{
-			Key: "Discount",
-			Msg: "must be a numeric string",
+	if d.Discount != "" {
+		_, err := strconv.ParseFloat(d.Discount, 64)
+		if err != nil {
+			fmt.Printf("%#v\n", err)
+			return &sysError.ValidateError{
+				Key: "Discount",
+				Msg: "must be a numeric string",
+			}
 		}
 	}
 	return nil

@@ -8,7 +8,6 @@ import (
 	orderResponse "WeddingDressManage/param/resps/v1/order"
 	"WeddingDressManage/param/resps/v1/pagination"
 	"WeddingDressManage/response"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -112,7 +111,7 @@ func Discount(c *gin.Context) {
 
 	orderBiz := &order.Order{}
 	err := orderBiz.CalcDiscount(param)
-	fmt.Printf("%#v\n", err)
+
 	if err != nil {
 		if dbErr, ok := err.(*sysError.DbError); ok {
 			resp.DbError(dbErr)
