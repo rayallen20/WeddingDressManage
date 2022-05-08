@@ -96,9 +96,7 @@ const (
 	StrategyNotExist = 10317
 
 	// CustomPriceTooFew 自定义租金过低
-	//CustomPriceTooFew = 10318
-	// TODO: 此处为前端要求 后续再进行讨论
-	CustomPriceTooFew = 9999
+	CustomPriceTooFew = 10318
 
 	// 20XXX 前端需要渲染的
 )
