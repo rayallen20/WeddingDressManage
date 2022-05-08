@@ -52,9 +52,9 @@ func (d *Dress) FindMaxSerialNumberByCategoryId() (maxSerialNumber int, err erro
 	dresses := make([]*Dress, 0)
 	err = db.Db.Where("category_id", d.CategoryId).Order("serial_number desc").Find(&dresses).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return dresses[0].SerialNumber, nil
+		return 0, err
 	}
-	return 0, err
+	return dresses[0].SerialNumber, nil
 }
 
 // AddDressesAndUpdateCategory 使用事务添加礼服同时更新礼服品类信息
