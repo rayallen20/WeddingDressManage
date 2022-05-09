@@ -37,6 +37,7 @@ type Order struct {
 	Id                     int
 	Customer               *customer.Customer
 	SerialNumber           string
+	Comment                string
 	WeddingDate            time.Time
 	Items                  []*Item
 	OriginalCharterMoney   int
@@ -163,9 +164,10 @@ func (o *Order) Create(param *requestParam.CreateParam) error {
 		return err
 	}
 
-	// step4. 计算原始租金价格 原始押金价格 婚期
+	// step4. 计算原始租金价格 原始押金价格 婚期 备注信息
 	o.calcOriginalPrice()
 	o.WeddingDate = time.Time(param.Order.WeddingDate)
+	o.Comment = param.Order.Comment
 
 	// step5. 根据销售策略 计算应付租金金额 应付押金金额 应退押金金额
 	err = o.calcDuePayPrice(param)
@@ -375,6 +377,7 @@ func (o *Order) save(rentPlans []*RentPlan, bills []*Bill) error {
 	orderORM := &model.Order{
 		CustomerId:             o.Customer.Id,
 		SerialNumber:           o.SerialNumber,
+		Comment:                o.Comment,
 		WeddingDate:            o.WeddingDate,
 		OriginalCharterMoney:   o.OriginalCharterMoney,
 		OriginalCashPledge:     o.OriginalCashPledge,

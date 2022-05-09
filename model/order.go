@@ -36,6 +36,7 @@ type Order struct {
 	CustomerId             int
 	Customer               *Customer `gorm:"foreignKey:CustomerId"`
 	SerialNumber           string
+	Comment                string `gorm:"text"`
 	WeddingDate            time.Time
 	OriginalCharterMoney   int
 	OriginalCashPledge     int
