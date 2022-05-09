@@ -18,7 +18,7 @@ type LaundryDressParam struct {
 
 type LaundryLaundryDetailParam struct {
 	DirtyPositionImg []string `form:"dirtyPositionImg" binding:"gt=0,lte=2,required,imgUrls" errField:"dirtyPositionImg"`
-	Note             string   `form:"note" binding:"gt=0,required" errField:"note"`
+	Note             string   `form:"note" errField:"note"`
 }
 
 func (l *LaundryParam) Bind(c *gin.Context) error {

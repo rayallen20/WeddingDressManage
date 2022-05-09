@@ -18,7 +18,7 @@ type MaintainDressParam struct {
 
 type MaintainDetailMaintainParam struct {
 	MaintainPositionImg []string `form:"maintainPositionImg" binding:"gt=0,lte=2,required,imgUrls" errField:"maintainPositionImg"`
-	Note                string   `form:"note" binding:"gt=0,required" errField:"note"`
+	Note                string   `form:"note" errField:"note"`
 }
 
 func (m *MaintainParam) Bind(c *gin.Context) error {
