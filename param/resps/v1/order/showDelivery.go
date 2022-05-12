@@ -32,7 +32,7 @@ type ShowDeliveryOrder struct {
 	DuePayCashPledge    string                `json:"duePayCashPledge"`
 	ActualPayCashPledge string                `json:"actualPayCashPledge"`
 	PledgeSettled       string                `json:"pledgeSettled"`
-	CanBeChanged        bool                  `json:"canBeChange"`
+	CanBeChanged        bool                  `json:"canBeChanged"`
 	CanBeBatchDelivery  bool                  `json:"canBeBatchDelivery"`
 }
 
