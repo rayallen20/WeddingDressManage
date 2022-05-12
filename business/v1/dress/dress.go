@@ -114,8 +114,7 @@ func (d *Dress) fill(orm *model.Dress) {
 			Status:           orm.Category.Status,
 		}
 
-		categorySecondaryImg := strings.Split(orm.Category.SecondaryImg, "|")
-		if categorySecondaryImg[0] != "" {
+		if orm.Category.SecondaryImg != "" {
 			d.Category.SecondaryImg = urlHelper.GenFullImgWebSites(strings.Split(orm.Category.SecondaryImg, "|"))
 		} else {
 			d.Category.SecondaryImg = []string{}

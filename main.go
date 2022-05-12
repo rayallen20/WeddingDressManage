@@ -93,6 +93,9 @@ func main() {
 
 		// 待出件订单列表展示
 		v1.POST("/order/showDeliveries", order.ShowDelivery)
+
+		// 待出件订单详情展示
+		v1.POST("/order/deliveryDetail", order.DeliveryDetail)
 	}
 
 	// 上传文件

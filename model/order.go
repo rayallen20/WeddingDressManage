@@ -34,7 +34,8 @@ var OrderStatus map[string]string = map[string]string{
 type Order struct {
 	Id                     int
 	CustomerId             int
-	Customer               *Customer `gorm:"foreignKey:CustomerId"`
+	Customer               *Customer    `gorm:"foreignKey:CustomerId"`
+	OrderItems             []*OrderItem `gorm:"foreignKey:OrderId"`
 	SerialNumber           string
 	Comment                string `gorm:"text"`
 	WeddingDate            time.Time
@@ -133,7 +134,7 @@ func (o *Order) Create(rentPlans []*DressRentPlan, items []*OrderItem, billMap m
 // CountDeliveries 统计订单状态为 "租金已付,未出件" 或 "出件中"的订单数量
 func (o *Order) CountDeliveries() (count int64, err error) {
 	err = db.Db.Where("status", OrderStatus["notYetDelivery"]).Or("status", OrderStatus["deliving"]).
-		Where(o).Find(o).Count(&count).Error
+		Find(o).Count(&count).Error
 	return count, err
 }
 
@@ -143,4 +144,10 @@ func (o *Order) FindDeliveries(currentPage, itemPerPage int) (orders []*Order, e
 	err = db.Db.Scopes(db.Paginate(currentPage, itemPerPage)).Where("status", OrderStatus["notYetDelivery"]).
 		Or("status", OrderStatus["deliving"]).Preload("Customer").Order("wedding_date asc").Find(&orders).Error
 	return orders, err
+}
+
+func (o *Order) FindDeliveryById() error {
+	return db.Db.Where(o).Where("status", OrderStatus["notYetDelivery"]).Or("status", OrderStatus["deliving"]).
+		Preload("Customer").Preload("OrderItems").Preload("OrderItems.Dress").
+		Preload("OrderItems.Dress.Category").Preload("OrderItems.Dress.Category.Kind").First(o).Error
 }

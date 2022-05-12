@@ -429,13 +429,13 @@ func (o *Order) ShowDelivery(param *requestParam.ShowDeliveryParam) (orders []*O
 	orders = make([]*Order, 0, len(orms))
 	for _, orderORM := range orms {
 		order := &Order{}
-		order.fill(orderORM, nil)
+		order.fill(orderORM)
 		orders = append(orders, order)
 	}
 	return orders, totalPage, count, err
 }
 
-func (o *Order) fill(orm *model.Order, items []*Item) {
+func (o *Order) fill(orm *model.Order) {
 	o.Id = orm.Id
 	o.Customer = &customer.Customer{
 		Id:           orm.Customer.Id,
@@ -447,7 +447,6 @@ func (o *Order) fill(orm *model.Order, items []*Item) {
 	o.SerialNumber = orm.SerialNumber
 	o.Comment = orm.Comment
 	o.WeddingDate = orm.WeddingDate
-	o.Items = items
 	o.OriginalCharterMoney = orm.OriginalCharterMoney
 	o.OriginalCashPledge = orm.OriginalCashPledge
 	o.SaleStrategy = orm.SaleStrategy
@@ -460,4 +459,24 @@ func (o *Order) fill(orm *model.Order, items []*Item) {
 	o.ActualRefundCashPledge = orm.ActualRefundCashPledge
 	o.TotalMaintainFee = orm.TotalMaintainFee
 	o.Status = orm.Status
+	o.Items = make([]*Item, 0, len(orm.OrderItems))
+	for _, itemORM := range orm.OrderItems {
+		item := &Item{}
+		item.fill(itemORM, nil)
+		o.Items = append(o.Items, item)
+	}
+}
+
+func (o *Order) DeliveryDetail(param *requestParam.DeliveryDetailParam) error {
+	orm := &model.Order{Id: param.Order.Id}
+	err := orm.FindDeliveryById()
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DbError{RealError: err}
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DeliveryOrderNotExist{Id: param.Order.Id}
+	}
+	o.fill(orm)
+	return nil
 }

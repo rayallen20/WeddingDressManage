@@ -98,6 +98,9 @@ const (
 	// CustomPriceTooFew 自定义租金过低
 	CustomPriceTooFew = 10318
 
+	// DeliveryOrderNotExist 待出件订单不存在
+	DeliveryOrderNotExist = 10319
+
 	// 20XXX 前端需要渲染的
 )
 
@@ -271,6 +274,12 @@ func (r *RespBody) StrategyNotExistError(err *sysError.StrategyNotExistError) {
 
 func (r *RespBody) CustomPriceTooFewError(err *sysError.CustomPriceTooFewError) {
 	r.Code = CustomPriceTooFew
+	r.Message = err.Error()
+	r.Data = map[string]interface{}{}
+}
+
+func (r *RespBody) DeliveryOrderNotExistError(err *sysError.DeliveryOrderNotExist) {
+	r.Code = DeliveryOrderNotExist
 	r.Message = err.Error()
 	r.Data = map[string]interface{}{}
 }
