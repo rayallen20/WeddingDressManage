@@ -90,6 +90,9 @@ func main() {
 
 		// 创建订单
 		v1.POST("/order/create", order.Create)
+
+		// 待出件订单列表展示
+		v1.POST("/order/showDeliveries", order.ShowDelivery)
 	}
 
 	// 上传文件

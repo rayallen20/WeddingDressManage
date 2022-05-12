@@ -9,6 +9,7 @@ import (
 	"WeddingDressManage/model"
 	categoryRequest "WeddingDressManage/param/request/v1/category"
 	requestParam "WeddingDressManage/param/request/v1/order"
+	"WeddingDressManage/param/resps/v1/pagination"
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
@@ -410,4 +411,53 @@ func (o *Order) save(rentPlans []*RentPlan, bills []*Bill) error {
 	}
 
 	return orderORM.Create(rentPlanORMs, itemORMs, billORMMap)
+}
+
+func (o *Order) ShowDelivery(param *requestParam.ShowDeliveryParam) (orders []*Order, totalPage int, count int64, err error) {
+	orm := &model.Order{}
+	// step1. 查询总页数
+	count, err = orm.CountDeliveries()
+	if err != nil {
+		return nil, 0, 0, err
+	}
+	totalPage = pagination.CalcTotalPage(count, param.Pagination.ItemPerPage)
+	// step2. 分页查询订单
+	orms, err := orm.FindDeliveries(param.Pagination.CurrentPage, param.Pagination.ItemPerPage)
+	if err != nil {
+		return nil, 0, 0, err
+	}
+	orders = make([]*Order, 0, len(orms))
+	for _, orderORM := range orms {
+		order := &Order{}
+		order.fill(orderORM, nil)
+		orders = append(orders, order)
+	}
+	return orders, totalPage, count, err
+}
+
+func (o *Order) fill(orm *model.Order, items []*Item) {
+	o.Id = orm.Id
+	o.Customer = &customer.Customer{
+		Id:           orm.Customer.Id,
+		Name:         orm.Customer.Name,
+		Mobile:       orm.Customer.Mobile,
+		Status:       orm.Customer.Status,
+		BannedReason: orm.Customer.BannedReason,
+	}
+	o.SerialNumber = orm.SerialNumber
+	o.Comment = orm.Comment
+	o.WeddingDate = orm.WeddingDate
+	o.Items = items
+	o.OriginalCharterMoney = orm.OriginalCharterMoney
+	o.OriginalCashPledge = orm.OriginalCashPledge
+	o.SaleStrategy = orm.SaleStrategy
+	o.Discount = orm.Discount
+	o.DuePayCharterMoney = orm.DuePayCharterMoney
+	o.DuePayCashPledge = orm.DuePayCashPledge
+	o.DueRefundCashPledge = orm.DueRefundCashPledge
+	o.ActualPayCharterMoney = orm.ActualPayCharterMoney
+	o.ActualPayCashPledge = orm.ActualPayCashPledge
+	o.ActualRefundCashPledge = orm.ActualRefundCashPledge
+	o.TotalMaintainFee = orm.TotalMaintainFee
+	o.Status = orm.Status
 }

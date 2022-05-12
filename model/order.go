@@ -129,3 +129,18 @@ func (o *Order) Create(rentPlans []*DressRentPlan, items []*OrderItem, billMap m
 
 	return nil
 }
+
+// CountDeliveries 统计订单状态为 "租金已付,未出件" 或 "出件中"的订单数量
+func (o *Order) CountDeliveries() (count int64, err error) {
+	err = db.Db.Where("status", OrderStatus["notYetDelivery"]).Or("status", OrderStatus["deliving"]).
+		Where(o).Find(o).Count(&count).Error
+	return count, err
+}
+
+// FindDeliveries 分页查找订单状态为 "租金已付,未出件" 或 "出件中"的订单集合
+func (o *Order) FindDeliveries(currentPage, itemPerPage int) (orders []*Order, err error) {
+	orders = make([]*Order, 0, itemPerPage)
+	err = db.Db.Scopes(db.Paginate(currentPage, itemPerPage)).Where("status", OrderStatus["notYetDelivery"]).
+		Or("status", OrderStatus["deliving"]).Preload("Customer").Order("wedding_date asc").Find(&orders).Error
+	return orders, err
+}

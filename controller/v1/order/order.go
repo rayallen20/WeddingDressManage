@@ -207,3 +207,40 @@ func Create(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 	return
 }
+
+func ShowDelivery(c *gin.Context) {
+	var param *orderRequest.ShowDeliveryParam = &orderRequest.ShowDeliveryParam{}
+	resp := controller.CheckParam(param, c, nil)
+	if resp != nil {
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	resp = &response.RespBody{}
+	orderBiz := &order.Order{}
+	orders, totalPage, count, err := orderBiz.ShowDelivery(param)
+	if err != nil {
+		if dbErr, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+	}
+
+	paginationResp := &pagination.Response{
+		CurrentPage: param.Pagination.CurrentPage,
+		ItemPerPage: param.Pagination.ItemPerPage,
+		TotalPage:   totalPage,
+		TotalItem:   count,
+	}
+
+	respParam := &orderResponse.ShowDeliveryResponse{}
+	respParam.Fill(orders, paginationResp)
+	data := map[string]interface{}{
+		"orders":     respParam.Orders,
+		"pagination": respParam.Pagination,
+	}
+	resp.Success(data)
+	c.JSON(http.StatusOK, resp)
+	return
+}
