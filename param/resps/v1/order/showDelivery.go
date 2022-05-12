@@ -32,7 +32,7 @@ type ShowDeliveryOrder struct {
 	DuePayCashPledge    string                `json:"duePayCashPledge"`
 	ActualPayCashPledge string                `json:"actualPayCashPledge"`
 	PledgeSettled       string                `json:"pledgeSettled"`
-	CanBeChange         bool                  `json:"canBeChange"`
+	CanBeChanged        bool                  `json:"canBeChange"`
 	CanBeBatchDelivery  bool                  `json:"canBeBatchDelivery"`
 }
 
@@ -80,9 +80,9 @@ func (s *ShowDeliveryResponse) fillOrders(orders []*order.Order) {
 		// 判断是否可以修改订单
 		// 判断标准:仅在未开始支付押金前可修改订单
 		if orderBiz.ActualPayCashPledge == 0 {
-			orderResp.CanBeChange = true
+			orderResp.CanBeChanged = true
 		} else {
-			orderResp.CanBeChange = false
+			orderResp.CanBeChanged = false
 		}
 
 		// 判断是否可以批次出件
