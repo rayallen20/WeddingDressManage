@@ -19,6 +19,7 @@ type DeliveryDetailOrder struct {
 	DuePayCashPledge    string                  `json:"duePayCashPledge"`
 	ActualPayCashPledge string                  `json:"actualPayCashPledge"`
 	Items               []*DeliveryDetailItem   `json:"items"`
+	Comment             string                  `json:"comment"`
 }
 
 type DeliveryDetailCustomer struct {
@@ -59,6 +60,7 @@ func (d *DeliveryDetailResponse) Fill(order *order.Order) {
 		DuePayCharterMoney:  paramHelper.ConvertPennyToYuan(strconv.Itoa(order.DuePayCharterMoney)),
 		DuePayCashPledge:    paramHelper.ConvertPennyToYuan(strconv.Itoa(order.DuePayCashPledge)),
 		ActualPayCashPledge: paramHelper.ConvertPennyToYuan(strconv.Itoa(order.ActualPayCashPledge)),
+		Comment:             order.Comment,
 	}
 	d.Order.Items = make([]*DeliveryDetailItem, 0, len(order.Items))
 	for _, itemBiz := range order.Items {
