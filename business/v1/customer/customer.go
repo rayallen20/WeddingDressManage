@@ -51,16 +51,19 @@ func (c *Customer) FindOrCreateUser() error {
 		return err
 	}
 
-	orm := &model.Customer{
-		Name:   c.Name,
-		Mobile: c.Mobile,
-		Status: model.CustomerStatus["normal"],
-	}
-	err = orm.Save()
-	if err != nil {
-		return err
+	if errors.As(err, &customerNotExistError) {
+		orm := &model.Customer{
+			Name:   c.Name,
+			Mobile: c.Mobile,
+			Status: model.CustomerStatus["normal"],
+		}
+		err = orm.Save()
+		if err != nil {
+			return err
+		}
+
+		c.fill(orm)
 	}
 
-	c.fill(orm)
 	return nil
 }
