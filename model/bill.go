@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"WeddingDressManage/lib/db"
+	"time"
+)
 
 // BillType 账单类型
 // collectCharterMoney:收取租金
@@ -32,7 +35,8 @@ type Bill struct {
 	Id               int
 	Type             string
 	OrderId          int
-	Order            *Order `gorm:"foreignKey:OrderId"`
+	Order            *Order     `gorm:"foreignKey:OrderId"`
+	BillLogs         []*BillLog `gorm:"foreignKey:Id"`
 	MaintainRecordId int
 	MaintainRecord   *MaintainRecord `gorm:"foreignKey:MaintainRecordId"`
 	AmountPayable    int
@@ -40,4 +44,8 @@ type Bill struct {
 	Status           string
 	CreatedTime      time.Time `gorm:"autoCreateTime"`
 	UpdatedTime      time.Time `gorm:"autoUpdateTime"`
+}
+
+func (b *Bill) FindByTypeAndOrderId() error {
+	return db.Db.Where(b).Preload("BillLogs").First(b).Error
 }

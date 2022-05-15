@@ -3,6 +3,7 @@ package order
 import (
 	"WeddingDressManage/business/v1/dress"
 	"WeddingDressManage/business/v1/order/saleStrategy"
+	"WeddingDressManage/model"
 )
 
 type BillLog struct {
@@ -123,4 +124,27 @@ func (b *BillLog) calcCashPledge(order *Order, bill *Bill) []*BillLog {
 		}
 		return billLogs
 	}
+}
+
+func (b *BillLog) fill(orm *model.BillLog) {
+	b.Id = orm.Id
+	if orm.Bill != nil {
+		billBiz := &Bill{}
+		billBiz.fill(orm.Bill)
+		b.Bill = billBiz
+	}
+
+	if orm.OrderItem != nil {
+		itemBiz := &Item{}
+		itemBiz.fill(orm.OrderItem, nil)
+		b.OrderItem = itemBiz
+	}
+
+	if orm.Dress != nil {
+		dressBiz := &dress.Dress{}
+		dressBiz.Fill(orm.Dress)
+		b.Dress = dressBiz
+	}
+
+	b.TransactionAmount = orm.TransactionAmount
 }

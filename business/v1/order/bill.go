@@ -2,7 +2,10 @@ package order
 
 import (
 	"WeddingDressManage/business/v1/dress"
+	"WeddingDressManage/lib/sysError"
 	"WeddingDressManage/model"
+	"errors"
+	"gorm.io/gorm"
 )
 
 type Bill struct {
@@ -73,4 +76,43 @@ func (b *Bill) genORMForCreateOrder() (billORM *model.Bill, billLogORMs []*model
 		billLogORMs = append(billLogORMs, billLogORM)
 	}
 	return billORM, billLogORMs
+}
+
+func (b *Bill) FindCashPledge(order *Order) error {
+	orm := &model.Bill{
+		Type:    model.BillType["collectCashPledge"],
+		OrderId: order.Id,
+	}
+	err := orm.FindByTypeAndOrderId()
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DbError{RealError: err}
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.BillNotFoundError{OrderId: order.Id}
+	}
+	b.fill(orm)
+	return nil
+}
+
+func (b *Bill) fill(orm *model.Bill) {
+	b.Id = orm.Id
+	b.Type = orm.Type
+	if orm.Order != nil {
+		orderBiz := &Order{}
+		orderBiz.fill(orm.Order)
+		b.Order = orderBiz
+	}
+
+	if orm.BillLogs != nil {
+		billLogs := make([]*BillLog, 0, len(orm.BillLogs))
+		for _, billLogORM := range orm.BillLogs {
+			billLog := &BillLog{}
+			billLog.fill(billLogORM)
+			billLogs = append(billLogs, billLog)
+		}
+		b.BillLogs = billLogs
+	}
+
+	b.Status = orm.Status
 }

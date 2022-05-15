@@ -34,6 +34,16 @@ const MinDiscount = 0.85
 // MaxDiscount 折扣的最高比例
 const MaxDiscount = 1.0
 
+// PledgeSettledStatus 押金支付情况
+// true 押金已收
+// false 押金未收
+// fractional 已收部分押金 未收全
+var PledgeSettledStatus map[string]string = map[string]string{
+	"true":       "true",
+	"false":      "false",
+	"fractional": "fractional",
+}
+
 type Order struct {
 	Id                     int
 	Customer               *customer.Customer
@@ -53,6 +63,9 @@ type Order struct {
 	ActualRefundCashPledge int
 	TotalMaintainFee       int
 	Status                 string
+	PledgeSettledStatus    string
+	CanBeChanged           bool
+	CanBeBatchDelivery     bool
 }
 
 func (o *Order) Search(param *requestParam.SearchParam) (categories []*dress.Category, totalPage int, totalItem int64, err error) {
@@ -430,6 +443,40 @@ func (o *Order) ShowDelivery(param *requestParam.ShowDeliveryParam) (orders []*O
 	for _, orderORM := range orms {
 		order := &Order{}
 		order.fill(orderORM)
+
+		pledgeBill := &Bill{}
+		err = pledgeBill.FindCashPledge(order)
+		if err != nil {
+			return nil, 0, 0, err
+		}
+
+		// 判断是否可以修改订单
+		// 判断标准:仅在未开始支付押金前可修改订单
+		if pledgeBill.Status == model.BillStatus["notStarted"] {
+			order.CanBeChanged = true
+		} else {
+			order.CanBeChanged = false
+		}
+
+		// 判断押金支付情况
+		if pledgeBill.Status == model.BillStatus["notStarted"] {
+			order.PledgeSettledStatus = PledgeSettledStatus["false"]
+		} else if pledgeBill.Status == model.BillStatus["underway"] {
+			order.PledgeSettledStatus = PledgeSettledStatus["fractional"]
+		} else {
+			order.PledgeSettledStatus = PledgeSettledStatus["true"]
+		}
+
+		// 判断是否可以批次出件
+		// 判断标准:若优惠策略为打折或原价 则可以批次出件 若优惠策略为自定义租金与押金 则不可以批次出件
+		if order.SaleStrategy == saleStrategy.Discount || order.SaleStrategy == saleStrategy.OriginalPrice {
+			order.CanBeBatchDelivery = true
+		}
+
+		if order.SaleStrategy == saleStrategy.CustomPrice {
+			order.CanBeBatchDelivery = false
+		}
+
 		orders = append(orders, order)
 	}
 	return orders, totalPage, count, err

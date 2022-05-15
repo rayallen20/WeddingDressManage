@@ -67,7 +67,7 @@ func (d *Dress) Add(param *requestParam.AddParam) ([]*Dress, error) {
 	dresses := make([]*Dress, 0, param.Dress.Number)
 	for _, completeDressORM := range dressORMs {
 		dress := &Dress{}
-		dress.fill(completeDressORM)
+		dress.Fill(completeDressORM)
 		dresses = append(dresses, dress)
 	}
 
@@ -95,7 +95,7 @@ func (d *Dress) createDressORMForAdd(param *requestParam.AddParam, maxSerialNumb
 	return dressORMs
 }
 
-func (d *Dress) fill(orm *model.Dress) {
+func (d *Dress) Fill(orm *model.Dress) {
 	d.Id = orm.Id
 	d.CategoryId = orm.CategoryId
 	if orm.Category != nil {
@@ -181,7 +181,7 @@ func (d *Dress) ShowUsable(param *requestParam.ShowUsableParam) (category *Categ
 	usableDresses = make([]*Dress, 0, len(usableDressOrms))
 	for _, usableOrm := range usableDressOrms {
 		usableDress := &Dress{}
-		usableDress.fill(usableOrm)
+		usableDress.Fill(usableOrm)
 		usableDresses = append(usableDresses, usableDress)
 	}
 
@@ -201,7 +201,7 @@ func (d *Dress) ApplyDiscard(param *requestParam.ApplyDiscardParam) error {
 	}
 
 	// step2. 确认礼服状态 当礼服状态为已赠与 或 已销库 时 不可提出销库申请
-	d.fill(orm)
+	d.Fill(orm)
 	if d.Status == model.DressStatus["gift"] {
 		return &sysError.DressHasGiftedError{}
 	}
@@ -232,7 +232,7 @@ func (d *Dress) ApplyGift(param *requestParam.ApplyGiftParam) error {
 	}
 
 	// step2. 确认礼服状态 当礼服状态为已赠与 或 已销库 时 不可提出销库申请
-	d.fill(dressOrm)
+	d.Fill(dressOrm)
 	if d.Status == model.DressStatus["gift"] {
 		return &sysError.DressHasGiftedError{}
 	}
@@ -276,7 +276,7 @@ func (d *Dress) Laundry(param *requestParam.LaundryParam) error {
 	}
 
 	// step2. 确认礼服状态 当礼服状态不为 在售/预租赁/预上架 时 不允许送洗
-	d.fill(dressOrm)
+	d.Fill(dressOrm)
 	if !d.canBeLaundry() {
 		return &sysError.LaundryStatusError{DressNowStatus: d.Status}
 	}
@@ -346,7 +346,7 @@ func (d *Dress) Maintain(param *requestParam.MaintainParam) error {
 	}
 
 	// step2. 确认礼服状态 当礼服状态不为 在售/预租赁/预上架 时 不允许维护
-	d.fill(dressOrm)
+	d.Fill(dressOrm)
 	if !d.canBeMaintain() {
 		return &sysError.MaintainStatusError{DressNowStatus: d.Status}
 	}
@@ -414,7 +414,7 @@ func (d *Dress) ShowOne(param *requestParam.ShowOneParam) error {
 		return &sysError.DressNotExistError{Id: param.Dress.Id}
 	}
 
-	d.fill(orm)
+	d.Fill(orm)
 	return nil
 }
 
@@ -437,7 +437,7 @@ func (d *Dress) Update(param *requestParam.UpdateParam) error {
 		return &sysError.DbError{RealError: err}
 	}
 
-	d.fill(orm)
+	d.Fill(orm)
 	return nil
 }
 
@@ -478,7 +478,7 @@ func (d *Dress) ShowUnusable(param *requestParam.ShowUnusableParam) (category *C
 	unusableDresses = make([]*Dress, 0, len(unusableDressOrms))
 	for _, unusableDressOrm := range unusableDressOrms {
 		unusableDress := &Dress{}
-		unusableDress.fill(unusableDressOrm)
+		unusableDress.Fill(unusableDressOrm)
 		unusableDresses = append(unusableDresses, unusableDress)
 	}
 
@@ -505,7 +505,7 @@ func (d *Dress) FindByIds(dressIds []int) ([]*Dress, error) {
 	dresses := make([]*Dress, 0, len(orms))
 	for _, dressOrm := range orms {
 		dress := &Dress{}
-		dress.fill(dressOrm)
+		dress.Fill(dressOrm)
 		dresses = append(dresses, dress)
 	}
 	return dresses, nil

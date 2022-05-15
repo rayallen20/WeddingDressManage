@@ -95,7 +95,7 @@ func (l *LaundryRecord) GiveBack(param *dress.LaundryGiveBackParam) error {
 	// 此处为防止日后变更导致控制器层面需要使用biz 故填充 此时暂无实际用途
 	l.fill(laundryOrm)
 	dressBiz := Dress{}
-	dressBiz.fill(laundryOrm.Dress)
+	dressBiz.Fill(laundryOrm.Dress)
 
 	return nil
 }
