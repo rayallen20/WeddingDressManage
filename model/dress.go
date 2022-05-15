@@ -137,7 +137,12 @@ func (d *Dress) UpdateDressStatusAndCreateLaundryRecord(categoryOrm *DressCatego
 		return err
 	}
 
-	if err := tx.Updates(categoryOrm).Error; err != nil {
+	categoryMap := map[string]interface{}{
+		"id":                categoryOrm.Id,
+		"laundry_counter":   categoryOrm.LaundryCounter,
+		"rentable_quantity": categoryOrm.RentableQuantity,
+	}
+	if err := tx.Model(categoryOrm).Updates(categoryMap).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -168,7 +173,13 @@ func (d *Dress) UpdateDressStatusAndCreateMaintainRecord(categoryOrm *DressCateg
 		return err
 	}
 
-	if err := tx.Updates(categoryOrm).Error; err != nil {
+	categoryMap := map[string]interface{}{
+		"id":                categoryOrm.Id,
+		"maintain_counter":  categoryOrm.MaintainCounter,
+		"rentable_quantity": categoryOrm.RentableQuantity,
+	}
+
+	if err := tx.Model(categoryOrm).Updates(categoryMap).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
