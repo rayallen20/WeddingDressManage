@@ -96,6 +96,9 @@ func main() {
 
 		// 待出件订单详情展示
 		v1.POST("/order/deliveryDetail", order.DeliveryDetail)
+
+		// 修改订单-展示待修改订单接口
+		v1.POST("/order/showAmended", order.ShowAmended)
 	}
 
 	// 上传文件

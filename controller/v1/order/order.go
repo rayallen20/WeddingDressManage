@@ -279,3 +279,40 @@ func DeliveryDetail(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 	return
 }
+
+func ShowAmended(c *gin.Context) {
+	var param *orderRequest.ShowAmendedParam = &orderRequest.ShowAmendedParam{}
+	resp := controller.CheckParam(param, c, nil)
+	if resp != nil {
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	resp = &response.RespBody{}
+	orderBiz := &order.Order{}
+	err := orderBiz.ShowAmended(param)
+	if err != nil {
+		if dbErr, ok := err.(*sysError.DbError); ok {
+			resp.DbError(dbErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+
+		if orderNotExistErr, ok := err.(*sysError.DeliveryOrderNotExist); ok {
+			resp.DeliveryOrderNotExistError(orderNotExistErr)
+			c.JSON(http.StatusOK, resp)
+			return
+		}
+	}
+
+	respParam := &orderResponse.ShowAmendedResponse{}
+	respParam.Fill(orderBiz)
+	data := map[string]interface{}{
+		"order":    respParam.Order,
+		"customer": respParam.Customer,
+		"dresses":  respParam.Dresses,
+	}
+	resp.Success(data)
+	c.JSON(http.StatusOK, resp)
+	return
+}

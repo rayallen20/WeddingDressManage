@@ -527,3 +527,17 @@ func (o *Order) DeliveryDetail(param *requestParam.DeliveryDetailParam) error {
 	o.fill(orm)
 	return nil
 }
+
+func (o *Order) ShowAmended(param *requestParam.ShowAmendedParam) error {
+	orm := &model.Order{Id: param.Order.Id}
+	err := orm.FindDeliveryById()
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DbError{RealError: err}
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return &sysError.DeliveryOrderNotExist{Id: param.Order.Id}
+	}
+	o.fill(orm)
+	return nil
+}
