@@ -189,13 +189,13 @@ func (o *Order) Create(param *requestParam.CreateParam) error {
 		return err
 	}
 	o.DueRefundCashPledge = o.DuePayCashPledge
-	if o.SaleStrategy == saleStrategy.CustomPrice {
-		// 自定义租金的金额不得低于原价的80%
-		MinProportion := int(float64(o.OriginalCharterMoney) * CustomPriceMinProportion)
-		if o.DuePayCharterMoney < MinProportion {
-			return &sysError.CustomPriceTooFewError{FloorPrice: MinProportion}
-		}
-	}
+	//if o.SaleStrategy == saleStrategy.CustomPrice {
+	//	// 自定义租金的金额不得低于原价的80%
+	//	MinProportion := int(float64(o.OriginalCharterMoney) * CustomPriceMinProportion)
+	//	if o.DuePayCharterMoney < MinProportion {
+	//		return &sysError.CustomPriceTooFewError{FloorPrice: MinProportion}
+	//	}
+	//}
 
 	// step6. 生成订单号
 	err = o.genSerialNumber()
