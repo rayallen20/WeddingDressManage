@@ -9,14 +9,14 @@ import (
 
 var Conf *Config = &Config{}
 
-func init()  {
+func init() {
 	err := Conf.load()
 	if err != nil {
 		panic("load config failed:" + err.Error())
 	}
 }
 
-// 	Config 配置对象
+// Config 配置对象
 type Config struct {
 	Database Database
 	File     File
@@ -72,7 +72,6 @@ type File struct {
 }
 
 // env 用于区分生产/研发环境的变量 默认为研发环境
-// TODO:当生产环境和研发环境处在同一服务器时 如何使用系统变量区分
 // 目的:生产环境:读config.yaml 研发环境:读config.dev.yaml
 // 思路1:生产环境没有config.dev.yaml 研发环境有config.dev.yaml	隐藏含义:代码有区分环境的能力
 // 思路2:生产和测试环境都用config.yaml 运维人员根据config.template.yaml自行修改	隐藏含义:代码没有区分环境的能力
@@ -92,7 +91,7 @@ func getConfigFilePath() string {
 	currentFilePath := getCurrentFilePath()
 	currentFilePathSlice := strings.Split(currentFilePath, "/")
 	var configFilePath string
-	for i := 0; i < len(currentFilePathSlice) - 2; i++ {
+	for i := 0; i < len(currentFilePathSlice)-2; i++ {
 		configFilePath += currentFilePathSlice[i]
 		configFilePath += "/"
 	}
@@ -108,4 +107,3 @@ func getCurrentFilePath() string {
 	}
 	return file
 }
-

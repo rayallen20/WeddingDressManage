@@ -8,6 +8,7 @@ import (
 	laundryResponse "WeddingDressManage/param/resps/v1/dress"
 	"WeddingDressManage/response"
 	"WeddingDressManage/syslog"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -24,7 +25,8 @@ func ShowLaundry(c *gin.Context) {
 	laundryRecordBiz := &dress.LaundryRecord{}
 	laundryRecords, totalPage, count, err := laundryRecordBiz.Show(param)
 	if err != nil {
-		if dbError, ok := err.(*sysError.DbError); ok {
+		var dbError *sysError.DbError
+		if errors.As(err, &dbError) {
 			resp.DbError(dbError)
 			c.JSON(http.StatusOK, resp)
 			return
@@ -55,25 +57,29 @@ func LaundryGiveBack(c *gin.Context) {
 	laundryRecordBiz := &dress.LaundryRecord{}
 	err := laundryRecordBiz.GiveBack(param)
 	if err != nil {
-		if dbError, ok := err.(*sysError.DbError); ok {
+		var dbError *sysError.DbError
+		if errors.As(err, &dbError) {
 			resp.DbError(dbError)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if laundryRecordNotExistErr, ok := err.(*sysError.LaundryRecordNotExistError); ok {
+		var laundryRecordNotExistErr *sysError.LaundryRecordNotExistError
+		if errors.As(err, &laundryRecordNotExistErr) {
 			resp.LaundryRecordNotExistError(laundryRecordNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+		var dressNotExistErr *sysError.DressNotExistError
+		if errors.As(err, &dressNotExistErr) {
 			resp.DressNotExistError(dressNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if dressIsNotLaunderingErr, ok := err.(*sysError.DressIsNotLaunderingError); ok {
+		var dressIsNotLaunderingErr *sysError.DressIsNotLaunderingError
+		if errors.As(err, &dressIsNotLaunderingErr) {
 			resp.DressIsNotLaunderingError(dressIsNotLaunderingErr)
 			c.JSON(http.StatusOK, resp)
 			return

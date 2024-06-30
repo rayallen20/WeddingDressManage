@@ -9,6 +9,7 @@ import (
 	"WeddingDressManage/param/resps/v1/pagination"
 	"WeddingDressManage/response"
 	"WeddingDressManage/syslog"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -32,14 +33,16 @@ func Add(c *gin.Context) {
 
 	if err != nil {
 		// 数据库错误
-		if dbError, ok := err.(*sysError.DbError); ok {
+		var dbError *sysError.DbError
+		if errors.As(err, &dbError) {
 			resp.DbError(dbError)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
 		// 品类信息不存在错误
-		if categoryNotExistError, ok := err.(*sysError.CategoryNotExistError); ok {
+		var categoryNotExistError *sysError.CategoryNotExistError
+		if errors.As(err, &categoryNotExistError) {
 			resp.CategoryNotExistError(categoryNotExistError)
 			c.JSON(http.StatusOK, resp)
 			return
@@ -76,19 +79,22 @@ func ShowUsable(c *gin.Context) {
 	dressBiz := &dress.Dress{}
 	categoryBiz, dressBizs, totalPage, count, err := dressBiz.ShowUsable(param)
 	if err != nil {
-		if dbErr, ok := err.(*sysError.DbError); ok {
+		var dbErr *sysError.DbError
+		if errors.As(err, &dbErr) {
 			resp.DbError(dbErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if categoryNotExistErr, ok := err.(*sysError.CategoryNotExistError); ok {
+		var categoryNotExistErr *sysError.CategoryNotExistError
+		if errors.As(err, &categoryNotExistErr) {
 			resp.CategoryNotExistError(categoryNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+		var dressNotExistErr *sysError.DressNotExistError
+		if errors.As(err, &dressNotExistErr) {
 			resp.DressNotExistError(dressNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
@@ -129,25 +135,29 @@ func ApplyDiscard(c *gin.Context) {
 	err := dressBiz.ApplyDiscard(param)
 
 	if err != nil {
-		if dbErr, ok := err.(*sysError.DbError); ok {
+		var dbErr *sysError.DbError
+		if errors.As(err, &dbErr) {
 			resp.DbError(dbErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+		var dressNotExistErr *sysError.DressNotExistError
+		if errors.As(err, &dressNotExistErr) {
 			resp.DressNotExistError(dressNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if hasGiftedErr, ok := err.(*sysError.DressHasGiftedError); ok {
+		var hasGiftedErr *sysError.DressHasGiftedError
+		if errors.As(err, &hasGiftedErr) {
 			resp.DressHasGiftedError(hasGiftedErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if hasDiscardedErr, ok := err.(*sysError.DressHasDiscardedError); ok {
+		var hasDiscardedErr *sysError.DressHasDiscardedError
+		if errors.As(err, &hasDiscardedErr) {
 			resp.DressHasDiscardedError(hasDiscardedErr)
 			c.JSON(http.StatusOK, resp)
 			return
@@ -176,31 +186,36 @@ func ApplyGift(c *gin.Context) {
 	err := dressBiz.ApplyGift(param)
 
 	if err != nil {
-		if dbErr, ok := err.(*sysError.DbError); ok {
+		var dbErr *sysError.DbError
+		if errors.As(err, &dbErr) {
 			resp.DbError(dbErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+		var dressNotExistErr *sysError.DressNotExistError
+		if errors.As(err, &dressNotExistErr) {
 			resp.DressNotExistError(dressNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if hasGiftedErr, ok := err.(*sysError.DressHasGiftedError); ok {
+		var hasGiftedErr *sysError.DressHasGiftedError
+		if errors.As(err, &hasGiftedErr) {
 			resp.DressHasGiftedError(hasGiftedErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if hasDiscardedErr, ok := err.(*sysError.DressHasDiscardedError); ok {
+		var hasDiscardedErr *sysError.DressHasDiscardedError
+		if errors.As(err, &hasDiscardedErr) {
 			resp.DressHasDiscardedError(hasDiscardedErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if customerNotExistErr, ok := err.(*sysError.CustomerNotExistError); ok {
+		var customerNotExistErr *sysError.CustomerNotExistError
+		if errors.As(err, &customerNotExistErr) {
 			resp.CustomerNotExistError(customerNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
@@ -230,19 +245,22 @@ func Laundry(c *gin.Context) {
 	dressBiz := &dress.Dress{}
 	err := dressBiz.Laundry(param)
 	if err != nil {
-		if dbErr, ok := err.(*sysError.DbError); ok {
+		var dbErr *sysError.DbError
+		if errors.As(err, &dbErr) {
 			resp.DbError(dbErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+		var dressNotExistErr *sysError.DressNotExistError
+		if errors.As(err, &dressNotExistErr) {
 			resp.DressNotExistError(dressNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if laundryStatusErr, ok := err.(*sysError.LaundryStatusError); ok {
+		var laundryStatusErr *sysError.LaundryStatusError
+		if errors.As(err, &laundryStatusErr) {
 			resp.LaundryStatusError(laundryStatusErr)
 			c.JSON(http.StatusOK, resp)
 			return
@@ -274,19 +292,22 @@ func Maintain(c *gin.Context) {
 	dressBiz := &dress.Dress{}
 	err := dressBiz.Maintain(param)
 	if err != nil {
-		if dbErr, ok := err.(*sysError.DbError); ok {
+		var dbErr *sysError.DbError
+		if errors.As(err, &dbErr) {
 			resp.DbError(dbErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+		var dressNotExistErr *sysError.DressNotExistError
+		if errors.As(err, &dressNotExistErr) {
 			resp.DressNotExistError(dressNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if maintainStatusErr, ok := err.(*sysError.MaintainStatusError); ok {
+		var maintainStatusErr *sysError.MaintainStatusError
+		if errors.As(err, &maintainStatusErr) {
 			resp.MaintainStatusError(maintainStatusErr)
 			c.JSON(http.StatusOK, resp)
 			return
@@ -314,13 +335,15 @@ func ShowOne(c *gin.Context) {
 	dressBiz := &dress.Dress{}
 	err := dressBiz.ShowOne(param)
 	if err != nil {
-		if dbErr, ok := err.(*sysError.DbError); ok {
+		var dbErr *sysError.DbError
+		if errors.As(err, &dbErr) {
 			resp.DbError(dbErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+		var dressNotExistErr *sysError.DressNotExistError
+		if errors.As(err, &dressNotExistErr) {
 			resp.DressNotExistError(dressNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
@@ -352,13 +375,15 @@ func Update(c *gin.Context) {
 	dressBiz := &dress.Dress{}
 	err := dressBiz.Update(param)
 	if err != nil {
-		if dbErr, ok := err.(*sysError.DbError); ok {
+		var dbErr *sysError.DbError
+		if errors.As(err, &dbErr) {
 			resp.DbError(dbErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+		var dressNotExistErr *sysError.DressNotExistError
+		if errors.As(err, &dressNotExistErr) {
 			resp.DressNotExistError(dressNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
@@ -386,19 +411,22 @@ func ShowUnusable(c *gin.Context) {
 	dressBiz := &dress.Dress{}
 	categoryBiz, dressBizs, totalPage, count, err := dressBiz.ShowUnusable(param)
 	if err != nil {
-		if dbErr, ok := err.(*sysError.DbError); ok {
+		var dbErr *sysError.DbError
+		if errors.As(err, &dbErr) {
 			resp.DbError(dbErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if categoryNotExistErr, ok := err.(*sysError.CategoryNotExistError); ok {
+		var categoryNotExistErr *sysError.CategoryNotExistError
+		if errors.As(err, &categoryNotExistErr) {
 			resp.CategoryNotExistError(categoryNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+		var dressNotExistErr *sysError.DressNotExistError
+		if errors.As(err, &dressNotExistErr) {
 			resp.DressNotExistError(dressNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return

@@ -1,11 +1,23 @@
+# 数据库相关配置
 database:
+  # 数据库服务器地址
   domain:
+  # 数据库端口
   port:
-  username:
+  # 用户名
+  user:
+  # 密码
   password:
-  databaseName: wedding_dress_manage
-  pagesize:
+  # 数据库名称
+  name:
+
+# 上传文件相关配置
 file:
+  # 文件本地保存路径
   path:
-  randNumLen: 4
-  imgType: ["jpg", "png", "jpeg"]
+  # 文件服务器协议
+  protocol:
+  # 文件服务器域名
+  domainName:
+  # 图片文件uri
+  imgUri:

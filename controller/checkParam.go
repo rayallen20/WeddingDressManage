@@ -5,6 +5,7 @@ import (
 	"WeddingDressManage/param/request/requestiface"
 	"WeddingDressManage/response"
 	"WeddingDressManage/syslog/logInterface"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"time"
 )
@@ -21,22 +22,26 @@ func CheckParam(param requestiface.RequestParam, c *gin.Context, logger logInter
 
 	var resp *response.RespBody = &response.RespBody{}
 
-	if requestNilJsonErr, ok := err.(*sysError.RequestNilJsonError); ok {
+	var requestNilJsonErr *sysError.RequestNilJsonError
+	if errors.As(err, &requestNilJsonErr) {
 		resp.RequestNilJsonError(requestNilJsonErr)
 		return resp
 	}
 
-	if invalidUnmarshalError, ok := err.(*sysError.InvalidUnmarshalError); ok {
+	var invalidUnmarshalError *sysError.InvalidUnmarshalError
+	if errors.As(err, &invalidUnmarshalError) {
 		resp.InvalidUnmarshalError(invalidUnmarshalError)
 		return resp
 	}
 
-	if unmarshalTypeError, ok := err.(*sysError.UnmarshalTypeError); ok {
+	var unmarshalTypeError *sysError.UnmarshalTypeError
+	if errors.As(err, &unmarshalTypeError) {
 		resp.FieldTypeError(unmarshalTypeError)
 		return resp
 	}
 
-	if timeParseError, ok := err.(*time.ParseError); ok {
+	var timeParseError *time.ParseError
+	if errors.As(err, &timeParseError) {
 		resp.TimeParseError(timeParseError)
 		return resp
 	}

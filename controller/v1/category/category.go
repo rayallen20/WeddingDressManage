@@ -9,6 +9,7 @@ import (
 	"WeddingDressManage/param/resps/v1/pagination"
 	"WeddingDressManage/response"
 	"WeddingDressManage/syslog"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -32,21 +33,24 @@ func Add(c *gin.Context) {
 
 	if err != nil {
 		// 数据库错误
-		if dbError, ok := err.(*sysError.DbError); ok {
+		var dbError *sysError.DbError
+		if errors.As(err, &dbError) {
 			resp.DbError(dbError)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
 		// kind不存在错误
-		if kindNotExistError, ok := err.(*sysError.KindNotExistError); ok {
+		var kindNotExistError *sysError.KindNotExistError
+		if errors.As(err, &kindNotExistError) {
 			resp.KindNotExistError(kindNotExistError)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
 		// category已存在错误
-		if categoryHasExistError, ok := err.(*sysError.CategoryHasExistError); ok {
+		var categoryHasExistError *sysError.CategoryHasExistError
+		if errors.As(err, &categoryHasExistError) {
 			resp.CategoryHasExistError(categoryHasExistError)
 			c.JSON(http.StatusOK, resp)
 			return
@@ -75,7 +79,8 @@ func Show(c *gin.Context) {
 	category := &dress.Category{}
 	categories, totalPage, count, err := category.Show(param)
 	if err != nil {
-		if dbError, ok := err.(*sysError.DbError); ok {
+		var dbError *sysError.DbError
+		if errors.As(err, &dbError) {
 			resp.DbError(dbError)
 			c.JSON(http.StatusOK, resp)
 			return
@@ -112,13 +117,15 @@ func ShowOne(c *gin.Context) {
 	err := categoryBiz.ShowOne(param)
 
 	if err != nil {
-		if dbErr, ok := err.(*sysError.DbError); ok {
+		var dbErr *sysError.DbError
+		if errors.As(err, &dbErr) {
 			resp.DbError(dbErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if notExistErr, ok := err.(*sysError.CategoryNotExistError); ok {
+		var notExistErr *sysError.CategoryNotExistError
+		if errors.As(err, &notExistErr) {
 			resp.CategoryNotExistError(notExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
@@ -153,13 +160,15 @@ func Update(c *gin.Context) {
 	categoryBiz := &dress.Category{}
 	err := categoryBiz.Update(param)
 	if err != nil {
-		if dbErr, ok := err.(*sysError.DbError); ok {
+		var dbErr *sysError.DbError
+		if errors.As(err, &dbErr) {
 			resp.DbError(dbErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if notExistErr, ok := err.(*sysError.CategoryNotExistError); ok {
+		var notExistErr *sysError.CategoryNotExistError
+		if errors.As(err, &notExistErr) {
 			resp.CategoryNotExistError(notExistErr)
 			c.JSON(http.StatusOK, resp)
 			return

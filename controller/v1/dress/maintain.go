@@ -8,6 +8,7 @@ import (
 	maintainResponse "WeddingDressManage/param/resps/v1/dress"
 	"WeddingDressManage/response"
 	"WeddingDressManage/syslog"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -32,19 +33,22 @@ func DailyMaintainGiveBack(c *gin.Context) {
 			return
 		}
 
-		if maintainRecordNotExistErr, ok := err.(*sysError.MaintainRecordNotExistError); ok {
+		var maintainRecordNotExistErr *sysError.MaintainRecordNotExistError
+		if errors.As(err, &maintainRecordNotExistErr) {
 			resp.MaintainRecordNotExistError(maintainRecordNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+		var dressNotExistErr *sysError.DressNotExistError
+		if errors.As(err, &dressNotExistErr) {
 			resp.DressNotExistError(dressNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if dressIsNotMaintainingErr, ok := err.(*sysError.DressIsNotMaintainingError); ok {
+		var dressIsNotMaintainingErr *sysError.DressIsNotMaintainingError
+		if errors.As(err, &dressIsNotMaintainingErr) {
 			resp.DressIsNotMaintainingError(dressIsNotMaintainingErr)
 			c.JSON(http.StatusOK, resp)
 			return
@@ -71,7 +75,8 @@ func ShowMaintain(c *gin.Context) {
 	maintainBiz := &dress.MaintainRecord{}
 	maintainBizs, totalPage, count, err := maintainBiz.Show(param)
 	if err != nil {
-		if dbErr, ok := err.(*sysError.DbError); ok {
+		var dbErr *sysError.DbError
+		if errors.As(err, &dbErr) {
 			resp.DbError(dbErr)
 			c.JSON(http.StatusOK, resp)
 			return

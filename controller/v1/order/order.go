@@ -8,6 +8,7 @@ import (
 	orderResponse "WeddingDressManage/param/resps/v1/order"
 	"WeddingDressManage/param/resps/v1/pagination"
 	"WeddingDressManage/response"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -155,43 +156,50 @@ func Create(c *gin.Context) {
 	orderBiz := &order.Order{}
 	err := orderBiz.Create(param)
 	if err != nil {
-		if dbErr, ok := err.(*sysError.DbError); ok {
+		var dbErr *sysError.DbError
+		if errors.As(err, &dbErr) {
 			resp.DbError(dbErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if customerBeBannedErr, ok := err.(*sysError.CustomerBeBannedError); ok {
+		var customerBeBannedErr *sysError.CustomerBeBannedError
+		if errors.As(err, &customerBeBannedErr) {
 			resp.CustomerBeBannedError(customerBeBannedErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if dressNotExistErr, ok := err.(*sysError.DressNotExistError); ok {
+		var dressNotExistErr *sysError.DressNotExistError
+		if errors.As(err, &dressNotExistErr) {
 			resp.DressNotExistError(dressNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if dateBeforeTodayErr, ok := err.(*sysError.DateBeforeTodayError); ok {
+		var dateBeforeTodayErr *sysError.DateBeforeTodayError
+		if errors.As(err, &dateBeforeTodayErr) {
 			resp.WeddingDateBeforeTodayError(dateBeforeTodayErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if discountInvalidErr, ok := err.(*sysError.DiscountInvalidError); ok {
+		var discountInvalidErr *sysError.DiscountInvalidError
+		if errors.As(err, &discountInvalidErr) {
 			resp.DiscountInvalidError(discountInvalidErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if strategyNotExistErr, ok := err.(*sysError.StrategyNotExistError); ok {
+		var strategyNotExistErr *sysError.StrategyNotExistError
+		if errors.As(err, &strategyNotExistErr) {
 			resp.StrategyNotExistError(strategyNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if customPriceTooFewErr, ok := err.(*sysError.CustomPriceTooFewError); ok {
+		var customPriceTooFewErr *sysError.CustomPriceTooFewError
+		if errors.As(err, &customPriceTooFewErr) {
 			resp.CustomPriceTooFewError(customPriceTooFewErr)
 			c.JSON(http.StatusOK, resp)
 			return
@@ -257,13 +265,15 @@ func DeliveryDetail(c *gin.Context) {
 	orderBiz := &order.Order{}
 	err := orderBiz.DeliveryDetail(param)
 	if err != nil {
-		if dbErr, ok := err.(*sysError.DbError); ok {
+		var dbErr *sysError.DbError
+		if errors.As(err, &dbErr) {
 			resp.DbError(dbErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if orderNotExistErr, ok := err.(*sysError.DeliveryOrderNotExist); ok {
+		var orderNotExistErr *sysError.DeliveryOrderNotExist
+		if errors.As(err, &orderNotExistErr) {
 			resp.DeliveryOrderNotExistError(orderNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
@@ -292,13 +302,15 @@ func ShowAmended(c *gin.Context) {
 	orderBiz := &order.Order{}
 	err := orderBiz.ShowAmended(param)
 	if err != nil {
-		if dbErr, ok := err.(*sysError.DbError); ok {
+		var dbErr *sysError.DbError
+		if errors.As(err, &dbErr) {
 			resp.DbError(dbErr)
 			c.JSON(http.StatusOK, resp)
 			return
 		}
 
-		if orderNotExistErr, ok := err.(*sysError.DeliveryOrderNotExist); ok {
+		var orderNotExistErr *sysError.DeliveryOrderNotExist
+		if errors.As(err, &orderNotExistErr) {
 			resp.DeliveryOrderNotExistError(orderNotExistErr)
 			c.JSON(http.StatusOK, resp)
 			return
